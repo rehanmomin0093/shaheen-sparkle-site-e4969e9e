@@ -257,6 +257,14 @@ const AdminTeachers = () => {
           </Table>
         </CardContent>
       </Card>
+
+      <ImageCropDialog
+        open={!!cropSrc}
+        imageSrc={cropSrc || ""}
+        onClose={() => setCropSrc(null)}
+        onCropped={handleCroppedUpload}
+        title="Crop Teacher Photo"
+      />
     </div>
   );
 };
