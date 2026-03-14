@@ -77,6 +77,11 @@ const Navbar = () => {
                 Student Portal
               </Button>
             </Link>
+            <Link to="/staff-portal">
+              <Button size="sm" className="ml-1 bg-primary text-primary-foreground hover:bg-primary/90">
+                Teacher Portal
+              </Button>
+            </Link>
           </nav>
 
           {/* Mobile toggle */}
