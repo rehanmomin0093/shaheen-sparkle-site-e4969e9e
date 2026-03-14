@@ -24,6 +24,14 @@ const NoticeBoard = () => {
     },
   });
 
+  useEffect(() => {
+    if (highlightId && highlightRef.current) {
+      setTimeout(() => {
+        highlightRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+    }
+  }, [highlightId, notices]);
+
   const filtered = active === "All" ? (notices ?? []) : (notices ?? []).filter((n) => n.category === active);
 
   return (
