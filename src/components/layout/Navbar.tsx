@@ -129,6 +129,9 @@ const Navbar = () => {
           </nav>
         )}
       </header>
+
+      {/* News ticker */}
+      <NewsTicker />
     </div>
   );
 };
