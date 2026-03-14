@@ -85,15 +85,16 @@ const Index = () => {
     <>
       {/* Hero */}
       <section className="relative flex min-h-[85vh] items-center overflow-hidden">
-        <AnimatePresence mode="wait">
+        <AnimatePresence initial={false} mode="popLayout" custom={direction}>
           <motion.div
             key={currentSlide}
+            custom={direction}
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{ backgroundImage: `url('${heroImages[currentSlide]}')` }}
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
+            initial={{ x: direction > 0 ? "100%" : "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: direction > 0 ? "-100%" : "100%" }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
           />
         </AnimatePresence>
 
