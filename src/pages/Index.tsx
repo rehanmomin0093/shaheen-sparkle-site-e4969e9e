@@ -1,9 +1,10 @@
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import SectionHeading from "@/components/shared/SectionHeading";
-import { GraduationCap, Users, Award, BookOpen, Calendar, ArrowRight, Loader2 } from "lucide-react";
+import { GraduationCap, Users, Award, BookOpen, Calendar, ArrowRight, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
