@@ -95,6 +95,93 @@ export type Database = {
         }
         Relationships: []
       }
+      students: {
+        Row: {
+          address: string | null
+          admission_date: string | null
+          class: string
+          created_at: string
+          date_of_birth: string | null
+          email: string | null
+          father_name: string | null
+          id: string
+          mother_name: string | null
+          name: string
+          phone: string | null
+          photo_url: string | null
+          roll_number: string | null
+          section: string | null
+        }
+        Insert: {
+          address?: string | null
+          admission_date?: string | null
+          class?: string
+          created_at?: string
+          date_of_birth?: string | null
+          email?: string | null
+          father_name?: string | null
+          id?: string
+          mother_name?: string | null
+          name: string
+          phone?: string | null
+          photo_url?: string | null
+          roll_number?: string | null
+          section?: string | null
+        }
+        Update: {
+          address?: string | null
+          admission_date?: string | null
+          class?: string
+          created_at?: string
+          date_of_birth?: string | null
+          email?: string | null
+          father_name?: string | null
+          id?: string
+          mother_name?: string | null
+          name?: string
+          phone?: string | null
+          photo_url?: string | null
+          roll_number?: string | null
+          section?: string | null
+        }
+        Relationships: []
+      }
+      teachers: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          joining_date: string | null
+          name: string
+          phone: string | null
+          photo_url: string | null
+          qualification: string | null
+          subject: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          joining_date?: string | null
+          name: string
+          phone?: string | null
+          photo_url?: string | null
+          qualification?: string | null
+          subject?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          joining_date?: string | null
+          name?: string
+          phone?: string | null
+          photo_url?: string | null
+          qualification?: string | null
+          subject?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
