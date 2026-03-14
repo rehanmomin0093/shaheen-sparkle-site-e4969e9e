@@ -9,6 +9,9 @@ import Index from "./pages/Index";
 import About from "./pages/About";
 import Academics from "./pages/Academics";
 import Gallery from "./pages/Gallery";
+import Videos from "./pages/Videos";
+import Achievements from "./pages/Achievements";
+import PressMedia from "./pages/PressMedia";
 import NoticeBoard from "./pages/NoticeBoard";
 import Admissions from "./pages/Admissions";
 import Contact from "./pages/Contact";
@@ -36,6 +39,9 @@ const App = () => (
               <Route path="/about" element={<About />} />
               <Route path="/academics" element={<Academics />} />
               <Route path="/gallery" element={<Gallery />} />
+              <Route path="/videos" element={<Videos />} />
+              <Route path="/achievements" element={<Achievements />} />
+              <Route path="/press-media" element={<PressMedia />} />
               <Route path="/notices" element={<NoticeBoard />} />
               <Route path="/admissions" element={<Admissions />} />
               <Route path="/contact" element={<Contact />} />
