@@ -38,6 +38,7 @@ const AdminTeachers = () => {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<TeacherForm>(emptyForm);
   const [uploading, setUploading] = useState(false);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
 
   const { data: teachers, isLoading } = useQuery({
     queryKey: ["admin-teachers"],
