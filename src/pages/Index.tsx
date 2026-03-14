@@ -43,7 +43,7 @@ const statIcons = [Calendar, Users, GraduationCap, Award];
 const statKeys = ["stat_years", "stat_students", "stat_faculty", "stat_pass_rate"];
 const statLabels = ["Years of Excellence", "Students", "Faculty Members", "Pass Rate"];
 
-const heroImages = [
+const defaultHeroImages = [
   "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1920&q=90",
   "https://images.unsplash.com/photo-1523050854058-8df90110c476?w=1920&q=90",
   "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1920&q=90",
@@ -53,6 +53,13 @@ const heroImages = [
 const Index = () => {
   const { data: content, isLoading } = useSiteContent();
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  const heroImages = [
+    content?.hero_image_1,
+    content?.hero_image_2,
+    content?.hero_image_3,
+    content?.hero_image_4,
+  ].map((url, i) => url || defaultHeroImages[i]);
 
   const [direction, setDirection] = useState(1);
 
