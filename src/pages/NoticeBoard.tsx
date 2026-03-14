@@ -10,7 +10,10 @@ import { cn } from "@/lib/utils";
 const categories = ["All", "Circulars", "Results", "Events", "General"];
 
 const NoticeBoard = () => {
+  const [searchParams] = useSearchParams();
+  const highlightId = searchParams.get("id");
   const [active, setActive] = useState("All");
+  const highlightRef = useRef<HTMLDivElement>(null);
 
   const { data: notices, isLoading } = useQuery({
     queryKey: ["public-all-notices"],
