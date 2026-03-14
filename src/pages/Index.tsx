@@ -58,11 +58,12 @@ const Index = () => {
   return (
     <>
       {/* Hero */}
-      <section className="relative flex min-h-[85vh] items-center overflow-hidden bg-primary">
+      <section className="relative flex min-h-[85vh] items-center overflow-hidden">
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-20"
+          className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url('${c("hero_image", "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1600&q=80")}')` }}
         />
+        <div className="absolute inset-0 bg-black/50" />
         <div className="container relative z-10 py-24">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
