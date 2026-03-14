@@ -54,11 +54,15 @@ const Index = () => {
   const { data: content, isLoading } = useSiteContent();
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  const [direction, setDirection] = useState(1);
+
   const nextSlide = useCallback(() => {
+    setDirection(1);
     setCurrentSlide((prev) => (prev + 1) % heroImages.length);
   }, []);
 
   const prevSlide = useCallback(() => {
+    setDirection(-1);
     setCurrentSlide((prev) => (prev - 1 + heroImages.length) % heroImages.length);
   }, []);
 
