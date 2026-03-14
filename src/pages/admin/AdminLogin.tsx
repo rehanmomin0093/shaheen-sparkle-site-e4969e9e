@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +12,7 @@ const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -18,12 +20,24 @@ const AdminLogin = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await signIn(email, password);
-    setLoading(false);
-    if (error) {
-      toast({ title: "Login failed", description: error.message, variant: "destructive" });
+
+    if (isSignUp) {
+      const { error } = await supabase.auth.signUp({ email, password });
+      setLoading(false);
+      if (error) {
+        toast({ title: "Sign up failed", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Account created!", description: "You can now sign in. An admin must assign you the admin role." });
+        setIsSignUp(false);
+      }
     } else {
-      navigate("/admin");
+      const { error } = await signIn(email, password);
+      setLoading(false);
+      if (error) {
+        toast({ title: "Login failed", description: error.message, variant: "destructive" });
+      } else {
+        navigate("/admin");
+      }
     }
   };
 
@@ -35,7 +49,9 @@ const AdminLogin = () => {
             <GraduationCap className="h-8 w-8 text-primary-foreground" />
           </div>
           <CardTitle className="font-serif text-2xl">Admin Panel</CardTitle>
-          <p className="text-sm text-muted-foreground">Sign in to manage your school website</p>
+          <p className="text-sm text-muted-foreground">
+            {isSignUp ? "Create an account" : "Sign in to manage your school website"}
+          </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -52,12 +68,20 @@ const AdminLogin = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              minLength={6}
             />
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign In
+              {isSignUp ? "Sign Up" : "Sign In"}
             </Button>
           </form>
+          <button
+            type="button"
+            onClick={() => setIsSignUp(!isSignUp)}
+            className="mt-4 w-full text-center text-sm text-muted-foreground hover:text-foreground"
+          >
+            {isSignUp ? "Already have an account? Sign in" : "Need an account? Sign up"}
+          </button>
         </CardContent>
       </Card>
     </div>
