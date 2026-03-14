@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Trash2, Edit2, X, Save, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import ImageCropDialog from "@/components/shared/ImageCropDialog";
 
 interface TeacherForm {
   name: string;
@@ -37,6 +38,7 @@ const AdminTeachers = () => {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<TeacherForm>(emptyForm);
   const [uploading, setUploading] = useState(false);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
 
   const { data: teachers, isLoading } = useQuery({
     queryKey: ["admin-teachers"],
@@ -114,11 +116,17 @@ const AdminTeachers = () => {
     setDialogOpen(true);
   };
 
-  const handlePhotoUpload = async (file: File) => {
+  const handleFileSelect = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => setCropSrc(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleCroppedUpload = async (blob: Blob) => {
+    setCropSrc(null);
     setUploading(true);
-    const ext = file.name.split(".").pop();
-    const path = `teachers/${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("site-assets").upload(path, file);
+    const path = `teachers/${Date.now()}.jpg`;
+    const { error } = await supabase.storage.from("site-assets").upload(path, blob, { contentType: "image/jpeg" });
     if (error) {
       toast({ title: "Upload failed", description: error.message, variant: "destructive" });
       setUploading(false);
@@ -188,7 +196,7 @@ const AdminTeachers = () => {
                 <div className="flex items-center gap-3">
                   {form.photo_url && <img src={form.photo_url} alt="Preview" className="h-16 w-16 rounded-full object-cover" />}
                   <label className="cursor-pointer">
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePhotoUpload(f); }} />
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileSelect(f); }} />
                     <Button type="button" variant="outline" size="sm" asChild disabled={uploading}>
                       <span>{uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}Upload</span>
                     </Button>
@@ -249,6 +257,14 @@ const AdminTeachers = () => {
           </Table>
         </CardContent>
       </Card>
+
+      <ImageCropDialog
+        open={!!cropSrc}
+        imageSrc={cropSrc || ""}
+        onClose={() => setCropSrc(null)}
+        onCropped={handleCroppedUpload}
+        title="Crop Teacher Photo"
+      />
     </div>
   );
 };
