@@ -1,9 +1,10 @@
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import SectionHeading from "@/components/shared/SectionHeading";
-import { GraduationCap, Users, Award, BookOpen, Calendar, ArrowRight, Loader2 } from "lucide-react";
+import { GraduationCap, Users, Award, BookOpen, Calendar, ArrowRight, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,8 +43,29 @@ const statIcons = [Calendar, Users, GraduationCap, Award];
 const statKeys = ["stat_years", "stat_students", "stat_faculty", "stat_pass_rate"];
 const statLabels = ["Years of Excellence", "Students", "Faculty Members", "Pass Rate"];
 
+const heroImages = [
+  "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1920&q=90",
+  "https://images.unsplash.com/photo-1523050854058-8df90110c476?w=1920&q=90",
+  "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1920&q=90",
+  "https://images.unsplash.com/photo-1577896851231-70ef18881754?w=1920&q=90",
+];
+
 const Index = () => {
   const { data: content, isLoading } = useSiteContent();
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const nextSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+  }, []);
+
+  const prevSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev - 1 + heroImages.length) % heroImages.length);
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(nextSlide, 5000);
+    return () => clearInterval(timer);
+  }, [nextSlide]);
 
   const { data: notices } = useQuery({
     queryKey: ["public-notices"],
@@ -59,15 +81,44 @@ const Index = () => {
     <>
       {/* Hero */}
       <section className="relative flex min-h-[85vh] items-center overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('${c("hero_image", "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1920&q=100")}')`,
-            imageRendering: "auto",
-          }}
-        />
-        <div className="container relative z-10 py-24">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentSlide}
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url('${heroImages[currentSlide]}')` }}
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+          />
+        </AnimatePresence>
+
+        {/* Navigation arrows */}
+        <button
+          onClick={prevSlide}
+          className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-background/30 p-2 text-foreground backdrop-blur-sm transition-colors hover:bg-background/60"
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </button>
+        <button
+          onClick={nextSlide}
+          className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-background/30 p-2 text-foreground backdrop-blur-sm transition-colors hover:bg-background/60"
+        >
+          <ChevronRight className="h-6 w-6" />
+        </button>
+
+        {/* Dots */}
+        <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+          {heroImages.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentSlide(i)}
+              className={`h-2.5 w-2.5 rounded-full transition-all ${i === currentSlide ? "bg-secondary w-6" : "bg-background/50"}`}
+            />
+          ))}
         </div>
+
+        <div className="container relative z-10 py-24" />
       </section>
 
       {/* Stats */}
