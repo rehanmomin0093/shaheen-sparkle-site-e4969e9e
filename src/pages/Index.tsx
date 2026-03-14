@@ -54,6 +54,13 @@ const Index = () => {
   const { data: content, isLoading } = useSiteContent();
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  const heroImages = [
+    content?.hero_image_1,
+    content?.hero_image_2,
+    content?.hero_image_3,
+    content?.hero_image_4,
+  ].map((url, i) => url || defaultHeroImages[i]);
+
   const [direction, setDirection] = useState(1);
 
   const nextSlide = useCallback(() => {
