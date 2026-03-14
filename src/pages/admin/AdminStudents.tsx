@@ -329,6 +329,14 @@ const AdminStudents = () => {
       <p className="mt-3 text-sm text-muted-foreground">
         Total: {filteredStudents?.length ?? 0} student{(filteredStudents?.length ?? 0) !== 1 ? "s" : ""}
       </p>
+
+      <ImageCropDialog
+        open={!!cropSrc}
+        imageSrc={cropSrc || ""}
+        onClose={() => setCropSrc(null)}
+        onCropped={handleCroppedUpload}
+        title="Crop Student Photo"
+      />
     </div>
   );
 };
