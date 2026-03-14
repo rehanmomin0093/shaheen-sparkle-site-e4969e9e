@@ -9,6 +9,7 @@ const topBarLinks = [
   { label: "Videos", to: "/videos" },
   { label: "Achievements", to: "/achievements" },
   { label: "Press Media", to: "/press-media" },
+  { label: "Teacher Portal", to: "/staff-portal" },
 ];
 
 const navLinks = [
