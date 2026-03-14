@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, GraduationCap } from "lucide-react";
+import NewsTicker from "./NewsTicker";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
