@@ -30,8 +30,8 @@ const NewsTicker = () => {
         <Volume2 className="h-3.5 w-3.5" />
         NEWS
       </div>
-      <div className="relative flex-1 overflow-hidden">
-        <div className="animate-ticker flex whitespace-nowrap text-xs font-medium">
+      <div className="relative flex-1 overflow-hidden group">
+        <div className="animate-ticker group-hover:[animation-play-state:paused] flex whitespace-nowrap text-xs font-medium">
           <span className="px-8">{tickerText}</span>
           <span className="px-8">{tickerText}</span>
         </div>
