@@ -74,13 +74,30 @@ const AdminStudents = () => {
         if (error) throw error;
       }
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["admin-students"] });
       toast({ title: editId ? "Student updated!" : "Student added!" });
+      // Send invite if new student with email
+      if (!editId && variables.email) {
+        sendInvite(variables.email, "user");
+      }
       closeDialog();
     },
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
+
+  const sendInvite = async (email: string, role: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke("invite-user", {
+        body: { email, role },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast({ title: "Invite sent!", description: `Invitation email sent to ${email}` });
+    } catch (e: any) {
+      toast({ title: "Invite failed", description: e.message, variant: "destructive" });
+    }
+  };
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
