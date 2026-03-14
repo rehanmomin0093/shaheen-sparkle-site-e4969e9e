@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Plus, Trash2, Pencil, Check, X } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
@@ -17,6 +17,10 @@ const AdminNotices = () => {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("General");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editCategory, setEditCategory] = useState("");
+  const [editDate, setEditDate] = useState("");
 
   const { data: notices, isLoading } = useQuery({
     queryKey: ["admin-notices"],
@@ -40,6 +44,19 @@ const AdminNotices = () => {
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, title, category, date }: { id: string; title: string; category: string; date: string }) => {
+      const { error } = await supabase.from("notices").update({ title, category, date }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-notices"] });
+      setEditingId(null);
+      toast({ title: "Notice updated!" });
+    },
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("notices").delete().eq("id", id);
@@ -50,6 +67,13 @@ const AdminNotices = () => {
       toast({ title: "Notice deleted" });
     },
   });
+
+  const startEdit = (n: { id: string; title: string; category: string; date: string }) => {
+    setEditingId(n.id);
+    setEditTitle(n.title);
+    setEditCategory(n.category);
+    setEditDate(n.date);
+  };
 
   if (isLoading) {
     return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -85,22 +109,58 @@ const AdminNotices = () => {
               <TableHead>Date</TableHead>
               <TableHead>Title</TableHead>
               <TableHead>Category</TableHead>
-              <TableHead className="w-16"></TableHead>
+              <TableHead className="w-24"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {notices?.map((n) => (
               <TableRow key={n.id}>
-                <TableCell className="text-sm text-muted-foreground">{n.date}</TableCell>
-                <TableCell className="font-medium">{n.title}</TableCell>
-                <TableCell>
-                  <span className="rounded bg-primary/10 px-2 py-1 text-xs font-medium text-primary">{n.category}</span>
-                </TableCell>
-                <TableCell>
-                  <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(n.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </TableCell>
+                {editingId === n.id ? (
+                  <>
+                    <TableCell>
+                      <Input type="date" value={editDate} onChange={(e) => setEditDate(e.target.value)} className="w-36" />
+                    </TableCell>
+                    <TableCell>
+                      <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
+                    </TableCell>
+                    <TableCell>
+                      <Select value={editCategory} onValueChange={setEditCategory}>
+                        <SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" onClick={() => updateMutation.mutate({ id: n.id, title: editTitle, category: editCategory, date: editDate })} disabled={!editTitle || updateMutation.isPending}>
+                          <Check className="h-4 w-4 text-green-600" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => setEditingId(null)}>
+                          <X className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </>
+                ) : (
+                  <>
+                    <TableCell className="text-sm text-muted-foreground">{n.date}</TableCell>
+                    <TableCell className="font-medium">{n.title}</TableCell>
+                    <TableCell>
+                      <span className="rounded bg-primary/10 px-2 py-1 text-xs font-medium text-primary">{n.category}</span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" onClick={() => startEdit(n)}>
+                          <Pencil className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(n.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </>
+                )}
               </TableRow>
             ))}
           </TableBody>
