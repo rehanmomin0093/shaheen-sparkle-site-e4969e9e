@@ -10,6 +10,7 @@ import { Loader2, Plus, Trash2, Edit2, Upload, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import ImageCropDialog from "@/components/shared/ImageCropDialog";
 
 interface StudentForm {
   name: string;
