@@ -21,12 +21,12 @@ const NewsTicker = () => {
   const tickerText = displayItems.join("     •     ");
 
   return (
-    <div className="flex h-9 items-center overflow-hidden">
-      <div className="flex shrink-0 items-center gap-2 px-4 py-1 font-bold text-xs uppercase tracking-wider z-10 text-white" style={{ background: "hsl(0 80% 45%)" }}>
+    <div className="flex h-9 items-center overflow-hidden bg-[hsl(50_100%_90%)]">
+      <div className="flex shrink-0 items-center gap-2 px-4 py-1 font-bold text-xs uppercase tracking-wider z-10 text-white bg-[hsl(0_80%_45%)]">
         <Volume2 className="h-3.5 w-3.5" />
         NEWS
       </div>
-      <div className="relative flex-1 overflow-hidden" style={{ background: "hsl(45 90% 90%)" }}>
+      <div className="relative flex-1 overflow-hidden bg-[hsl(50_100%_90%)]">
         <div className="animate-ticker flex whitespace-nowrap text-xs font-semibold text-foreground">
           <span className="px-8">{tickerText}</span>
           <span className="px-8">{tickerText}</span>
