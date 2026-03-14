@@ -22,7 +22,7 @@ const Navbar = () => {
   const location = useLocation();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-border/50 bg-[hsl(142_40%_85%/0.9)] backdrop-blur-xl">
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded bg-primary">
