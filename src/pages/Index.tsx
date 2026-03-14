@@ -155,34 +155,37 @@ const Index = () => {
         </div>
       </section>
 
-      {/* About Snippet */}
+      {/* About & Vision */}
       <section className="py-24">
         <div className="container">
-          <div className="grid items-start gap-16 lg:grid-cols-[200px_1fr]">
-            <div>
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-secondary">Our Vision</span>
-            </div>
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
-              <h2 className="font-serif text-3xl leading-tight md:text-4xl">
-                {c("vision_text", "To be a beacon of educational excellence, empowering every child to discover their potential and contribute meaningfully to society.")}
-              </h2>
-              <div className="mt-8 grid gap-8 md:grid-cols-2">
-                <div>
-                  <h3 className="mb-2 font-serif text-xl">Our Mission</h3>
-                  <p className="text-muted-foreground">
-                    {c("mission_text", "Providing holistic education that blends academic rigour with moral values, creative thinking, and physical fitness.")}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="mb-2 font-serif text-xl">Our Values</h3>
-                  <p className="text-muted-foreground">
-                    {c("values_text", "Integrity, discipline, inclusivity, and a relentless pursuit of knowledge guide everything we do at Shaheen.")}
-                  </p>
-                </div>
-              </div>
-              <Link to="/about" className="mt-8 inline-flex items-center gap-1 text-sm font-medium text-secondary hover:underline">
-                Learn more about us <ArrowRight className="h-4 w-4" />
+          <div className="grid gap-12 lg:grid-cols-2">
+            {/* About */}
+            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
+              <h2 className="font-serif text-3xl md:text-4xl">About Shaheen</h2>
+              <div className="mt-2 h-1 w-12 rounded-full bg-primary" />
+              <p className="mt-6 text-justify leading-relaxed text-muted-foreground">
+                {c("about_text", "Shaheen School is one of the iconic institutions of higher education, distinguished by its compassion to produce well-rounded individuals with competence for improving the human condition and building the nation. The community and culture of Shaheen are enriched by active bright students, dedicated teachers, and a commitment to impart quality education.")}
+              </p>
+              <Link to="/about">
+                <Button className="mt-6 bg-primary text-primary-foreground hover:bg-primary/90">
+                  Know More <ArrowRight className="ml-1 h-4 w-4" />
+                </Button>
               </Link>
+            </motion.div>
+
+            {/* Vision & Mission */}
+            <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="rounded-lg border-l-4 border-primary bg-muted p-8">
+              <h2 className="font-serif text-3xl md:text-4xl">Our Vision</h2>
+              <div className="mt-2 h-1 w-12 rounded-full bg-primary" />
+              <p className="mt-6 leading-relaxed text-muted-foreground">
+                {c("vision_text", "To be a beacon of educational excellence, empowering every child to discover their potential and contribute meaningfully to society.")}
+              </p>
+
+              <h2 className="mt-10 font-serif text-3xl md:text-4xl">Our Mission</h2>
+              <div className="mt-2 h-1 w-12 rounded-full bg-primary" />
+              <p className="mt-6 leading-relaxed text-muted-foreground">
+                {c("mission_text", "Providing holistic education that blends academic rigour with moral values, creative thinking, and physical fitness.")}
+              </p>
             </motion.div>
           </div>
         </div>
