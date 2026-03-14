@@ -1,7 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { Volume2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
 
 const NewsTicker = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -11,18 +12,27 @@ const NewsTicker = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("notices")
-        .select("title")
+        .select("id, title")
         .order("date", { ascending: false })
         .limit(10);
       return data ?? [];
     },
   });
 
-  const items = notices?.map((n) => n.title) ?? [];
+  if (!notices || notices.length === 0) return null;
 
-  if (items.length === 0) return null;
-
-  const tickerText = items.join("     •     ");
+  const renderItems = (keyPrefix: string) =>
+    notices.map((n, i) => (
+      <span key={`${keyPrefix}-${n.id}`}>
+        <Link
+          to={`/notices?id=${n.id}`}
+          className="hover:underline hover:text-secondary transition-colors"
+        >
+          {n.title}
+        </Link>
+        {i < notices.length - 1 && <span className="px-4">•</span>}
+      </span>
+    ));
 
   return (
     <div className="flex h-9 items-center overflow-hidden bg-destructive/90 text-white">
@@ -32,8 +42,8 @@ const NewsTicker = () => {
       </div>
       <div className="relative flex-1 overflow-hidden group">
         <div className="animate-ticker group-hover:[animation-play-state:paused] flex whitespace-nowrap text-xs font-medium">
-          <span className="px-8">{tickerText}</span>
-          <span className="px-8">{tickerText}</span>
+          <span className="px-8 flex items-center">{renderItems("a")}</span>
+          <span className="px-8 flex items-center">{renderItems("b")}</span>
         </div>
       </div>
     </div>
