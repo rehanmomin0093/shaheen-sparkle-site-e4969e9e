@@ -27,7 +27,7 @@ const NewsTicker = () => {
         NEWS
       </div>
       <div className="relative flex-1 overflow-hidden" style={{ background: "hsl(45 90% 90%)" }}>
-        <div className="animate-ticker flex whitespace-nowrap text-xs font-semibold text-white">
+        <div className="animate-ticker flex whitespace-nowrap text-xs font-semibold text-foreground">
           <span className="px-8">{tickerText}</span>
           <span className="px-8">{tickerText}</span>
         </div>
