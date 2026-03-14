@@ -22,7 +22,7 @@ const NewsTicker = () => {
 
   return (
     <div className="flex h-9 items-center overflow-hidden bg-[hsl(50_100%_90%)]">
-      <div className="flex shrink-0 items-center gap-2 px-4 py-1 font-bold text-xs uppercase tracking-wider z-10 text-white bg-[hsl(0_80%_45%)]">
+      <div className="flex shrink-0 items-center gap-2 px-4 py-1 font-bold text-xs uppercase tracking-wider z-10 text-white bg-[hsl(0_100%_40%)]">
         <Volume2 className="h-3.5 w-3.5" />
         NEWS
       </div>
