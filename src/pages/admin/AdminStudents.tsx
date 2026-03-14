@@ -51,6 +51,7 @@ const AdminStudents = () => {
   const [uploading, setUploading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [classFilter, setClassFilter] = useState("");
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
 
   const { data: students, isLoading } = useQuery({
     queryKey: ["admin-students"],
