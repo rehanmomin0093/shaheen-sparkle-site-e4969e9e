@@ -68,8 +68,9 @@ const Footer = () => (
         </div>
       </div>
     </div>
-    <div className="border-t border-primary-foreground/10 py-6 text-center text-xs opacity-60">
-      © {new Date().getFullYear()} Shaheen School & Shaheen High School. All rights reserved.
+    <div className="border-t border-primary-foreground/10 py-6 text-center text-xs opacity-60 flex items-center justify-center gap-4">
+      <span>© {new Date().getFullYear()} Shaheen School & Shaheen High School. All rights reserved.</span>
+      <Link to="/admin/login" className="opacity-50 hover:opacity-100 transition-opacity">Admin</Link>
     </div>
   </footer>
 );
