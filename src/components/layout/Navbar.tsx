@@ -130,6 +130,11 @@ const Navbar = () => {
                   Student Portal
                 </Button>
               </Link>
+              <Link to="/staff-portal" onClick={() => setOpen(false)}>
+                <Button size="sm" className="mt-1 w-full bg-primary text-primary-foreground">
+                  Teacher Portal
+                </Button>
+              </Link>
             </div>
           </nav>
         )}
