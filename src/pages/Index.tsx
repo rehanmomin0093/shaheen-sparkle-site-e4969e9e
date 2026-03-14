@@ -65,34 +65,6 @@ const Index = () => {
         />
         <div className="absolute inset-0 bg-black/50" />
         <div className="container relative z-10 py-24">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-3xl"
-          >
-            <span className="mb-4 inline-block rounded bg-secondary/20 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-secondary">
-              {c("school_name", "Shaheen School & Shaheen High School")}
-            </span>
-            <h1 className="font-serif text-4xl leading-[1.1] text-primary-foreground md:text-6xl lg:text-7xl">
-              {c("hero_title", "Nurturing the Falcons of Tomorrow")}
-            </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-primary-foreground/80">
-              {c("hero_subtitle", "Building character, knowledge, and excellence from nursery through higher secondary — where every student soars.")}
-            </p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Link to="/admissions">
-                <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
-                  Apply for Admission
-                </Button>
-              </Link>
-              <Link to="/student-portal">
-                <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
-                  Student Portal
-                </Button>
-              </Link>
-            </div>
-          </motion.div>
         </div>
       </section>
 
