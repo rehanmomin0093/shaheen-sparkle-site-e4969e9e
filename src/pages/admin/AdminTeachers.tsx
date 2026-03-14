@@ -116,11 +116,17 @@ const AdminTeachers = () => {
     setDialogOpen(true);
   };
 
-  const handlePhotoUpload = async (file: File) => {
+  const handleFileSelect = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => setCropSrc(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleCroppedUpload = async (blob: Blob) => {
+    setCropSrc(null);
     setUploading(true);
-    const ext = file.name.split(".").pop();
-    const path = `teachers/${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("site-assets").upload(path, file);
+    const path = `teachers/${Date.now()}.jpg`;
+    const { error } = await supabase.storage.from("site-assets").upload(path, blob, { contentType: "image/jpeg" });
     if (error) {
       toast({ title: "Upload failed", description: error.message, variant: "destructive" });
       setUploading(false);
