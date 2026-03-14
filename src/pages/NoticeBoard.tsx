@@ -70,12 +70,13 @@ const NoticeBoard = () => {
               {filtered.map((n, i) => (
                 <motion.div
                   key={n.id}
+                  ref={n.id === highlightId ? highlightRef : undefined}
                   initial={{ opacity: 0, y: 15 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.05, duration: 0.3 }}
                 >
-                  <Card className="group transition-shadow hover:shadow-md">
+                  <Card className={cn("group transition-all hover:shadow-md", n.id === highlightId && "ring-2 ring-secondary shadow-lg")}>
                     <CardContent className="flex items-center justify-between gap-4 p-5">
                       <div className="flex-1">
                         <div className="flex items-center gap-3">
