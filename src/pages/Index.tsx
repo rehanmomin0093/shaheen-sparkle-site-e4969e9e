@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import SectionHeading from "@/components/shared/SectionHeading";
 import { GraduationCap, Users, Award, BookOpen, Calendar, ArrowRight, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSiteContent } from "@/hooks/useSiteContent";
+import PopupBanner from "@/components/shared/PopupBanner";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -90,6 +91,7 @@ const Index = () => {
 
   return (
     <>
+      <PopupBanner />
       {/* Hero */}
       <section className="relative flex min-h-[85vh] items-center overflow-hidden">
         <AnimatePresence initial={false} mode="popLayout" custom={direction}>
