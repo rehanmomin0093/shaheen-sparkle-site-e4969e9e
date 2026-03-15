@@ -40,7 +40,12 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted p-4">
+    <div className="relative flex min-h-screen items-center justify-center bg-muted p-4">
+      <Link to="/" className="absolute right-4 top-4">
+        <Button variant="outline" size="sm" className="gap-2">
+          <Home className="h-4 w-4" /> Home
+        </Button>
+      </Link>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded bg-primary">
