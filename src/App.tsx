@@ -26,6 +26,7 @@ import AdminGallery from "./pages/admin/AdminGallery";
 import AdminNotices from "./pages/admin/AdminNotices";
 import AdminTeachers from "./pages/admin/AdminTeachers";
 import AdminStudents from "./pages/admin/AdminStudents";
+import AdminBanners from "./pages/admin/AdminBanners";
 
 const queryClient = new QueryClient();
 
