@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { GraduationCap, Phone, Mail, MapPin } from "lucide-react";
+import { GraduationCap, Phone, Mail, MapPin, ArrowRight } from "lucide-react";
 
 const Footer = () => (
   <footer className="border-t border-border bg-primary text-primary-foreground">
@@ -33,7 +33,10 @@ const Footer = () => (
               { label: "Admissions", to: "/admissions" },
             ].map((l) => (
               <li key={l.to}>
-                <Link to={l.to} className="transition-opacity hover:opacity-100">{l.label}</Link>
+                <Link to={l.to} className="group flex items-center gap-1 transition-all duration-200 hover:opacity-100 hover:translate-x-1">
+                  <ArrowRight className="h-3 w-3 opacity-0 -ml-4 transition-all duration-200 group-hover:opacity-100 group-hover:ml-0" />
+                  {l.label}
+                </Link>
               </li>
             ))}
           </ul>
@@ -43,8 +46,18 @@ const Footer = () => (
         <div>
           <h4 className="mb-4 font-serif text-lg">Portals</h4>
           <ul className="space-y-2 text-sm opacity-80">
-            <li><Link to="/student-portal" className="transition-opacity hover:opacity-100">Student Portal</Link></li>
-            <li><Link to="/contact" className="transition-opacity hover:opacity-100">Contact Us</Link></li>
+            <li>
+              <Link to="/student-portal" className="group flex items-center gap-1 transition-all duration-200 hover:opacity-100 hover:translate-x-1">
+                <ArrowRight className="h-3 w-3 opacity-0 -ml-4 transition-all duration-200 group-hover:opacity-100 group-hover:ml-0" />
+                Student Portal
+              </Link>
+            </li>
+            <li>
+              <Link to="/contact" className="group flex items-center gap-1 transition-all duration-200 hover:opacity-100 hover:translate-x-1">
+                <ArrowRight className="h-3 w-3 opacity-0 -ml-4 transition-all duration-200 group-hover:opacity-100 group-hover:ml-0" />
+                Contact Us
+              </Link>
+            </li>
           </ul>
         </div>
 
@@ -52,16 +65,16 @@ const Footer = () => (
         <div>
           <h4 className="mb-4 font-serif text-lg">Contact</h4>
           <ul className="space-y-3 text-sm opacity-80">
-            <li className="flex items-start gap-2">
-              <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
+            <li className="group flex items-start gap-2 transition-colors duration-200">
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0 transition-colors duration-300 group-hover:text-secondary" />
               <span>Shaheen Campus, Main Road, City — 000000</span>
             </li>
-            <li className="flex items-center gap-2">
-              <Phone className="h-4 w-4 shrink-0" />
+            <li className="group flex items-center gap-2 transition-colors duration-200">
+              <Phone className="h-4 w-4 shrink-0 transition-colors duration-300 group-hover:text-secondary" />
               <span>+91 98765 43210</span>
             </li>
-            <li className="flex items-center gap-2">
-              <Mail className="h-4 w-4 shrink-0" />
+            <li className="group flex items-center gap-2 transition-colors duration-200">
+              <Mail className="h-4 w-4 shrink-0 transition-colors duration-300 group-hover:text-secondary" />
               <span>info@shaheenschool.edu</span>
             </li>
           </ul>
