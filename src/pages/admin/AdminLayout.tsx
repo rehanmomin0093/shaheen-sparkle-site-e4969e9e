@@ -1,7 +1,7 @@
 import { Navigate, Outlet, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, LayoutDashboard, FileText, Image, Settings, LogOut, Loader2, Users, UserPlus } from "lucide-react";
+import { GraduationCap, LayoutDashboard, FileText, Image, Settings, LogOut, Loader2, Users, UserPlus, Megaphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const sidebarLinks = [
@@ -11,6 +11,7 @@ const sidebarLinks = [
   { to: "/admin/notices", label: "Notices", icon: FileText },
   { to: "/admin/teachers", label: "Teachers", icon: Users },
   { to: "/admin/students", label: "Students", icon: UserPlus },
+  { to: "/admin/banners", label: "Popup Banners", icon: Megaphone },
 ];
 
 const AdminLayout = () => {
