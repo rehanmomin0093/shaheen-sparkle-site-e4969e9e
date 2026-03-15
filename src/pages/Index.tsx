@@ -91,6 +91,7 @@ const Index = () => {
 
   return (
     <>
+      <PopupBanner />
       {/* Hero */}
       <section className="relative flex min-h-[85vh] items-center overflow-hidden">
         <AnimatePresence initial={false} mode="popLayout" custom={direction}>
