@@ -106,6 +106,35 @@
   }
 }
 
+/* Hover lift for cards */
+@layer utilities {
+  .hover-lift {
+    @apply transition-all duration-300 ease-out;
+  }
+  .hover-lift:hover {
+    @apply -translate-y-2 shadow-xl;
+  }
+
+  .glow-on-hover {
+    @apply transition-shadow duration-300;
+  }
+  .glow-on-hover:hover {
+    box-shadow: 0 0 20px hsl(var(--secondary) / 0.4);
+  }
+
+  .animated-underline {
+    @apply relative;
+  }
+  .animated-underline::after {
+    content: '';
+    @apply absolute bottom-0 left-0 h-0.5 w-full origin-bottom-right scale-x-0 transition-transform duration-300 ease-out;
+    background-color: hsl(var(--secondary));
+  }
+  .animated-underline:hover::after {
+    @apply origin-bottom-left scale-x-100;
+  }
+}
+
 @keyframes ticker {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -113,4 +142,19 @@
 
 .animate-ticker {
   animation: ticker 30s linear infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1); }
 }
