@@ -12,6 +12,7 @@ const sidebarLinks = [
   { to: "/admin/teachers", label: "Teachers", icon: Users },
   { to: "/admin/students", label: "Students", icon: UserPlus },
   { to: "/admin/banners", label: "Popup Banners", icon: Megaphone },
+  { to: "/admin/staff", label: "Staff", icon: Briefcase },
 ];
 
 const AdminLayout = () => {
