@@ -209,6 +209,51 @@ export type Database = {
         }
         Relationships: []
       }
+      staff: {
+        Row: {
+          area_of_expertise: string | null
+          created_at: string
+          designation: string
+          email: string | null
+          experience: string | null
+          id: string
+          joining_date: string | null
+          name: string
+          phone: string | null
+          photo_url: string | null
+          qualification: string | null
+          staff_type: string
+        }
+        Insert: {
+          area_of_expertise?: string | null
+          created_at?: string
+          designation?: string
+          email?: string | null
+          experience?: string | null
+          id?: string
+          joining_date?: string | null
+          name: string
+          phone?: string | null
+          photo_url?: string | null
+          qualification?: string | null
+          staff_type?: string
+        }
+        Update: {
+          area_of_expertise?: string | null
+          created_at?: string
+          designation?: string
+          email?: string | null
+          experience?: string | null
+          id?: string
+          joining_date?: string | null
+          name?: string
+          phone?: string | null
+          photo_url?: string | null
+          qualification?: string | null
+          staff_type?: string
+        }
+        Relationships: []
+      }
       students: {
         Row: {
           address: string | null
