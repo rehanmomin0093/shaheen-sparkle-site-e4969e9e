@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { X } from "lucide-react";
 
 const PopupBanner = () => {
@@ -26,7 +27,8 @@ const PopupBanner = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-lg border-none bg-transparent p-0 shadow-none [&>button]:hidden">
+      <DialogContent className="max-w-lg border-none bg-transparent p-0 shadow-none [&>button]:hidden" aria-describedby={undefined}>
+        <VisuallyHidden><DialogTitle>Announcement Banner</DialogTitle></VisuallyHidden>
         <div className="relative overflow-hidden rounded-lg">
           <button
             onClick={() => setOpen(false)}
