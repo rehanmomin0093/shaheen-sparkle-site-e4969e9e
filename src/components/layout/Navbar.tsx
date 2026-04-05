@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, GraduationCap, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import NewsTicker from "./NewsTicker";
+
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -338,10 +338,7 @@ const Navbar = () => {
         </AnimatePresence>
       </header>
 
-      {/* News ticker — lower z-index so dropdowns overlay it */}
-      <div className="relative z-10">
-        <NewsTicker />
-      </div>
+
     </div>
   );
 };
