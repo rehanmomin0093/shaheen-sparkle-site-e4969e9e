@@ -8,6 +8,7 @@ import Layout from "@/components/layout/Layout";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Academics from "./pages/Academics";
+import Staff from "./pages/Staff";
 import Gallery from "./pages/Gallery";
 import Videos from "./pages/Videos";
 import Achievements from "./pages/Achievements";
@@ -51,6 +52,7 @@ const App = () => (
               <Route path="/admissions" element={<Admissions />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/student-portal" element={<StudentPortal />} />
+              <Route path="/staff" element={<Staff />} />
               <Route path="/staff-portal" element={<StaffPortal />} />
             </Route>
             <Route path="/admin/login" element={<AdminLogin />} />

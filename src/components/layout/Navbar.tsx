@@ -190,7 +190,7 @@ const Navbar = () => {
 
                 {/* Desktop dropdown */}
                 {l.dropdown && (
-                  <div className="invisible absolute left-0 top-full z-50 min-w-[200px] pt-1 opacity-0 translate-y-2 transition-all duration-200 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0">
+                  <div className="invisible absolute left-0 top-full z-[60] min-w-[200px] pt-1 opacity-0 translate-y-2 transition-all duration-200 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0">
                     <div className="rounded-md border border-border bg-card shadow-xl">
                       <div className="py-1">
                         {l.dropdown.map((sub) => (
