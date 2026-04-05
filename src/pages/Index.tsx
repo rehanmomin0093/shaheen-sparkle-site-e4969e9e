@@ -4,11 +4,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import SectionHeading from "@/components/shared/SectionHeading";
-import { GraduationCap, Users, Award, BookOpen, Calendar, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { GraduationCap, Users, Award, BookOpen, Calendar, ArrowRight, ChevronLeft, ChevronRight, MapPin, Phone, Mail, Send } from "lucide-react";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import PopupBanner from "@/components/shared/PopupBanner";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 const programs = [
   {
@@ -140,6 +142,14 @@ const Index = () => {
     },
   });
 
+  const { data: galleryImages } = useQuery({
+    queryKey: ["public-gallery-preview"],
+    queryFn: async () => {
+      const { data } = await supabase.from("gallery_images").select("*").order("sort_order", { ascending: true }).limit(6);
+      return data ?? [];
+    },
+  });
+
   const c = (key: string, fallback: string) => content?.[key] ?? fallback;
 
   return (
@@ -161,18 +171,49 @@ const Index = () => {
         </AnimatePresence>
 
         {/* Dark gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 via-foreground/10 to-transparent z-[1]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-foreground/30 to-foreground/10 z-[1]" />
+
+        {/* Hero text overlay */}
+        <div className="container relative z-10 py-24 text-center">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="font-serif text-4xl font-bold text-primary-foreground md:text-6xl drop-shadow-lg"
+          >
+            Shaheen School & High School
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="mx-auto mt-4 max-w-2xl text-lg text-primary-foreground/90 drop-shadow-md"
+          >
+            Nurturing the Falcons of Tomorrow — Excellence in Education Since Establishment
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+          >
+            <Link to="/admissions">
+              <Button size="lg" className="mt-8 bg-secondary text-secondary-foreground hover:bg-secondary/90 glow-on-hover animate-float text-base px-8">
+                Apply Now <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+          </motion.div>
+        </div>
 
         {/* Navigation arrows */}
         <button
           onClick={prevSlide}
-          className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-background/30 p-2 text-foreground backdrop-blur-sm transition-all duration-300 hover:bg-background/60 hover:scale-110 glow-on-hover"
+          className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-background/30 p-2 text-primary-foreground backdrop-blur-sm transition-all duration-300 hover:bg-background/60 hover:scale-110 glow-on-hover"
         >
           <ChevronLeft className="h-6 w-6" />
         </button>
         <button
           onClick={nextSlide}
-          className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-background/30 p-2 text-foreground backdrop-blur-sm transition-all duration-300 hover:bg-background/60 hover:scale-110 glow-on-hover"
+          className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-background/30 p-2 text-primary-foreground backdrop-blur-sm transition-all duration-300 hover:bg-background/60 hover:scale-110 glow-on-hover"
         >
           <ChevronRight className="h-6 w-6" />
         </button>
@@ -187,8 +228,6 @@ const Index = () => {
             />
           ))}
         </div>
-
-        <div className="container relative z-10 py-24" />
       </section>
 
       {/* Stats */}
@@ -268,14 +307,53 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Latest Notices */}
+      {/* Gallery Preview */}
       <section className="py-24">
+        <div className="container">
+          <SectionHeading label="Gallery" title="Campus Life" description="Glimpses of activities, events, and everyday life at Shaheen." />
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+            {(galleryImages ?? []).map((img, i) => (
+              <motion.div
+                key={img.id}
+                custom={i}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="group relative aspect-[4/3] overflow-hidden rounded-lg"
+              >
+                <img
+                  src={img.src}
+                  alt={img.alt || "Gallery image"}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-foreground/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                <span className="absolute bottom-3 left-3 text-sm font-medium text-primary-foreground opacity-0 transition-opacity duration-300 group-hover:opacity-100 drop-shadow-md">
+                  {img.alt || img.category}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+          {(galleryImages ?? []).length === 0 && (
+            <p className="mt-8 text-center text-muted-foreground">Gallery images coming soon.</p>
+          )}
+          <div className="mt-10 text-center">
+            <Link to="/gallery">
+              <Button variant="outline" className="group">View Full Gallery <ArrowRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" /></Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Latest Notices */}
+      <section className="bg-muted py-24">
         <div className="container">
           <SectionHeading label="Notice Board" title="Latest Announcements" />
           <div className="mx-auto max-w-3xl space-y-4">
             {(notices ?? []).map((n, i) => (
               <motion.div key={n.id} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                <Card className="group border-l-4 border-l-transparent transition-all duration-300 hover:shadow-md hover:border-l-secondary hover:bg-muted/50">
+                <Card className="group border-l-4 border-l-transparent transition-all duration-300 hover:shadow-md hover:border-l-secondary hover:bg-card">
                   <CardContent className="flex items-center justify-between gap-4 p-5">
                     <div>
                       <span className="text-xs text-muted-foreground">{n.date}</span>
@@ -297,7 +375,6 @@ const Index = () => {
 
       {/* CTA */}
       <section className="relative bg-primary py-24 text-primary-foreground overflow-hidden">
-        {/* Sparkle dots */}
         {[...Array(6)].map((_, i) => (
           <div
             key={i}
@@ -319,6 +396,62 @@ const Index = () => {
               <Button size="lg" className="mt-8 animate-float bg-secondary text-secondary-foreground hover:bg-secondary/90 glow-on-hover">Start Application</Button>
             </Link>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Contact Preview */}
+      <section className="py-24">
+        <div className="container">
+          <SectionHeading label="Contact" title="Get In Touch" description="Have questions? Reach out to us anytime." />
+          <div className="grid gap-12 lg:grid-cols-2">
+            {/* Contact Info */}
+            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-6">
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                  <MapPin className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h4 className="font-serif text-lg font-semibold">Address</h4>
+                  <p className="mt-1 text-sm text-muted-foreground">Shaheen Campus, Main Road, City — 000000</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                  <Phone className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h4 className="font-serif text-lg font-semibold">Phone</h4>
+                  <p className="mt-1 text-sm text-muted-foreground">+91 98765 43210</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                  <Mail className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h4 className="font-serif text-lg font-semibold">Email</h4>
+                  <p className="mt-1 text-sm text-muted-foreground">info@shaheenschool.edu</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Contact Form */}
+            <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
+              <Card className="border-none shadow-lg">
+                <CardContent className="p-6 space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Input placeholder="Your Name" className="bg-background" />
+                    <Input placeholder="Your Email" type="email" className="bg-background" />
+                  </div>
+                  <Input placeholder="Subject" className="bg-background" />
+                  <Textarea placeholder="Your Message" rows={4} className="bg-background" />
+                  <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 group">
+                    Send Message <Send className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
         </div>
       </section>
     </>

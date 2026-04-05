@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { GraduationCap, Phone, Mail, MapPin, ArrowRight } from "lucide-react";
+import { GraduationCap, Phone, Mail, MapPin, ArrowRight, Facebook, Instagram, Twitter, Youtube } from "lucide-react";
 
 const Footer = () => (
   <footer className="border-t border-border bg-primary text-primary-foreground">
@@ -19,6 +19,21 @@ const Footer = () => (
           <p className="text-sm leading-relaxed opacity-80">
             Nurturing the Falcons of Tomorrow — building character, knowledge, and excellence since establishment.
           </p>
+          {/* Social Media Icons */}
+          <div className="mt-4 flex items-center gap-3">
+            <a href="#" aria-label="Facebook" className="rounded-full bg-primary-foreground/10 p-2 transition-colors duration-200 hover:bg-secondary hover:text-secondary-foreground">
+              <Facebook className="h-4 w-4" />
+            </a>
+            <a href="#" aria-label="Instagram" className="rounded-full bg-primary-foreground/10 p-2 transition-colors duration-200 hover:bg-secondary hover:text-secondary-foreground">
+              <Instagram className="h-4 w-4" />
+            </a>
+            <a href="#" aria-label="Twitter" className="rounded-full bg-primary-foreground/10 p-2 transition-colors duration-200 hover:bg-secondary hover:text-secondary-foreground">
+              <Twitter className="h-4 w-4" />
+            </a>
+            <a href="#" aria-label="YouTube" className="rounded-full bg-primary-foreground/10 p-2 transition-colors duration-200 hover:bg-secondary hover:text-secondary-foreground">
+              <Youtube className="h-4 w-4" />
+            </a>
+          </div>
         </div>
 
         {/* Quick Links */}
