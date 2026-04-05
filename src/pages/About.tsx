@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import SectionHeading from "@/components/shared/SectionHeading";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,7 +15,18 @@ const fadeUp = {
   visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }),
 };
 
-const About = () => (
+const About = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      setTimeout(() => {
+        document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, [location]);
+
+  return (
   <>
     {/* Hero */}
     <section className="bg-primary py-24 text-primary-foreground">
@@ -29,7 +42,7 @@ const About = () => (
     </section>
 
     {/* History */}
-    <section className="py-24">
+    <section id="history" className="py-24">
       <div className="container grid items-start gap-16 lg:grid-cols-[200px_1fr]">
         <span className="text-xs font-semibold uppercase tracking-[0.2em] text-secondary">Our History</span>
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
@@ -49,7 +62,7 @@ const About = () => (
     </section>
 
     {/* Vision & Mission */}
-    <section className="bg-muted py-24">
+    <section id="vision" className="bg-muted py-24">
       <div className="container">
         <SectionHeading label="Purpose" title="Vision & Mission" />
         <div className="mx-auto grid max-w-4xl gap-8 md:grid-cols-2">
@@ -91,7 +104,7 @@ const About = () => (
     </section>
 
     {/* Leadership */}
-    <section className="bg-muted py-24">
+    <section id="management" className="bg-muted py-24">
       <div className="container">
         <SectionHeading label="Leadership" title="Our Management" description="Guided by experienced educators and visionary leaders." />
         <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-3">
@@ -113,6 +126,7 @@ const About = () => (
       </div>
     </section>
   </>
-);
+  );
+};
 
 export default About;

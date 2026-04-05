@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,7 +20,16 @@ const steps = [
 ];
 
 const Admissions = () => {
+  const location = useLocation();
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (location.hash) {
+      setTimeout(() => {
+        document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, [location]);
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -41,7 +52,7 @@ const Admissions = () => {
       </section>
 
       {/* Process */}
-      <section className="py-24">
+      <section id="process" className="py-24">
         <div className="container">
           <SectionHeading label="Process" title="How to Apply" />
           <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -67,7 +78,7 @@ const Admissions = () => {
       </section>
 
       {/* Inquiry Form */}
-      <section className="bg-muted py-24">
+      <section id="apply" className="bg-muted py-24">
         <div className="container">
           <SectionHeading label="Inquiry" title="Admission Inquiry Form" description="Fill in the details below and our admissions team will get back to you." />
           <div className="mx-auto max-w-2xl">

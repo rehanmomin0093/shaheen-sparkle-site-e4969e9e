@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import SectionHeading from "@/components/shared/SectionHeading";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,7 +37,18 @@ const fadeUp = {
   visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }),
 };
 
-const Academics = () => (
+const Academics = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      setTimeout(() => {
+        document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, [location]);
+
+  return (
   <>
     <section className="bg-primary py-24 text-primary-foreground">
       <div className="container">
@@ -48,7 +61,7 @@ const Academics = () => (
     </section>
 
     {/* Streams */}
-    <section className="py-24">
+    <section id="curriculum" className="py-24">
       <div className="container">
         <SectionHeading label="Streams" title="Academic Programs" />
         <div className="space-y-8">
@@ -74,7 +87,7 @@ const Academics = () => (
     </section>
 
     {/* Extracurricular */}
-    <section className="bg-muted py-24">
+    <section id="departments" className="bg-muted py-24">
       <div className="container">
         <SectionHeading label="Beyond Academics" title="Extracurricular & Facilities" description="Developing well-rounded individuals through diverse activities." />
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -93,6 +106,7 @@ const Academics = () => (
       </div>
     </section>
   </>
-);
+  );
+};
 
 export default Academics;

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
@@ -10,6 +11,7 @@ import { cn } from "@/lib/utils";
 const categories = ["All", "Circulars", "Results", "Events", "General"];
 
 const NoticeBoard = () => {
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const highlightId = searchParams.get("id");
   const [active, setActive] = useState("All");
@@ -32,6 +34,14 @@ const NoticeBoard = () => {
     }
   }, [highlightId, notices]);
 
+  useEffect(() => {
+    if (location.hash) {
+      setTimeout(() => {
+        document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, [location]);
+
   const filtered = active === "All" ? (notices ?? []) : (notices ?? []).filter((n) => n.category === active);
 
   return (
@@ -46,7 +56,7 @@ const NoticeBoard = () => {
         </div>
       </section>
 
-      <section className="py-24">
+      <section id="latest" className="py-24">
         <div className="container">
           <div className="mb-10 flex flex-wrap justify-center gap-2">
             {categories.map((cat) => (

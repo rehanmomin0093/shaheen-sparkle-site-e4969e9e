@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -101,6 +101,15 @@ const StatCard = ({ icon: Icon, label, value }: { icon: any; label: string; valu
 };
 
 const Index = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      setTimeout(() => {
+        document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, [location]);
   const { data: content } = useSiteContent();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -208,7 +217,7 @@ const Index = () => {
       </section>
 
       {/* About & Vision */}
-      <section className="py-24">
+      <section id="about" className="py-24">
         <div className="container">
           <div className="grid gap-12 lg:grid-cols-2">
             <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
@@ -236,7 +245,7 @@ const Index = () => {
       </section>
 
       {/* Academic Highlights — 5 cards */}
-      <section className="bg-muted py-24">
+      <section id="academics" className="bg-muted py-24">
         <div className="container">
           <SectionHeading label="Academics" title="Academic Highlights" description="World-class facilities designed for modern education." />
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
@@ -280,7 +289,7 @@ const Index = () => {
       </section>
 
       {/* Notice Board — Vertical scrolling */}
-      <section className="bg-muted py-24">
+      <section id="notices" className="bg-muted py-24">
         <div className="container">
           <SectionHeading label="Notice Board" title="Latest Announcements" />
           <div className="mx-auto max-w-3xl space-y-4">
@@ -305,7 +314,7 @@ const Index = () => {
       </section>
 
       {/* Results Section */}
-      <section className="py-24">
+      <section id="results" className="py-24">
         <div className="container">
           <SectionHeading label="Results" title="Check Your Results" description="Enter your roll number and class to view your results." />
           <div className="mx-auto max-w-2xl">
@@ -345,7 +354,7 @@ const Index = () => {
       </section>
 
       {/* Gallery with filters and lightbox */}
-      <section className="bg-muted py-24">
+      <section id="gallery" className="bg-muted py-24">
         <div className="container">
           <SectionHeading label="Gallery" title="Campus Life" description="Glimpses of activities, events, and everyday life at Shaheen." />
           <div className="mb-8 flex flex-wrap justify-center gap-2">
@@ -379,7 +388,7 @@ const Index = () => {
       </Dialog>
 
       {/* Admission Form */}
-      <section className="py-24">
+      <section id="admissions" className="py-24">
         <div className="container">
           <SectionHeading label="Admissions" title="Apply for Admission" description="Fill out the form below to start your application." />
           <div className="mx-auto max-w-xl">
