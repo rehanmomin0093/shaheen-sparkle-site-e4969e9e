@@ -338,10 +338,7 @@ const Navbar = () => {
         </AnimatePresence>
       </header>
 
-      {/* News ticker — lower z-index so dropdowns overlay it */}
-      <div className="relative z-10">
-        <NewsTicker />
-      </div>
+
     </div>
   );
 };
