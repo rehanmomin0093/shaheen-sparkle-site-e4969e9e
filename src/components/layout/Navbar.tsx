@@ -100,7 +100,7 @@ const Navbar = () => {
   return (
     <div className="sticky top-0 z-50">
       {/* Top utility bar */}
-      <div className="bg-primary text-primary-foreground">
+      <div className="relative z-40 bg-primary text-primary-foreground">
         <div className="container flex h-9 items-center justify-end gap-0">
           {topBarLinks.map((l, i) => (
             <Link
@@ -146,7 +146,7 @@ const Navbar = () => {
       {/* Main navbar */}
       <header
         className={cn(
-          "border-b border-border/50 backdrop-blur-xl transition-all duration-300",
+          "relative z-40 border-b border-border/50 backdrop-blur-xl transition-all duration-300",
           isScrolled
             ? "bg-card/95 shadow-lg"
             : "bg-[hsl(142_40%_85%/0.95)]"
@@ -338,8 +338,10 @@ const Navbar = () => {
         </AnimatePresence>
       </header>
 
-      {/* News ticker */}
-      <NewsTicker />
+      {/* News ticker — lower z-index so dropdowns overlay it */}
+      <div className="relative z-10">
+        <NewsTicker />
+      </div>
     </div>
   );
 };
