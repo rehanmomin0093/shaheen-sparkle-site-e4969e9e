@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, GraduationCap, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import NewsTicker from "./NewsTicker";
+
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
