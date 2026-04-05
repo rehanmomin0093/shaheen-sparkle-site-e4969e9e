@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, GraduationCap, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -26,18 +26,19 @@ const navLinks: NavItem[] = [
     dropdown: [
       { label: "School History", to: "/about#history" },
       { label: "Vision & Mission", to: "/about#vision" },
-      { label: "Principal Message", to: "/about#principal" },
+      { label: "Management", to: "/about#management" },
       { label: "Staff", to: "/about#staff" },
     ],
   },
   {
-    label: "Academics",
+    label: "Academic",
     to: "/academics",
     dropdown: [
       { label: "Curriculum", to: "/academics#curriculum" },
       { label: "Departments", to: "/academics#departments" },
       { label: "Faculty", to: "/academics#faculty" },
       { label: "Time Table", to: "/academics#timetable" },
+      { label: "Results", to: "/academics#results" },
     ],
   },
   {
@@ -55,12 +56,12 @@ const navLinks: NavItem[] = [
     to: "/notices",
     dropdown: [
       { label: "Latest Notices", to: "/notices#latest" },
-      { label: "Events", to: "/notices#events" },
       { label: "Announcements", to: "/notices#announcements" },
+      { label: "Upcoming Events", to: "/notices#events" },
     ],
   },
   {
-    label: "Admissions",
+    label: "Admission",
     to: "/admissions",
     dropdown: [
       { label: "Admission Process", to: "/admissions#process" },
@@ -69,22 +70,28 @@ const navLinks: NavItem[] = [
       { label: "Apply Online", to: "/admissions#apply" },
     ],
   },
-  {
-    label: "Contact",
-    to: "/contact",
-    dropdown: [
-      { label: "Address", to: "/contact#address" },
-      { label: "Phone", to: "/contact#phone" },
-      { label: "Email", to: "/contact#email" },
-      { label: "Google Map", to: "/contact#map" },
-    ],
-  },
+  { label: "Contact", to: "/contact" },
+];
+
+const announcementItems = [
+  "📢 Admissions Open for 2026",
+  "🏆 Annual Sports Day on 25 January",
+  "📋 Final Exam Results Released",
+  "🔬 Science Exhibition Next Week",
 ];
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [expandedMobile, setExpandedMobile] = useState<string | null>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [hoveredDropdown, setHoveredDropdown] = useState<string | null>(null);
   const location = useLocation();
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const toggleMobileDropdown = (label: string) => {
     setExpandedMobile((prev) => (prev === label ? null : label));
@@ -108,8 +115,43 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* Running news ticker when dropdown is hovered */}
+      <AnimatePresence>
+        {hoveredDropdown && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden bg-destructive/90 text-white"
+          >
+            <div className="flex h-7 items-center overflow-hidden">
+              <div className="animate-ticker flex whitespace-nowrap text-xs font-medium">
+                <span className="px-8 flex items-center gap-8">
+                  {announcementItems.map((a, i) => (
+                    <span key={`a-${i}`}>{a}</span>
+                  ))}
+                </span>
+                <span className="px-8 flex items-center gap-8">
+                  {announcementItems.map((a, i) => (
+                    <span key={`b-${i}`}>{a}</span>
+                  ))}
+                </span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Main navbar */}
-      <header className="border-b border-border/50 bg-[hsl(142_40%_85%/0.95)] backdrop-blur-xl">
+      <header
+        className={cn(
+          "border-b border-border/50 backdrop-blur-xl transition-all duration-300",
+          isScrolled
+            ? "bg-card/95 shadow-lg"
+            : "bg-[hsl(142_40%_85%/0.95)]"
+        )}
+      >
         <div className="container flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2 transition-transform duration-300 hover:scale-105">
             <div className="flex h-10 w-10 items-center justify-center rounded bg-primary">
@@ -124,11 +166,17 @@ const Navbar = () => {
           {/* Desktop nav */}
           <nav className="hidden items-center gap-0.5 lg:flex">
             {navLinks.map((l) => (
-              <div key={l.to} className="group relative">
+              <div
+                key={l.to}
+                className="group relative"
+                onMouseEnter={() => l.dropdown && setHoveredDropdown(l.label)}
+                onMouseLeave={() => setHoveredDropdown(null)}
+              >
                 <Link
                   to={l.to}
                   className={cn(
-                    "animated-underline flex items-center gap-1 rounded px-3 py-2 text-sm font-medium transition-colors duration-200 hover:text-primary",
+                    "animated-underline flex items-center gap-1 rounded px-3 py-2 text-sm font-medium transition-all duration-200 hover:text-primary",
+                    "hover:shadow-[0_0_12px_hsl(var(--secondary)/0.3)]",
                     location.pathname === l.to
                       ? "text-primary after:!scale-x-100 after:!origin-bottom-left"
                       : "text-foreground/70"
@@ -142,7 +190,7 @@ const Navbar = () => {
 
                 {/* Desktop dropdown */}
                 {l.dropdown && (
-                  <div className="invisible absolute left-0 top-full z-50 min-w-[200px] pt-1 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
+                  <div className="invisible absolute left-0 top-full z-50 min-w-[200px] pt-1 opacity-0 translate-y-2 transition-all duration-200 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0">
                     <div className="rounded-md border border-border bg-card shadow-xl">
                       <div className="py-1">
                         {l.dropdown.map((sub) => (
