@@ -1,64 +1,56 @@
 
 
-# Enhanced School Website — Full UI/UX Upgrade
+# Navigation, Z-Index Fix, Section Anchors & Public Staff Page
 
-## Overview
-Apply all the requested enhancements to the existing React/Tailwind project. The codebase already has most pages and infrastructure — the work focuses on navbar refinements, homepage enrichments, new interactive sections, and polish.
+## Summary
+Most navbar dropdown content is already correct. The main work is: fix the z-index layering between dropdowns and the news ticker, add section anchor IDs throughout pages, create a public Staff page, and add the `/staff` route.
 
 ## Changes
 
-### 1. Navbar Updates (`src/components/layout/Navbar.tsx`)
-- Remove "Principal Message" from About dropdown
-- Add "Management" to About dropdown
-- Add "Results" to Academics dropdown
-- Remove dropdown from Contact (direct link only)
-- Update Notice Board dropdown: "Latest Notices", "Announcements", "Upcoming Events"
-- Add news ticker that appears inside dropdown panels (scrolling announcements)
-- Add navbar color change on scroll (transparent → solid)
-- Add hover glow effect on nav items
+### 1. Navbar Z-Index Fix (`src/components/layout/Navbar.tsx`)
+The hover-triggered announcement ticker (lines 118-144) sits between the navbar and dropdown menus, causing overlap. Fix by:
+- Moving the inline news ticker below the header in DOM order
+- Setting dropdown `z-[60]`, navbar header `z-[40]`, ticker `z-[10]`
+- The dropdown containers already use `absolute z-50` — bump to `z-[60]` to guarantee they render above the ticker
 
-### 2. Homepage Enhancements (`src/pages/Index.tsx`)
-- **Hero**: Add "Explore" button alongside "Apply Now", add parallax-style background effect, gradient overlay, staggered text animations
-- **Academic Highlights**: Replace current 3-card layout with 5 cards (Departments, Smart Classrooms, Labs, Library, Sports) with hover-lift animations
-- **Results Section**: New section with Roll Number + Class input fields and a sample results table
-- **Admission Form**: New section with a simple application form (Name, Email, Phone, Class, Submit)
-- **Gallery**: Add filter buttons (Events, Sports, Campus, Cultural) and lightbox popup on click
-- **Notice Board**: Convert to vertical scrolling notice list
-- **Back to Top**: Floating action button that appears on scroll
+### 2. Section Anchors on Index.tsx
+Add `id` attributes to each major section so dropdown sub-links like `/#about` work:
+- `id="about"` on About section
+- `id="academics"` on Academic Highlights section
+- `id="gallery"` on Gallery section
+- `id="notices"` on Notice Board section
+- `id="admissions"` on Admission section
+- `id="contact"` on Contact section
 
-### 3. CSS Enhancements (`src/index.css`)
-- Page loader animation (fade out on load)
-- Floating animated shapes keyframes
-- Ripple effect for buttons
-- Parallax helper class
-- Scroll reveal animation
-- Glassmorphism utility class
-- Back-to-top button styles
+Add a `useEffect` that reads `window.location.hash` on mount and scrolls to the matching element with `scrollIntoView({ behavior: 'smooth' })`.
 
-### 4. Layout Updates (`src/components/layout/Layout.tsx`)
-- Add page loader overlay
-- Add floating "Back to Top" button
-- Add floating decorative shapes
+### 3. Section Anchors on Sub-Pages
+Add `id` attributes to About.tsx (`#history`, `#vision`, `#management`, `#staff`), Academics.tsx (`#curriculum`, `#departments`, `#faculty`, `#timetable`, `#results`), Admissions.tsx (`#process`, `#eligibility`, `#fees`, `#apply`), and NoticeBoard.tsx (`#latest`, `#announcements`, `#events`). Each page gets a `useEffect` for hash-based smooth scrolling.
 
-### 5. Footer Enhancements (`src/components/layout/Footer.tsx`)
-- Add "Latest Notices" column (pull 3 recent notices)
-- Improve spacing and polish
+### 4. Public Staff Page (`src/pages/Staff.tsx`)
+New page fetching from the existing `staff` table (not `staff_members` — the table is called `staff`). Display a responsive card grid with:
+- Photo (with fallback avatar)
+- Name, designation, qualification
+- Department/area of expertise
+- Staff type badge (Teaching / Non-Teaching)
+- Filter tabs: All, Teaching, Non-Teaching
+- Hover-lift animation on cards
 
-## Files to Modify
+Uses TanStack React Query to fetch data. RLS already allows public reads.
 
-| File | Changes |
-|------|---------|
-| `src/components/layout/Navbar.tsx` | Remove Principal Message, remove Contact dropdown, add Results to Academics, add Management to About, scroll color change, hover glow |
-| `src/pages/Index.tsx` | Add Results section, Admission form, gallery filters/lightbox, vertical notice board, Explore button, parallax hero, academic highlights (5 cards), back-to-top |
-| `src/index.css` | Loader, floating shapes, ripple, parallax, glassmorphism, scroll-reveal keyframes |
-| `src/components/layout/Layout.tsx` | Page loader, back-to-top FAB, floating shapes |
-| `src/components/layout/Footer.tsx` | Add latest notices column |
+### 5. Route Registration (`src/App.tsx`)
+Add `/staff` route inside the Layout route group, import the new Staff page.
 
-## Technical Details
-- Parallax effect: CSS `background-attachment: fixed` on hero
-- Lightbox: Simple modal state with full-screen image overlay using existing Dialog component
-- Results section: Client-side only with sample data (no DB query needed)
-- Scroll detection: `useEffect` with `window.addEventListener('scroll')` for navbar color change and back-to-top visibility
-- Floating shapes: Absolute-positioned divs with CSS animation (rotate + float)
-- Page loader: CSS overlay that fades out after 1s via `useEffect`
+## Files
+
+| File | Action |
+|------|--------|
+| `src/components/layout/Navbar.tsx` | Fix z-index on dropdown vs ticker |
+| `src/pages/Index.tsx` | Add section `id` attributes + hash scroll effect |
+| `src/pages/About.tsx` | Add section `id` attributes + hash scroll effect |
+| `src/pages/Academics.tsx` | Add section `id` attributes + hash scroll effect |
+| `src/pages/Admissions.tsx` | Add section `id` attributes + hash scroll effect |
+| `src/pages/NoticeBoard.tsx` | Add section `id` attributes + hash scroll effect |
+| `src/pages/Staff.tsx` | Create — public staff directory page |
+| `src/App.tsx` | Add `/staff` route |
 
