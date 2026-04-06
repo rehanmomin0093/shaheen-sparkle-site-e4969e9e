@@ -205,7 +205,13 @@ const AdminTeachers = () => {
                 </div>
                 <div className="space-y-2">
                   <Label>Subject</Label>
-                  <Input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} />
+                  <Select value={form.subject || "All Subjects"} onValueChange={(v) => setForm({ ...form, subject: v })}>
+                    <SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger>
+                    <SelectContent>
+                      {SUBJECTS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">For classes 8+, assign specific subject</p>
                 </div>
                 <div className="space-y-2">
                   <Label>Email</Label>
