@@ -267,12 +267,13 @@ const AdminTeachers = () => {
                 <TableHead>Subject</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Qualification</TableHead>
+                <TableHead>Class</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {teachers?.length === 0 && (
-                <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">No teachers added yet</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No teachers added yet</TableCell></TableRow>
               )}
               {teachers?.map((t) => (
                 <TableRow key={t.id}>
