@@ -3,22 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { LogOut, ClipboardList, FileText, Ruler, Loader2 } from "lucide-react";
+import { LogOut, ClipboardList, FileText, Ruler, BookOpen, Loader2 } from "lucide-react";
 import AttendanceTab from "./AttendanceTab";
 import ResultsTab from "./ResultsTab";
 import PhysicalDataTab from "./PhysicalDataTab";
+import TestsTab from "./TestsTab";
 
 const TeacherDashboard = () => {
   const { user, isTeacher, isAdmin, loading, signOut } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate("/staff-portal");
-    }
-    if (!loading && user && !isTeacher && !isAdmin) {
-      navigate("/staff-portal");
-    }
+    if (!loading && !user) navigate("/staff-portal");
+    if (!loading && user && !isTeacher && !isAdmin) navigate("/staff-portal");
   }, [loading, user, isTeacher, isAdmin, navigate]);
 
   if (loading) {
@@ -31,7 +28,6 @@ const TeacherDashboard = () => {
 
   return (
     <div className="min-h-screen bg-muted">
-      {/* Header */}
       <header className="border-b bg-background shadow-sm">
         <div className="container flex items-center justify-between py-4">
           <h1 className="font-serif text-2xl font-bold text-primary">Teacher Dashboard</h1>
@@ -44,10 +40,9 @@ const TeacherDashboard = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="container py-6">
         <Tabs defaultValue="attendance" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
             <TabsTrigger value="attendance" className="gap-2">
               <ClipboardList className="h-4 w-4" /> Attendance
             </TabsTrigger>
@@ -57,17 +52,15 @@ const TeacherDashboard = () => {
             <TabsTrigger value="physical" className="gap-2">
               <Ruler className="h-4 w-4" /> Student Data
             </TabsTrigger>
+            <TabsTrigger value="tests" className="gap-2">
+              <BookOpen className="h-4 w-4" /> Tests
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="attendance">
-            <AttendanceTab />
-          </TabsContent>
-          <TabsContent value="results">
-            <ResultsTab />
-          </TabsContent>
-          <TabsContent value="physical">
-            <PhysicalDataTab />
-          </TabsContent>
+          <TabsContent value="attendance"><AttendanceTab /></TabsContent>
+          <TabsContent value="results"><ResultsTab /></TabsContent>
+          <TabsContent value="physical"><PhysicalDataTab /></TabsContent>
+          <TabsContent value="tests"><TestsTab /></TabsContent>
         </Tabs>
       </main>
     </div>
