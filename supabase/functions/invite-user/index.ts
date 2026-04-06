@@ -103,7 +103,7 @@ Deno.serve(async (req) => {
     const { error: roleError } = await adminClient
       .from("user_roles")
       .upsert(
-        { user_id: inviteData.user.id, role },
+        { user_id: userId, role },
         { onConflict: "user_id,role" }
       );
 
@@ -115,7 +115,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true, user_id: inviteData.user.id }),
+      JSON.stringify({ success: true, user_id: userId }),
       {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
