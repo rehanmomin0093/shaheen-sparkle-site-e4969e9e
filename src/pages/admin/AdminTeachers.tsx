@@ -74,7 +74,7 @@ const AdminTeachers = () => {
         teacherId = data.id;
       }
       // Upsert class assignment
-      if (teacherId && assigned_class) {
+      if (teacherId && assigned_class && assigned_class !== "none") {
         await supabase.from("teacher_class_assignments").delete().eq("teacher_id", teacherId);
         await supabase.from("teacher_class_assignments").insert({
           teacher_id: teacherId,
