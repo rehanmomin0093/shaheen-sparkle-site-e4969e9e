@@ -232,6 +232,7 @@ const AdminTeachers = () => {
                   <Label>Section</Label>
                   <Input value={form.assigned_section} onChange={(e) => setForm({ ...form, assigned_section: e.target.value })} placeholder="e.g. A" />
                 </div>
+              </div>
               <div className="space-y-2">
                 <Label>Photo</Label>
                 <div className="flex items-center gap-3">
