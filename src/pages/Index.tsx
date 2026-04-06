@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import SectionHeading from "@/components/shared/SectionHeading";
-import { GraduationCap, Users, Award, BookOpen, Calendar, ArrowRight, ChevronLeft, ChevronRight, MapPin, Phone, Mail, Send, Search, Monitor, FlaskConical, Library, Dumbbell, Building2, X } from "lucide-react";
+import { GraduationCap, Users, Award, BookOpen, Calendar, ArrowRight, ChevronLeft, ChevronRight, MapPin, Phone, Mail, Send, Monitor, FlaskConical, Library, Dumbbell, Building2 } from "lucide-react";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import PopupBanner from "@/components/shared/PopupBanner";
 import { useQuery } from "@tanstack/react-query";
@@ -31,11 +31,6 @@ const academicHighlights = [
 
 const galleryFilters = ["All", "Events", "Sports", "Campus", "Cultural"];
 
-const sampleResults = [
-  { roll: "2024001", name: "Ahmed Khan", class: "10th", marks: "478/500", grade: "A+" },
-  { roll: "2024002", name: "Fatima S.", class: "10th", marks: "462/500", grade: "A+" },
-  { roll: "2024003", name: "Rahul M.", class: "10th", marks: "445/500", grade: "A" },
-];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -115,9 +110,6 @@ const Index = () => {
   const [direction, setDirection] = useState(1);
   const [galleryFilter, setGalleryFilter] = useState("All");
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
-  const [resultRoll, setResultRoll] = useState("");
-  const [resultClass, setResultClass] = useState("");
-  const [showResults, setShowResults] = useState(false);
 
   const heroImages = [
     content?.hero_image_1, content?.hero_image_2, content?.hero_image_3, content?.hero_image_4,
@@ -309,46 +301,6 @@ const Index = () => {
           </div>
           <div className="mt-10 text-center">
             <Link to="/notices"><Button variant="outline" className="group">All Notices <ArrowRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" /></Button></Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Results Section */}
-      <section id="results" className="py-24">
-        <div className="container">
-          <SectionHeading label="Results" title="Check Your Results" description="Enter your roll number and class to view your results." />
-          <div className="mx-auto max-w-2xl">
-            <Card className="border-none shadow-lg">
-              <CardContent className="p-6 space-y-4">
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <Input placeholder="Roll Number" value={resultRoll} onChange={(e) => setResultRoll(e.target.value)} className="bg-background" />
-                  <Select value={resultClass} onValueChange={setResultClass}>
-                    <SelectTrigger className="bg-background"><SelectValue placeholder="Select Class" /></SelectTrigger>
-                    <SelectContent>
-                      {["8th", "9th", "10th", "11th", "12th"].map((cls) => (
-                        <SelectItem key={cls} value={cls}>{cls}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button onClick={() => setShowResults(true)} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                    <Search className="mr-2 h-4 w-4" /> Search
-                  </Button>
-                </div>
-                {showResults && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead><tr className="border-b border-border text-left"><th className="p-2">Roll No</th><th className="p-2">Name</th><th className="p-2">Class</th><th className="p-2">Marks</th><th className="p-2">Grade</th></tr></thead>
-                      <tbody>
-                        {sampleResults.map((r) => (
-                          <tr key={r.roll} className="border-b border-border/50 hover:bg-muted/50"><td className="p-2">{r.roll}</td><td className="p-2">{r.name}</td><td className="p-2">{r.class}</td><td className="p-2">{r.marks}</td><td className="p-2 font-semibold text-primary">{r.grade}</td></tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    <p className="mt-2 text-xs text-muted-foreground">* Sample data shown for demonstration.</p>
-                  </motion.div>
-                )}
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>
