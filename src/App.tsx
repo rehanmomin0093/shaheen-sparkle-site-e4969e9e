@@ -19,6 +19,7 @@ import Contact from "./pages/Contact";
 import StudentPortal from "./pages/StudentPortal";
 import StaffPortal from "./pages/StaffPortal";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
+import StudentDashboard from "./pages/student/StudentDashboard";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -57,6 +58,7 @@ const App = () => (
               <Route path="/staff-portal" element={<StaffPortal />} />
             </Route>
             <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
+            <Route path="/student-dashboard" element={<StudentDashboard />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
