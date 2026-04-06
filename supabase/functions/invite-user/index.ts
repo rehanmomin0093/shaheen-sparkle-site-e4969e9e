@@ -65,22 +65,45 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Invite the user by email (sends an invite email)
+    // Try to invite the user; if they already exist, look them up instead
+    let userId: string;
     const { data: inviteData, error: inviteError } =
       await adminClient.auth.admin.inviteUserByEmail(email);
 
     if (inviteError) {
-      return new Response(JSON.stringify({ error: inviteError.message }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      // If user already exists, find them and just assign the role
+      if (inviteError.message.includes("already been registered")) {
+        const { data: { users }, error: listError } =
+          await adminClient.auth.admin.listUsers();
+        if (listError) {
+          return new Response(JSON.stringify({ error: listError.message }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        const existing = users.find((u) => u.email === email);
+        if (!existing) {
+          return new Response(JSON.stringify({ error: "User not found" }), {
+            status: 404,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        userId = existing.id;
+      } else {
+        return new Response(JSON.stringify({ error: inviteError.message }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    } else {
+      userId = inviteData.user.id;
     }
 
     // Assign the role
     const { error: roleError } = await adminClient
       .from("user_roles")
       .upsert(
-        { user_id: inviteData.user.id, role },
+        { user_id: userId, role },
         { onConflict: "user_id,role" }
       );
 
@@ -92,7 +115,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true, user_id: inviteData.user.id }),
+      JSON.stringify({ success: true, user_id: userId }),
       {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
