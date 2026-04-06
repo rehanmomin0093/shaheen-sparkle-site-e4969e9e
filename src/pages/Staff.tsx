@@ -171,6 +171,9 @@ const TeacherCard = ({ teacher: t }: { teacher: any }) => (
 
       {/* Details */}
       <div className="flex-1 min-w-0 space-y-1">
+        {t.id_number && (
+          <p className="text-xs font-medium text-muted-foreground">ID: {t.id_number}</p>
+        )}
         <h4 className="font-serif text-lg font-bold text-foreground truncate">{t.name}</h4>
         {t.designation && <p className="text-sm text-muted-foreground">{t.designation}</p>}
         {t.qualification && (

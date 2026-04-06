@@ -37,7 +37,7 @@ const navLinks: NavItem[] = [
       { label: "Curriculum", to: "/academics#curriculum" },
       { label: "Departments", to: "/academics#departments" },
       { label: "Time Table", to: "/academics#timetable" },
-      { label: "Faculty", to: "/staff" },
+      { label: "Faculty", to: "/faculty" },
     ],
   },
   {
