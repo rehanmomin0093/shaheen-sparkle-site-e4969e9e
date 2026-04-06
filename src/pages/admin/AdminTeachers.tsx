@@ -108,6 +108,7 @@ const AdminTeachers = () => {
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["admin-teachers"] });
+      queryClient.invalidateQueries({ queryKey: ["public-teachers-with-classes"] });
       toast({ title: editId ? "Teacher updated!" : "Teacher added!" });
       if (!editId && variables.email) {
         sendInvite(variables.email, "teacher");
@@ -137,6 +138,7 @@ const AdminTeachers = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-teachers"] });
+      queryClient.invalidateQueries({ queryKey: ["public-teachers-with-classes"] });
       toast({ title: "Teacher deleted" });
     },
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
