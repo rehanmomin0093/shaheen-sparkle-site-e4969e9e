@@ -205,15 +205,43 @@ const AdminTeachers = () => {
                   <Label>Name *</Label>
                   <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
                 </div>
-                <div className="space-y-2">
-                  <Label>Subject</Label>
-                  <Select value={form.subject || "All Subjects"} onValueChange={(v) => setForm({ ...form, subject: v })}>
-                    <SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger>
-                    <SelectContent>
-                      {SUBJECTS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">For classes 8+, assign specific subject</p>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label>Subjects (select multiple)</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full justify-between font-normal">
+                        {form.subject
+                          ? form.subject.split(", ").length > 2
+                            ? `${form.subject.split(", ").slice(0, 2).join(", ")} +${form.subject.split(", ").length - 2}`
+                            : form.subject
+                          : "Select subjects"}
+                        <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-3" align="start">
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {SUBJECTS.filter(s => s !== "All Subjects").map((s) => {
+                          const selected = form.subject.split(", ").filter(Boolean);
+                          const isChecked = selected.includes(s);
+                          return (
+                            <label key={s} className="flex items-center gap-2 cursor-pointer text-sm hover:bg-muted rounded px-1 py-0.5">
+                              <Checkbox
+                                checked={isChecked}
+                                onCheckedChange={(checked) => {
+                                  const current = form.subject.split(", ").filter(Boolean);
+                                  const updated = checked
+                                    ? [...current, s]
+                                    : current.filter((x) => x !== s);
+                                  setForm({ ...form, subject: updated.join(", ") });
+                                }}
+                              />
+                              {s}
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="space-y-2">
                   <Label>Email</Label>
