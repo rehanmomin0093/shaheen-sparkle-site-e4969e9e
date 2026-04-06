@@ -1,39 +1,19 @@
 
 
-## Plan: Faculty Module Enhancements
+## Plan: Faculty Module — Fix Data Synchronization
 
-Most of this feature is **already implemented**. The teachers table, admin form with multi-class/multi-subject selects, photo crop, resume upload, public staff page with class-wise grouping, navbar Faculty link, and smooth scrolling all exist. Here's what's actually new:
+### Analysis
 
-### What's Already Done
-- Teachers table with designation, area_of_expertise, experience, resume_url columns
-- `teacher_class_assignments` junction table for multi-class assignments
-- Admin form with multi-class checkboxes, multi-subject select, photo crop, resume upload
-- Public `/staff` page with teachers grouped by class (1st-10th Standard), horizontal cards with photo + details + resume link
-- Academic dropdown with "Faculty" link in navbar
-- `scroll-behavior: smooth` in CSS
+Almost everything requested is **already implemented**. The database schema, RLS policies, admin form with multi-class/multi-subject selects, photo crop, resume upload, public faculty page with class-wise grouping, navbar links, and smooth scrolling all exist and work correctly.
 
-### What's New / Missing
+The **one real gap** is the connectivity issue: when an admin saves or deletes a teacher, only the `["admin-teachers"]` query is invalidated. The public faculty page uses `["public-teachers-with-classes"]` and `["public-non-teaching-staff"]` query keys, which are never invalidated. This means the public page won't refresh its cache until the user navigates away and back.
 
-**1. Database: Add `id_number` column to `teachers` table**
-- Add a text column `id_number` for storing teacher ID numbers (e.g., "T-001")
+### Changes
 
-**2. Admin Form (`AdminTeachers.tsx`)**
-- Add an "ID Number" input field to the form
-- Add `id_number` to the TeacherForm interface and emptyForm
-- Include in save mutation and edit population
+**`src/pages/admin/AdminTeachers.tsx`** — Add cross-domain cache invalidation
 
-**3. Public Staff Page (`Staff.tsx`)**
-- Add ID number display to TeacherCard (show as first detail line before name)
-- Reorder details to match requested order: ID, Name (bold), Designation, Qualification, Expertise, Experience, Phone, Email, Resume
+1. In `saveMutation.onSuccess` (line 110): add `queryClient.invalidateQueries({ queryKey: ["public-teachers-with-classes"] })`
+2. In `deleteMutation.onSuccess` (line 139): add `queryClient.invalidateQueries({ queryKey: ["public-teachers-with-classes"] })`
 
-**4. Route: Add `/faculty` as alias**
-- Add a `/faculty` route in `App.tsx` pointing to the same Staff component
-- Update the navbar "Faculty" link from `/staff` to `/faculty`
-
-### Files Modified
-1. **Migration SQL** — add `id_number` text column to `teachers`
-2. **`src/pages/admin/AdminTeachers.tsx`** — add id_number field to form
-3. **`src/pages/Staff.tsx`** — show id_number in card, reorder details
-4. **`src/App.tsx`** — add `/faculty` route
-5. **`src/components/layout/Navbar.tsx`** — update Faculty link to `/faculty`
+That's it — two lines added to one file. No database, RLS, routing, or component changes needed.
 
