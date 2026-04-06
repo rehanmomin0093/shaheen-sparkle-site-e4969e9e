@@ -486,6 +486,7 @@ export type Database = {
           email: string | null
           experience: string | null
           id: string
+          id_number: string | null
           joining_date: string | null
           name: string
           phone: string | null
@@ -501,6 +502,7 @@ export type Database = {
           email?: string | null
           experience?: string | null
           id?: string
+          id_number?: string | null
           joining_date?: string | null
           name: string
           phone?: string | null
@@ -516,6 +518,7 @@ export type Database = {
           email?: string | null
           experience?: string | null
           id?: string
+          id_number?: string | null
           joining_date?: string | null
           name?: string
           phone?: string | null

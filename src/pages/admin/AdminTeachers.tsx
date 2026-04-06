@@ -22,6 +22,7 @@ const SUBJECTS = [
 
 interface TeacherForm {
   name: string;
+  id_number: string;
   email: string;
   phone: string;
   subject: string;
@@ -38,6 +39,7 @@ interface TeacherForm {
 
 const emptyForm: TeacherForm = {
   name: "",
+  id_number: "",
   email: "",
   phone: "",
   subject: "",
@@ -150,6 +152,7 @@ const AdminTeachers = () => {
     setEditId(teacher.id);
     setForm({
       name: teacher.name,
+      id_number: teacher.id_number || "",
       email: teacher.email || "",
       phone: teacher.phone || "",
       subject: teacher.subject || "",
@@ -233,6 +236,10 @@ const AdminTeachers = () => {
                 <div className="space-y-2">
                   <Label>Name *</Label>
                   <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>ID Number</Label>
+                  <Input value={form.id_number} onChange={(e) => setForm({ ...form, id_number: e.target.value })} placeholder="e.g. T-001" />
                 </div>
                 <div className="space-y-2">
                   <Label>Designation</Label>
