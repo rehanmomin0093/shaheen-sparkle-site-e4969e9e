@@ -290,6 +290,7 @@ const AdminTeachers = () => {
                   <TableCell>{t.subject}</TableCell>
                   <TableCell>{t.phone}</TableCell>
                   <TableCell>{t.qualification}</TableCell>
+                  <TableCell>{(t as any).assigned_class ? `${(t as any).assigned_class}${(t as any).assigned_section ? `-${(t as any).assigned_section}` : ""}` : "-"}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" onClick={() => openEdit(t)}><Edit2 className="h-4 w-4" /></Button>
                     <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteMutation.mutate(t.id)}><Trash2 className="h-4 w-4" /></Button>
