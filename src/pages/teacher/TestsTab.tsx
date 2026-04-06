@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Trash2, Eye, FileText } from "lucide-react";
+import { Loader2, Plus, Trash2, Eye, FileText, Bot, Pencil } from "lucide-react";
 
 const SUBJECTS = ["English", "Hindi", "Marathi", "Math", "Science", "Social Studies"];
 
