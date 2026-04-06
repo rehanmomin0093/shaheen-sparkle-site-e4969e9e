@@ -9,7 +9,10 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Trash2, Edit2, X, Save, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ImageCropDialog from "@/components/shared/ImageCropDialog";
+
+const CLASSES = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
 
 interface TeacherForm {
   name: string;
@@ -19,6 +22,8 @@ interface TeacherForm {
   qualification: string;
   photo_url: string;
   joining_date: string;
+  assigned_class: string;
+  assigned_section: string;
 }
 
 const emptyForm: TeacherForm = {
@@ -29,6 +34,8 @@ const emptyForm: TeacherForm = {
   qualification: "",
   photo_url: "",
   joining_date: new Date().toISOString().split("T")[0],
+  assigned_class: "",
+  assigned_section: "",
 };
 
 const AdminTeachers = () => {
@@ -45,18 +52,37 @@ const AdminTeachers = () => {
     queryFn: async () => {
       const { data, error } = await supabase.from("teachers").select("*").order("name");
       if (error) throw error;
-      return data;
+      // Fetch class assignments for each teacher
+      const { data: assignments } = await supabase.from("teacher_class_assignments").select("*");
+      return (data ?? []).map((t: any) => {
+        const a = assignments?.find((a: any) => a.teacher_id === t.id);
+        return { ...t, assigned_class: a?.class_name || "", assigned_section: a?.section || "" };
+      });
     },
   });
 
   const saveMutation = useMutation({
     mutationFn: async (values: TeacherForm) => {
+      const { assigned_class, assigned_section, ...teacherValues } = values;
+      let teacherId = editId;
       if (editId) {
-        const { error } = await supabase.from("teachers").update(values).eq("id", editId);
+        const { error } = await supabase.from("teachers").update(teacherValues).eq("id", editId);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("teachers").insert(values);
+        const { data, error } = await supabase.from("teachers").insert(teacherValues).select("id").single();
         if (error) throw error;
+        teacherId = data.id;
+      }
+      // Upsert class assignment
+      if (teacherId && assigned_class) {
+        await supabase.from("teacher_class_assignments").delete().eq("teacher_id", teacherId);
+        await supabase.from("teacher_class_assignments").insert({
+          teacher_id: teacherId,
+          class_name: assigned_class,
+          section: assigned_section || null,
+        });
+      } else if (teacherId && !assigned_class) {
+        await supabase.from("teacher_class_assignments").delete().eq("teacher_id", teacherId);
       }
     },
     onSuccess: (_data, variables) => {
@@ -112,6 +138,8 @@ const AdminTeachers = () => {
       qualification: teacher.qualification || "",
       photo_url: teacher.photo_url || "",
       joining_date: teacher.joining_date || "",
+      assigned_class: teacher.assigned_class || "",
+      assigned_section: teacher.assigned_section || "",
     });
     setDialogOpen(true);
   };
@@ -190,6 +218,20 @@ const AdminTeachers = () => {
                   <Label>Joining Date</Label>
                   <Input type="date" value={form.joining_date} onChange={(e) => setForm({ ...form, joining_date: e.target.value })} />
                 </div>
+                <div className="space-y-2">
+                  <Label>Assigned Class</Label>
+                  <Select value={form.assigned_class} onValueChange={(v) => setForm({ ...form, assigned_class: v })}>
+                    <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">None</SelectItem>
+                      {CLASSES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Section</Label>
+                  <Input value={form.assigned_section} onChange={(e) => setForm({ ...form, assigned_section: e.target.value })} placeholder="e.g. A" />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label>Photo</Label>
@@ -225,12 +267,13 @@ const AdminTeachers = () => {
                 <TableHead>Subject</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Qualification</TableHead>
+                <TableHead>Class</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {teachers?.length === 0 && (
-                <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">No teachers added yet</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No teachers added yet</TableCell></TableRow>
               )}
               {teachers?.map((t) => (
                 <TableRow key={t.id}>
@@ -247,6 +290,7 @@ const AdminTeachers = () => {
                   <TableCell>{t.subject}</TableCell>
                   <TableCell>{t.phone}</TableCell>
                   <TableCell>{t.qualification}</TableCell>
+                  <TableCell>{(t as any).assigned_class ? `${(t as any).assigned_class}${(t as any).assigned_section ? `-${(t as any).assigned_section}` : ""}` : "-"}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" onClick={() => openEdit(t)}><Edit2 className="h-4 w-4" /></Button>
                     <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteMutation.mutate(t.id)}><Trash2 className="h-4 w-4" /></Button>

@@ -6,6 +6,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   isAdmin: boolean;
+  isTeacher: boolean;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -17,14 +18,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isTeacher, setIsTeacher] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const checkAdmin = async (userId: string) => {
-    const { data } = await supabase.rpc("has_role", {
-      _user_id: userId,
-      _role: "admin",
-    } as any);
-    setIsAdmin(!!data);
+  const checkRoles = async (userId: string) => {
+    const [adminRes, teacherRes] = await Promise.all([
+      supabase.rpc("has_role", { _user_id: userId, _role: "admin" } as any),
+      supabase.rpc("has_role", { _user_id: userId, _role: "teacher" } as any),
+    ]);
+    setIsAdmin(!!adminRes.data);
+    setIsTeacher(!!teacherRes.data);
   };
 
   useEffect(() => {
@@ -33,12 +36,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          // Don't await inside onAuthStateChange - it blocks auth flow
           setTimeout(() => {
-            checkAdmin(session.user.id).then(() => setLoading(false));
+            checkRoles(session.user.id).then(() => setLoading(false));
           }, 0);
         } else {
           setIsAdmin(false);
+          setIsTeacher(false);
           setLoading(false);
         }
       }
@@ -48,7 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        checkAdmin(session.user.id).then(() => setLoading(false));
+        checkRoles(session.user.id).then(() => setLoading(false));
       } else {
         setLoading(false);
       }
@@ -67,7 +70,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isAdmin, loading, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, session, isAdmin, isTeacher, loading, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
