@@ -43,6 +43,24 @@ const AdminLogin = () => {
     }
   };
 
+  const handleAppleSignIn = async () => {
+    setAppleLoading(true);
+    try {
+      const result = await lovable.auth.signInWithOAuth("apple", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        toast({ title: "Apple Sign-In failed", description: String(result.error), variant: "destructive" });
+      }
+      if (result.redirected) return;
+      navigate("/admin");
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setAppleLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
