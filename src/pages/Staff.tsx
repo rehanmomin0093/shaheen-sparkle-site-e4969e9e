@@ -94,7 +94,7 @@ const Staff = () => {
           {/* Teaching Staff by Class */}
           <section className="py-16">
             <div className="container">
-              <SectionHeading title="Teaching Staff" subtitle="Organized by class" />
+              <SectionHeading title="Teaching Staff" description="Organized by class" />
 
               {teachersByClass.map((cls) => (
                 <div key={cls.value} id={cls.id} className="mb-16 scroll-mt-32">
@@ -123,7 +123,7 @@ const Staff = () => {
           {(nonTeachingStaff ?? []).length > 0 && (
             <section className="bg-muted/30 py-16" id="non-teaching">
               <div className="container">
-                <SectionHeading title="Non-Teaching Staff" subtitle="Support & administration" />
+                <SectionHeading title="Non-Teaching Staff" description="Support & administration" />
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {(nonTeachingStaff ?? []).map((s: any, i: number) => (
                     <motion.div key={s.id} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
