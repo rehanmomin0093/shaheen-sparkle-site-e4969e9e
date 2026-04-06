@@ -1,56 +1,40 @@
+# Teacher Dashboard Features
 
+## Overview
+After login at `/staff-portal`, teachers see a dashboard with 3 main features — all filtered to their assigned class only.
 
-# Navigation, Z-Index Fix, Section Anchors & Public Staff Page
+## Database Changes
 
-## Summary
-Most navbar dropdown content is already correct. The main work is: fix the z-index layering between dropdowns and the news ticker, add section anchor IDs throughout pages, create a public Staff page, and add the `/staff` route.
+### 1. `teacher_class_assignments` table
+- `teacher_id` (references teachers), `class_name`, `section`
+- Admin assigns classes to teachers
 
-## Changes
+### 2. `attendance` table
+- `student_id` (references students), `date`, `status` (present/absent/late), `marked_by` (teacher user_id)
+- Unique constraint on (student_id, date) — one entry per student per day
 
-### 1. Navbar Z-Index Fix (`src/components/layout/Navbar.tsx`)
-The hover-triggered announcement ticker (lines 118-144) sits between the navbar and dropdown menus, causing overlap. Fix by:
-- Moving the inline news ticker below the header in DOM order
-- Setting dropdown `z-[60]`, navbar header `z-[40]`, ticker `z-[10]`
-- The dropdown containers already use `absolute z-50` — bump to `z-[60]` to guarantee they render above the ticker
+### 3. `student_results` table
+- `student_id`, `exam_type` (Unit Test 1, Unit Test 2, Half Yearly, Annual), `subject`, `marks_obtained`, `total_marks`, `academic_year`
+- Subjects: English, Hindi, Marathi, Math, Science, Social Studies
 
-### 2. Section Anchors on Index.tsx
-Add `id` attributes to each major section so dropdown sub-links like `/#about` work:
-- `id="about"` on About section
-- `id="academics"` on Academic Highlights section
-- `id="gallery"` on Gallery section
-- `id="notices"` on Notice Board section
-- `id="admissions"` on Admission section
-- `id="contact"` on Contact section
+### 4. `student_physical_data` table
+- `student_id`, `height_cm`, `weight_kg`, `recorded_date`, `recorded_by`
 
-Add a `useEffect` that reads `window.location.hash` on mount and scrolls to the matching element with `scrollIntoView({ behavior: 'smooth' })`.
+## UI Changes
 
-### 3. Section Anchors on Sub-Pages
-Add `id` attributes to About.tsx (`#history`, `#vision`, `#management`, `#staff`), Academics.tsx (`#curriculum`, `#departments`, `#faculty`, `#timetable`, `#results`), Admissions.tsx (`#process`, `#eligibility`, `#fees`, `#apply`), and NoticeBoard.tsx (`#latest`, `#announcements`, `#events`). Each page gets a `useEffect` for hash-based smooth scrolling.
+### Teacher Dashboard (`/teacher-dashboard`)
+After login, redirect to teacher dashboard with tabs:
+- **Attendance**: Select date → shows student list for assigned class → mark Present/Absent/Late → save
+- **Results**: Select exam type → shows student list → enter marks per subject → save
+- **Student Data**: Shows student list → enter height/weight → save
 
-### 4. Public Staff Page (`src/pages/Staff.tsx`)
-New page fetching from the existing `staff` table (not `staff_members` — the table is called `staff`). Display a responsive card grid with:
-- Photo (with fallback avatar)
-- Name, designation, qualification
-- Department/area of expertise
-- Staff type badge (Teaching / Non-Teaching)
-- Filter tabs: All, Teaching, Non-Teaching
-- Hover-lift animation on cards
+### Admin Panel Update
+- Add class assignment UI in AdminTeachers — assign class + section to each teacher
 
-Uses TanStack React Query to fetch data. RLS already allows public reads.
+## RLS Policies
+- Teachers can read students in their assigned class
+- Teachers can insert/update attendance, results, and physical data for their assigned class
+- Admins have full access
 
-### 5. Route Registration (`src/App.tsx`)
-Add `/staff` route inside the Layout route group, import the new Staff page.
-
-## Files
-
-| File | Action |
-|------|--------|
-| `src/components/layout/Navbar.tsx` | Fix z-index on dropdown vs ticker |
-| `src/pages/Index.tsx` | Add section `id` attributes + hash scroll effect |
-| `src/pages/About.tsx` | Add section `id` attributes + hash scroll effect |
-| `src/pages/Academics.tsx` | Add section `id` attributes + hash scroll effect |
-| `src/pages/Admissions.tsx` | Add section `id` attributes + hash scroll effect |
-| `src/pages/NoticeBoard.tsx` | Add section `id` attributes + hash scroll effect |
-| `src/pages/Staff.tsx` | Create — public staff directory page |
-| `src/App.tsx` | Add `/staff` route |
-
+## Routes
+- `/teacher-dashboard` — protected, requires teacher role
