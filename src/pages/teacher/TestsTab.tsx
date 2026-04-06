@@ -142,8 +142,27 @@ const TestsTab = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["test-submissions"] });
-      toast({ title: "Graded!" });
+      toast({ title: "Score updated!" });
     },
+  });
+
+  const aiGradeMutation = useMutation({
+    mutationFn: async (submissionId: string) => {
+      const { data, error } = await supabase.functions.invoke("grade-submission", {
+        body: { submission_id: submissionId },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["test-submissions"] });
+      toast({
+        title: `AI Graded: ${data.score} marks`,
+        description: data.reason || undefined,
+      });
+    },
+    onError: (e: Error) => toast({ title: "AI Grading Error", description: e.message, variant: "destructive" }),
   });
 
   const deleteMutation = useMutation({
