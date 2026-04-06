@@ -3,13 +3,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Trash2, Edit2, X, Save, Upload, ChevronDown } from "lucide-react";
+import { Loader2, Plus, Trash2, Edit2, Upload, ChevronDown, FileText } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ImageCropDialog from "@/components/shared/ImageCropDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -27,9 +26,13 @@ interface TeacherForm {
   phone: string;
   subject: string;
   qualification: string;
+  designation: string;
+  area_of_expertise: string;
+  experience: string;
   photo_url: string;
+  resume_url: string;
   joining_date: string;
-  assigned_class: string;
+  assigned_classes: string[];
   assigned_section: string;
 }
 
@@ -39,9 +42,13 @@ const emptyForm: TeacherForm = {
   phone: "",
   subject: "",
   qualification: "",
+  designation: "",
+  area_of_expertise: "",
+  experience: "",
   photo_url: "",
+  resume_url: "",
   joining_date: new Date().toISOString().split("T")[0],
-  assigned_class: "",
+  assigned_classes: [],
   assigned_section: "",
 };
 
@@ -52,6 +59,7 @@ const AdminTeachers = () => {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<TeacherForm>(emptyForm);
   const [uploading, setUploading] = useState(false);
+  const [uploadingResume, setUploadingResume] = useState(false);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
 
   const { data: teachers, isLoading } = useQuery({
@@ -59,18 +67,21 @@ const AdminTeachers = () => {
     queryFn: async () => {
       const { data, error } = await supabase.from("teachers").select("*").order("name");
       if (error) throw error;
-      // Fetch class assignments for each teacher
       const { data: assignments } = await supabase.from("teacher_class_assignments").select("*");
       return (data ?? []).map((t: any) => {
-        const a = assignments?.find((a: any) => a.teacher_id === t.id);
-        return { ...t, assigned_class: a?.class_name || "", assigned_section: a?.section || "" };
+        const teacherAssignments = (assignments ?? []).filter((a: any) => a.teacher_id === t.id);
+        return {
+          ...t,
+          assigned_classes: teacherAssignments.map((a: any) => a.class_name),
+          assigned_section: teacherAssignments[0]?.section || "",
+        };
       });
     },
   });
 
   const saveMutation = useMutation({
     mutationFn: async (values: TeacherForm) => {
-      const { assigned_class, assigned_section, ...teacherValues } = values;
+      const { assigned_classes, assigned_section, ...teacherValues } = values;
       let teacherId = editId;
       if (editId) {
         const { error } = await supabase.from("teachers").update(teacherValues).eq("id", editId);
@@ -80,22 +91,22 @@ const AdminTeachers = () => {
         if (error) throw error;
         teacherId = data.id;
       }
-      // Upsert class assignment
-      if (teacherId && assigned_class && assigned_class !== "none") {
+      // Upsert class assignments (multiple)
+      if (teacherId) {
         await supabase.from("teacher_class_assignments").delete().eq("teacher_id", teacherId);
-        await supabase.from("teacher_class_assignments").insert({
-          teacher_id: teacherId,
-          class_name: assigned_class,
-          section: assigned_section || null,
-        });
-      } else if (teacherId && !assigned_class) {
-        await supabase.from("teacher_class_assignments").delete().eq("teacher_id", teacherId);
+        if (assigned_classes.length > 0) {
+          const rows = assigned_classes.map((cls) => ({
+            teacher_id: teacherId!,
+            class_name: cls,
+            section: assigned_section || null,
+          }));
+          await supabase.from("teacher_class_assignments").insert(rows);
+        }
       }
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["admin-teachers"] });
       toast({ title: editId ? "Teacher updated!" : "Teacher added!" });
-      // Send invite if new teacher with email
       if (!editId && variables.email) {
         sendInvite(variables.email, "teacher");
       }
@@ -143,9 +154,13 @@ const AdminTeachers = () => {
       phone: teacher.phone || "",
       subject: teacher.subject || "",
       qualification: teacher.qualification || "",
+      designation: teacher.designation || "",
+      area_of_expertise: teacher.area_of_expertise || "",
+      experience: teacher.experience || "",
       photo_url: teacher.photo_url || "",
+      resume_url: teacher.resume_url || "",
       joining_date: teacher.joining_date || "",
-      assigned_class: teacher.assigned_class || "",
+      assigned_classes: teacher.assigned_classes || [],
       assigned_section: teacher.assigned_section || "",
     });
     setDialogOpen(true);
@@ -170,6 +185,20 @@ const AdminTeachers = () => {
     const { data } = supabase.storage.from("site-assets").getPublicUrl(path);
     setForm({ ...form, photo_url: data.publicUrl });
     setUploading(false);
+  };
+
+  const handleResumeUpload = async (file: File) => {
+    setUploadingResume(true);
+    const path = `resumes/${Date.now()}_${file.name}`;
+    const { error } = await supabase.storage.from("site-assets").upload(path, file, { contentType: file.type });
+    if (error) {
+      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+      setUploadingResume(false);
+      return;
+    }
+    const { data } = supabase.storage.from("site-assets").getPublicUrl(path);
+    setForm({ ...form, resume_url: data.publicUrl });
+    setUploadingResume(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -205,6 +234,10 @@ const AdminTeachers = () => {
                   <Label>Name *</Label>
                   <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
                 </div>
+                <div className="space-y-2">
+                  <Label>Designation</Label>
+                  <Input value={form.designation} onChange={(e) => setForm({ ...form, designation: e.target.value })} placeholder="e.g. Senior Teacher" />
+                </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label>Subjects (select multiple)</Label>
                   <Popover>
@@ -229,9 +262,7 @@ const AdminTeachers = () => {
                                 checked={isChecked}
                                 onCheckedChange={(checked) => {
                                   const current = form.subject.split(", ").filter(Boolean);
-                                  const updated = checked
-                                    ? [...current, s]
-                                    : current.filter((x) => x !== s);
+                                  const updated = checked ? [...current, s] : current.filter((x) => x !== s);
                                   setForm({ ...form, subject: updated.join(", ") });
                                 }}
                               />
@@ -242,6 +273,46 @@ const AdminTeachers = () => {
                       </div>
                     </PopoverContent>
                   </Popover>
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label>Assigned Classes (select multiple)</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full justify-between font-normal">
+                        {form.assigned_classes.length > 0
+                          ? form.assigned_classes.length > 3
+                            ? `${form.assigned_classes.slice(0, 3).join(", ")} +${form.assigned_classes.length - 3}`
+                            : form.assigned_classes.join(", ")
+                          : "Select classes"}
+                        <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-3" align="start">
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {CLASSES.map((c) => {
+                          const isChecked = form.assigned_classes.includes(c);
+                          return (
+                            <label key={c} className="flex items-center gap-2 cursor-pointer text-sm hover:bg-muted rounded px-1 py-0.5">
+                              <Checkbox
+                                checked={isChecked}
+                                onCheckedChange={(checked) => {
+                                  const updated = checked
+                                    ? [...form.assigned_classes, c]
+                                    : form.assigned_classes.filter((x) => x !== c);
+                                  setForm({ ...form, assigned_classes: updated });
+                                }}
+                              />
+                              Class {c}
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-2">
+                  <Label>Section</Label>
+                  <Input value={form.assigned_section} onChange={(e) => setForm({ ...form, assigned_section: e.target.value })} placeholder="e.g. A" />
                 </div>
                 <div className="space-y-2">
                   <Label>Email</Label>
@@ -256,22 +327,16 @@ const AdminTeachers = () => {
                   <Input value={form.qualification} onChange={(e) => setForm({ ...form, qualification: e.target.value })} />
                 </div>
                 <div className="space-y-2">
+                  <Label>Area of Expertise</Label>
+                  <Input value={form.area_of_expertise} onChange={(e) => setForm({ ...form, area_of_expertise: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Experience</Label>
+                  <Input value={form.experience} onChange={(e) => setForm({ ...form, experience: e.target.value })} placeholder="e.g. 5 years" />
+                </div>
+                <div className="space-y-2">
                   <Label>Joining Date</Label>
                   <Input type="date" value={form.joining_date} onChange={(e) => setForm({ ...form, joining_date: e.target.value })} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Assigned Class</Label>
-                  <Select value={form.assigned_class} onValueChange={(v) => setForm({ ...form, assigned_class: v })}>
-                    <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
-                      {CLASSES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Section</Label>
-                  <Input value={form.assigned_section} onChange={(e) => setForm({ ...form, assigned_section: e.target.value })} placeholder="e.g. A" />
                 </div>
               </div>
               <div className="space-y-2">
@@ -282,6 +347,22 @@ const AdminTeachers = () => {
                     <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileSelect(f); }} />
                     <Button type="button" variant="outline" size="sm" asChild disabled={uploading}>
                       <span>{uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}Upload</span>
+                    </Button>
+                  </label>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Resume (PDF)</Label>
+                <div className="flex items-center gap-3">
+                  {form.resume_url && (
+                    <a href={form.resume_url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary underline flex items-center gap-1">
+                      <FileText className="h-4 w-4" /> View Resume
+                    </a>
+                  )}
+                  <label className="cursor-pointer">
+                    <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleResumeUpload(f); }} />
+                    <Button type="button" variant="outline" size="sm" asChild disabled={uploadingResume}>
+                      <span>{uploadingResume ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}Upload Resume</span>
                     </Button>
                   </label>
                 </div>
@@ -305,10 +386,10 @@ const AdminTeachers = () => {
               <TableRow>
                 <TableHead>Photo</TableHead>
                 <TableHead>Name</TableHead>
+                <TableHead>Designation</TableHead>
                 <TableHead>Subject</TableHead>
+                <TableHead>Classes</TableHead>
                 <TableHead>Phone</TableHead>
-                <TableHead>Qualification</TableHead>
-                <TableHead>Class</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -316,7 +397,7 @@ const AdminTeachers = () => {
               {teachers?.length === 0 && (
                 <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No teachers added yet</TableCell></TableRow>
               )}
-              {teachers?.map((t) => (
+              {teachers?.map((t: any) => (
                 <TableRow key={t.id}>
                   <TableCell>
                     {t.photo_url ? (
@@ -328,10 +409,10 @@ const AdminTeachers = () => {
                     )}
                   </TableCell>
                   <TableCell className="font-medium">{t.name}</TableCell>
-                  <TableCell>{t.subject}</TableCell>
-                  <TableCell>{t.phone}</TableCell>
-                  <TableCell>{t.qualification}</TableCell>
-                  <TableCell>{(t as any).assigned_class ? `${(t as any).assigned_class}${(t as any).assigned_section ? `-${(t as any).assigned_section}` : ""}` : "-"}</TableCell>
+                  <TableCell>{t.designation || "-"}</TableCell>
+                  <TableCell>{t.subject || "-"}</TableCell>
+                  <TableCell>{t.assigned_classes?.length > 0 ? t.assigned_classes.join(", ") : "-"}</TableCell>
+                  <TableCell>{t.phone || "-"}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" onClick={() => openEdit(t)}><Edit2 className="h-4 w-4" /></Button>
                     <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteMutation.mutate(t.id)}><Trash2 className="h-4 w-4" /></Button>
