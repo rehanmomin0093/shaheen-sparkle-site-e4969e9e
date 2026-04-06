@@ -480,36 +480,48 @@ export type Database = {
       }
       teachers: {
         Row: {
+          area_of_expertise: string | null
           created_at: string
+          designation: string | null
           email: string | null
+          experience: string | null
           id: string
           joining_date: string | null
           name: string
           phone: string | null
           photo_url: string | null
           qualification: string | null
+          resume_url: string | null
           subject: string
         }
         Insert: {
+          area_of_expertise?: string | null
           created_at?: string
+          designation?: string | null
           email?: string | null
+          experience?: string | null
           id?: string
           joining_date?: string | null
           name: string
           phone?: string | null
           photo_url?: string | null
           qualification?: string | null
+          resume_url?: string | null
           subject?: string
         }
         Update: {
+          area_of_expertise?: string | null
           created_at?: string
+          designation?: string | null
           email?: string | null
+          experience?: string | null
           id?: string
           joining_date?: string | null
           name?: string
           phone?: string | null
           photo_url?: string | null
           qualification?: string | null
+          resume_url?: string | null
           subject?: string
         }
         Relationships: []
