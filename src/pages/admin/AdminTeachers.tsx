@@ -74,7 +74,7 @@ const AdminTeachers = () => {
         teacherId = data.id;
       }
       // Upsert class assignment
-      if (teacherId && assigned_class) {
+      if (teacherId && assigned_class && assigned_class !== "none") {
         await supabase.from("teacher_class_assignments").delete().eq("teacher_id", teacherId);
         await supabase.from("teacher_class_assignments").insert({
           teacher_id: teacherId,
@@ -223,7 +223,7 @@ const AdminTeachers = () => {
                   <Select value={form.assigned_class} onValueChange={(v) => setForm({ ...form, assigned_class: v })}>
                     <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       {CLASSES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                     </SelectContent>
                   </Select>
