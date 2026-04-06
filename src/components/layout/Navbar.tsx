@@ -72,18 +72,11 @@ const navLinks: NavItem[] = [
   { label: "Contact", to: "/contact" },
 ];
 
-const announcementItems = [
-  "📢 Admissions Open for 2026",
-  "🏆 Annual Sports Day on 25 January",
-  "📋 Final Exam Results Released",
-  "🔬 Science Exhibition Next Week",
-];
-
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [expandedMobile, setExpandedMobile] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [hoveredDropdown, setHoveredDropdown] = useState<string | null>(null);
+  
   const location = useLocation();
 
   useEffect(() => {
@@ -114,33 +107,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Running news ticker when dropdown is hovered */}
-      <AnimatePresence>
-        {hoveredDropdown && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden bg-destructive/90 text-white"
-          >
-            <div className="flex h-7 items-center overflow-hidden">
-              <div className="animate-ticker flex whitespace-nowrap text-xs font-medium">
-                <span className="px-8 flex items-center gap-8">
-                  {announcementItems.map((a, i) => (
-                    <span key={`a-${i}`}>{a}</span>
-                  ))}
-                </span>
-                <span className="px-8 flex items-center gap-8">
-                  {announcementItems.map((a, i) => (
-                    <span key={`b-${i}`}>{a}</span>
-                  ))}
-                </span>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Main navbar */}
       <header
@@ -168,8 +134,6 @@ const Navbar = () => {
               <div
                 key={l.to}
                 className="group relative"
-                onMouseEnter={() => l.dropdown && setHoveredDropdown(l.label)}
-                onMouseLeave={() => setHoveredDropdown(null)}
               >
                 <Link
                   to={l.to}
