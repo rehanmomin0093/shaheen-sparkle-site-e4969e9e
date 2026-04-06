@@ -52,18 +52,37 @@ const AdminTeachers = () => {
     queryFn: async () => {
       const { data, error } = await supabase.from("teachers").select("*").order("name");
       if (error) throw error;
-      return data;
+      // Fetch class assignments for each teacher
+      const { data: assignments } = await supabase.from("teacher_class_assignments").select("*");
+      return (data ?? []).map((t: any) => {
+        const a = assignments?.find((a: any) => a.teacher_id === t.id);
+        return { ...t, assigned_class: a?.class_name || "", assigned_section: a?.section || "" };
+      });
     },
   });
 
   const saveMutation = useMutation({
     mutationFn: async (values: TeacherForm) => {
+      const { assigned_class, assigned_section, ...teacherValues } = values;
+      let teacherId = editId;
       if (editId) {
-        const { error } = await supabase.from("teachers").update(values).eq("id", editId);
+        const { error } = await supabase.from("teachers").update(teacherValues).eq("id", editId);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("teachers").insert(values);
+        const { data, error } = await supabase.from("teachers").insert(teacherValues).select("id").single();
         if (error) throw error;
+        teacherId = data.id;
+      }
+      // Upsert class assignment
+      if (teacherId && assigned_class) {
+        await supabase.from("teacher_class_assignments").delete().eq("teacher_id", teacherId);
+        await supabase.from("teacher_class_assignments").insert({
+          teacher_id: teacherId,
+          class_name: assigned_class,
+          section: assigned_section || null,
+        });
+      } else if (teacherId && !assigned_class) {
+        await supabase.from("teacher_class_assignments").delete().eq("teacher_id", teacherId);
       }
     },
     onSuccess: (_data, variables) => {
@@ -119,6 +138,8 @@ const AdminTeachers = () => {
       qualification: teacher.qualification || "",
       photo_url: teacher.photo_url || "",
       joining_date: teacher.joining_date || "",
+      assigned_class: teacher.assigned_class || "",
+      assigned_section: teacher.assigned_section || "",
     });
     setDialogOpen(true);
   };
