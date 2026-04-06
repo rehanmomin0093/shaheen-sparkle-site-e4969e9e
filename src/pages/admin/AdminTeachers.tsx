@@ -223,7 +223,7 @@ const AdminTeachers = () => {
                   <Select value={form.assigned_class} onValueChange={(v) => setForm({ ...form, assigned_class: v })}>
                     <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       {CLASSES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                     </SelectContent>
                   </Select>
