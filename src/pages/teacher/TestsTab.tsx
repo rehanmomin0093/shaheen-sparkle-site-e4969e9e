@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Trash2, Eye, FileText } from "lucide-react";
+import { Loader2, Plus, Trash2, Eye, FileText, Bot, Pencil } from "lucide-react";
 
 const SUBJECTS = ["English", "Hindi", "Marathi", "Math", "Science", "Social Studies"];
 
@@ -142,8 +142,27 @@ const TestsTab = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["test-submissions"] });
-      toast({ title: "Graded!" });
+      toast({ title: "Score updated!" });
     },
+  });
+
+  const aiGradeMutation = useMutation({
+    mutationFn: async (submissionId: string) => {
+      const { data, error } = await supabase.functions.invoke("grade-submission", {
+        body: { submission_id: submissionId },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["test-submissions"] });
+      toast({
+        title: `AI Graded: ${data.score} marks`,
+        description: data.reason || undefined,
+      });
+    },
+    onError: (e: Error) => toast({ title: "AI Grading Error", description: e.message, variant: "destructive" }),
   });
 
   const deleteMutation = useMutation({
@@ -363,44 +382,102 @@ const TestsTab = () => {
           {submissions?.length === 0 ? (
             <p className="py-4 text-center text-muted-foreground">No submissions yet.</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Student</TableHead>
-                  <TableHead>Roll</TableHead>
-                  <TableHead>Score</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Grade</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {submissions?.map((s: any) => (
-                  <TableRow key={s.id}>
-                    <TableCell>{s.students?.name}</TableCell>
-                    <TableCell>{s.students?.roll_number}</TableCell>
-                    <TableCell>{s.score ?? "-"}</TableCell>
-                    <TableCell><Badge variant={s.status === "graded" ? "default" : "secondary"}>{s.status}</Badge></TableCell>
-                    <TableCell>
-                      {s.status !== "graded" && (
-                        <div className="flex gap-1">
-                          <Input
-                            type="number"
-                            className="w-16"
-                            placeholder="Score"
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                const val = parseFloat((e.target as HTMLInputElement).value);
-                                if (!isNaN(val)) gradeMutation.mutate({ submissionId: s.id, score: val });
-                              }
-                            }}
-                          />
-                        </div>
-                      )}
-                    </TableCell>
+            <div className="space-y-3">
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={aiGradeMutation.isPending}
+                  onClick={() => {
+                    const ungraded = submissions?.filter((s: any) => s.status !== "graded");
+                    if (ungraded?.length) {
+                      ungraded.forEach((s: any) => aiGradeMutation.mutate(s.id));
+                    } else {
+                      toast({ title: "All submissions already graded" });
+                    }
+                  }}
+                >
+                  {aiGradeMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
+                  AI Grade All
+                </Button>
+              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Student</TableHead>
+                    <TableHead>Roll</TableHead>
+                    <TableHead>Score</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {submissions?.map((s: any) => {
+                    const aiGrade = s.answers?._ai_grade;
+                    return (
+                      <TableRow key={s.id}>
+                        <TableCell>{s.students?.name}</TableCell>
+                        <TableCell>{s.students?.roll_number}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <Input
+                              type="number"
+                              className="w-20"
+                              defaultValue={s.score ?? ""}
+                              placeholder="Score"
+                              onBlur={(e) => {
+                                const val = parseFloat(e.target.value);
+                                if (!isNaN(val) && val !== s.score) {
+                                  gradeMutation.mutate({ submissionId: s.id, score: val });
+                                }
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  const val = parseFloat((e.target as HTMLInputElement).value);
+                                  if (!isNaN(val)) gradeMutation.mutate({ submissionId: s.id, score: val });
+                                }
+                              }}
+                            />
+                            <Pencil className="h-3 w-3 text-muted-foreground" />
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={s.status === "graded" ? "default" : "secondary"}>
+                            {s.status}
+                            {aiGrade?.graded_by === "ai" && " (AI)"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              disabled={aiGradeMutation.isPending}
+                              onClick={() => aiGradeMutation.mutate(s.id)}
+                              title="Grade with AI"
+                            >
+                              <Bot className="h-4 w-4" />
+                            </Button>
+                            {s.file_url && (
+                              <Button variant="ghost" size="sm" asChild>
+                                <a href={s.file_url} target="_blank" rel="noopener noreferrer">
+                                  <FileText className="h-4 w-4" />
+                                </a>
+                              </Button>
+                            )}
+                          </div>
+                          {aiGrade?.reason && (
+                            <p className="mt-1 text-xs text-muted-foreground max-w-[200px] truncate" title={aiGrade.reason}>
+                              AI: {aiGrade.reason}
+                            </p>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </DialogContent>
       </Dialog>
