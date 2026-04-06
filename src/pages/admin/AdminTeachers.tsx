@@ -13,6 +13,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import ImageCropDialog from "@/components/shared/ImageCropDialog";
 
 const CLASSES = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+const SUBJECTS = [
+  "All Subjects", "English", "Hindi", "Urdu", "Marathi",
+  "Math", "Science", "Social Studies", "Computer Science",
+  "Physical Education", "Art", "Music",
+];
 
 interface TeacherForm {
   name: string;
