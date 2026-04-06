@@ -1,0 +1,1 @@
+ALTER TABLE public.teachers ADD COLUMN id_number text DEFAULT '';
