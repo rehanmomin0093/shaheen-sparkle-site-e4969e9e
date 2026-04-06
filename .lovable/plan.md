@@ -1,17 +1,16 @@
 
 
-## Plan: Remove Results Section from Homepage & Academic Dropdown
+## Plan: Remove Hover Announcement Ticker from Navbar
+
+The blue-highlighted area is the hardcoded announcement ticker that appears between the top bar and the main navbar when hovering over dropdown menus. It shows items like "Admissions Open for 2026", "Annual Sports Day on 25 January", etc.
 
 ### Changes
 
-**1. `src/pages/Index.tsx`**
-- Remove the `sampleResults` array (lines ~34-38)
-- Remove `resultRoll`, `resultClass`, `showResults` state variables (lines ~118-120)
-- Remove the entire Results Section (lines ~316-354)
-- Remove unused imports (`Search`, `Select`/`SelectItem` etc.) if no longer needed elsewhere
+**`src/components/layout/Navbar.tsx`**
+- Remove the `announcementItems` array (lines ~79-84)
+- Remove the `hoveredDropdown` state variable
+- Remove the entire `<AnimatePresence>` block that renders the hover ticker (lines ~106-126)
+- Remove `setHoveredDropdown` calls from `onMouseEnter`/`onMouseLeave` on nav items
 
-**2. `src/components/layout/Navbar.tsx`**
-- Remove `{ label: "Results", to: "/academics#results" }` from the Academic dropdown links (line 41)
-
-Two files changed, no database or backend changes needed.
+One file, no database changes.
 
