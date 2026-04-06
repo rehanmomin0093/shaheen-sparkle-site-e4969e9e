@@ -38,7 +38,6 @@ const navLinks: NavItem[] = [
       { label: "Departments", to: "/academics#departments" },
       { label: "Faculty", to: "/academics#faculty" },
       { label: "Time Table", to: "/academics#timetable" },
-      { label: "Results", to: "/academics#results" },
     ],
   },
   {
