@@ -9,7 +9,10 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Trash2, Edit2, X, Save, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ImageCropDialog from "@/components/shared/ImageCropDialog";
+
+const CLASSES = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
 
 interface TeacherForm {
   name: string;
@@ -19,6 +22,8 @@ interface TeacherForm {
   qualification: string;
   photo_url: string;
   joining_date: string;
+  assigned_class: string;
+  assigned_section: string;
 }
 
 const emptyForm: TeacherForm = {
@@ -29,6 +34,8 @@ const emptyForm: TeacherForm = {
   qualification: "",
   photo_url: "",
   joining_date: new Date().toISOString().split("T")[0],
+  assigned_class: "",
+  assigned_section: "",
 };
 
 const AdminTeachers = () => {
