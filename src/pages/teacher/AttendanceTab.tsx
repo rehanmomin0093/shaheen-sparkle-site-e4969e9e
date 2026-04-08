@@ -131,28 +131,26 @@ const AttendanceTab = () => {
                   <TableCell className="font-medium">{s.roll_number || "-"}</TableCell>
                   <TableCell>{s.name}</TableCell>
                   <TableCell className="text-center">
-                    <Select
-                      value={status}
-                      onValueChange={(val) =>
-                        setStatuses((prev) => ({ ...prev, [s.id]: val as Status }))
-                      }
-                    >
-                      <SelectTrigger className="w-[130px] mx-auto">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="present">
-                          <span className="flex items-center gap-1.5 text-green-600">
-                            <CheckCircle className="h-4 w-4" /> Present
-                          </span>
-                        </SelectItem>
-                        <SelectItem value="absent">
-                          <span className="flex items-center gap-1.5 text-red-600">
-                            <XCircle className="h-4 w-4" /> Absent
-                          </span>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="flex items-center justify-center gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant={status === "present" ? "default" : "outline"}
+                        className={status === "present" ? "bg-green-600 hover:bg-green-700 text-white" : ""}
+                        onClick={() => setStatuses((prev) => ({ ...prev, [s.id]: "present" }))}
+                      >
+                        Present
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant={status === "absent" ? "default" : "outline"}
+                        className={status === "absent" ? "bg-red-600 hover:bg-red-700 text-white" : ""}
+                        onClick={() => setStatuses((prev) => ({ ...prev, [s.id]: "absent" }))}
+                      >
+                        Absent
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               );
