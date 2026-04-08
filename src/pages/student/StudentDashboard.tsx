@@ -385,6 +385,7 @@ const StudentTestsSection = ({ tests, submissions, student }: { tests: any[]; su
                   <p className="text-sm text-muted-foreground">{t.subject} • {t.test_type.toUpperCase()} • Total: {t.total_marks}</p>
                   {t.due_date && <p className="text-xs text-muted-foreground">Due: {new Date(t.due_date).toLocaleDateString()}</p>}
                   {t.description && <p className="mt-1 text-sm text-muted-foreground">{t.description}</p>}
+                  {(t as any).question_file_url && <Badge variant="outline" className="mt-1">Question Paper Attached</Badge>}
                 </div>
                 <div className="text-right">
                   {submission ? (
@@ -409,6 +410,21 @@ const StudentTestsSection = ({ tests, submissions, student }: { tests: any[]; su
           {test?.description && <p className="text-sm text-muted-foreground">{test.description}</p>}
 
           <div className="space-y-6">
+            {/* Show extracted questions from file-based tests */}
+            {(test as any)?.extracted_questions?.questions && (
+              <Card className="p-4">
+                <Label className="mb-3 block font-semibold">Questions from Question Paper</Label>
+                <div className="max-h-60 space-y-3 overflow-y-auto">
+                  {(test as any).extracted_questions.questions.map((q: any, i: number) => (
+                    <div key={i} className="rounded border p-3">
+                      <p className="font-medium">Q{q.number || i + 1}. {q.text}</p>
+                      <p className="text-xs text-muted-foreground">Marks: {q.marks}</p>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+
             {/* MCQ Questions */}
             {(test?.test_type === "mcq" || test?.test_type === "both") && questions?.map((q, i) => (
               <Card key={q.id} className="p-4">
@@ -429,10 +445,11 @@ const StudentTestsSection = ({ tests, submissions, student }: { tests: any[]; su
               </Card>
             ))}
 
-            {/* File Upload */}
-            {(test?.test_type === "upload" || test?.test_type === "both") && (
+            {/* File Upload for answer sheet */}
+            {(test?.test_type === "upload" || test?.test_type === "both" || (test as any)?.question_file_url) && (
               <Card className="p-4">
-                <Label className="mb-2 block font-medium">Upload Answer Sheet</Label>
+                <Label className="mb-2 block font-medium">Upload Answer Sheet (Photo/PDF)</Label>
+                <p className="mb-3 text-xs text-muted-foreground">Upload a clear photo or PDF of your handwritten answer sheet</p>
                 {fileUrl ? (
                   <p className="text-sm text-primary">File uploaded ✓</p>
                 ) : (

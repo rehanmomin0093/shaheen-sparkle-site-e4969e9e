@@ -13,9 +13,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Trash2, Eye, FileText, Bot, Pencil } from "lucide-react";
+import { Loader2, Plus, Trash2, Eye, FileText, Bot, Pencil, Upload } from "lucide-react";
 
-const SUBJECTS = ["English", "Hindi", "Marathi", "Math", "Science", "Social Studies"];
+const SUBJECTS = ["English", "Hindi", "Marathi", "Urdu", "Math", "Science", "Social Studies"];
 
 interface QuestionForm {
   question_text: string;
@@ -48,6 +48,13 @@ const TestsTab = () => {
   const [totalMarks, setTotalMarks] = useState("100");
   const [dueDate, setDueDate] = useState("");
   const [questions, setQuestions] = useState<QuestionForm[]>([{ ...emptyQuestion }]);
+
+  // File-based question states
+  const [questionFile, setQuestionFile] = useState<File | null>(null);
+  const [questionFileUrl, setQuestionFileUrl] = useState("");
+  const [extractedQuestions, setExtractedQuestions] = useState<any>(null);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [extracting, setExtracting] = useState(false);
 
   const { data: tests, isLoading } = useQuery({
     queryKey: ["teacher-tests", user?.id],
@@ -91,7 +98,8 @@ const TestsTab = () => {
   const createMutation = useMutation({
     mutationFn: async () => {
       if (!assignment) throw new Error("No class assigned");
-      const { data: test, error } = await supabase.from("tests").insert({
+
+      const insertData: any = {
         title,
         description,
         test_type: testType,
@@ -101,7 +109,16 @@ const TestsTab = () => {
         total_marks: parseFloat(totalMarks),
         due_date: dueDate ? new Date(dueDate).toISOString() : null,
         created_by: user!.id,
-      }).select("id").single();
+      };
+
+      // If file-based questions, add file data
+      if (testType === "file_upload" && questionFileUrl) {
+        insertData.question_file_url = questionFileUrl;
+        insertData.extracted_questions = extractedQuestions;
+        insertData.test_type = "upload"; // Students upload answer sheets
+      }
+
+      const { data: test, error } = await supabase.from("tests").insert(insertData).select("id").single();
       if (error) throw error;
 
       if ((testType === "mcq" || testType === "both") && questions.length > 0) {
@@ -185,6 +202,9 @@ const TestsTab = () => {
     setTotalMarks("100");
     setDueDate("");
     setQuestions([{ ...emptyQuestion }]);
+    setQuestionFile(null);
+    setQuestionFileUrl("");
+    setExtractedQuestions(null);
   };
 
   const addQuestion = () => setQuestions([...questions, { ...emptyQuestion }]);
@@ -193,6 +213,41 @@ const TestsTab = () => {
     const updated = [...questions];
     updated[i] = { ...updated[i], [field]: value };
     setQuestions(updated);
+  };
+
+  const handleQuestionFileUpload = async (file: File) => {
+    setUploadingFile(true);
+    setQuestionFile(file);
+    const path = `question-papers/${user!.id}/${Date.now()}_${file.name}`;
+    const { error } = await supabase.storage.from("site-assets").upload(path, file);
+    if (error) {
+      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+      setUploadingFile(false);
+      return;
+    }
+    const { data } = supabase.storage.from("site-assets").getPublicUrl(path);
+    setQuestionFileUrl(data.publicUrl);
+    setUploadingFile(false);
+    toast({ title: "File uploaded! Now click 'Extract Questions' to analyze." });
+  };
+
+  const handleExtractQuestions = async () => {
+    if (!questionFileUrl) return;
+    setExtracting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("extract-questions", {
+        body: { test_id: "preview", file_url: questionFileUrl },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setExtractedQuestions(data);
+      if (data.total_marks) setTotalMarks(String(data.total_marks));
+      toast({ title: `Extracted ${data.questions?.length || 0} questions!` });
+    } catch (e: any) {
+      toast({ title: "Extraction failed", description: e.message, variant: "destructive" });
+    } finally {
+      setExtracting(false);
+    }
   };
 
   if (!assignment) {
@@ -229,7 +284,10 @@ const TestsTab = () => {
                 )}
                 {tests?.map((t) => (
                   <TableRow key={t.id}>
-                    <TableCell className="font-medium">{t.title}</TableCell>
+                    <TableCell className="font-medium">
+                      {t.title}
+                      {(t as any).question_file_url && <Badge variant="outline" className="ml-2 text-xs">File Q</Badge>}
+                    </TableCell>
                     <TableCell>{t.subject}</TableCell>
                     <TableCell><Badge variant="outline">{t.test_type.toUpperCase()}</Badge></TableCell>
                     <TableCell>{t.due_date ? new Date(t.due_date).toLocaleDateString() : "-"}</TableCell>
@@ -281,6 +339,7 @@ const TestsTab = () => {
                     <SelectItem value="mcq">MCQ Only</SelectItem>
                     <SelectItem value="upload">Upload Only</SelectItem>
                     <SelectItem value="both">MCQ + Upload</SelectItem>
+                    <SelectItem value="file_upload">Upload Question Paper (Word/PDF)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -297,6 +356,65 @@ const TestsTab = () => {
               <Label>Description</Label>
               <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Instructions for students..." />
             </div>
+
+            {/* File-based Question Upload */}
+            {testType === "file_upload" && (
+              <div className="space-y-4">
+                <Card className="p-4">
+                  <Label className="mb-2 block font-semibold">Upload Question Paper (Word/PDF)</Label>
+                  <p className="mb-3 text-sm text-muted-foreground">Upload a Word or PDF file containing questions. AI will extract and analyze them.</p>
+                  
+                  <div className="flex items-center gap-3">
+                    <label className="cursor-pointer">
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        className="hidden"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) handleQuestionFileUpload(f);
+                        }}
+                      />
+                      <Button type="button" variant="outline" asChild disabled={uploadingFile}>
+                        <span>
+                          {uploadingFile ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+                          {questionFile ? questionFile.name : "Choose File"}
+                        </span>
+                      </Button>
+                    </label>
+
+                    {questionFileUrl && !extractedQuestions && (
+                      <Button onClick={handleExtractQuestions} disabled={extracting}>
+                        {extracting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
+                        Extract Questions with AI
+                      </Button>
+                    )}
+                  </div>
+
+                  {questionFileUrl && (
+                    <p className="mt-2 text-sm text-primary">✓ File uploaded</p>
+                  )}
+                </Card>
+
+                {/* Extracted Questions Preview */}
+                {extractedQuestions && (
+                  <Card className="p-4">
+                    <div className="mb-3 flex items-center justify-between">
+                      <Label className="font-semibold">Extracted Questions ({extractedQuestions.questions?.length || 0})</Label>
+                      <Badge variant="outline">{extractedQuestions.summary || "Question Paper"}</Badge>
+                    </div>
+                    <div className="max-h-60 space-y-2 overflow-y-auto">
+                      {extractedQuestions.questions?.map((q: any, i: number) => (
+                        <div key={i} className="rounded border p-2 text-sm">
+                          <p className="font-medium">Q{q.number || i + 1}. {q.text}</p>
+                          <p className="text-xs text-muted-foreground">Marks: {q.marks} • Type: {q.type}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                )}
+              </div>
+            )}
 
             {/* MCQ Questions */}
             {(testType === "mcq" || testType === "both") && (
@@ -344,7 +462,10 @@ const TestsTab = () => {
 
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={resetForm}>Cancel</Button>
-              <Button onClick={() => createMutation.mutate()} disabled={!title.trim() || createMutation.isPending}>
+              <Button
+                onClick={() => createMutation.mutate()}
+                disabled={!title.trim() || createMutation.isPending || (testType === "file_upload" && !questionFileUrl)}
+              >
                 {createMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Create Test
               </Button>
@@ -377,7 +498,7 @@ const TestsTab = () => {
 
       {/* Submissions Dialog */}
       <Dialog open={!!submissionsOpen} onOpenChange={(o) => { if (!o) setSubmissionsOpen(null); }}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader><DialogTitle>Submissions</DialogTitle></DialogHeader>
           {submissions?.length === 0 ? (
             <p className="py-4 text-center text-muted-foreground">No submissions yet.</p>
@@ -466,9 +587,24 @@ const TestsTab = () => {
                               </Button>
                             )}
                           </div>
-                          {aiGrade?.reason && (
+                          {/* AI per-question grades */}
+                          {aiGrade?.question_grades && (
+                            <div className="mt-2 space-y-1">
+                              {aiGrade.question_grades.map((qg: any, i: number) => (
+                                <p key={i} className="text-xs text-muted-foreground">
+                                  Q{qg.question_number}: {qg.marks_given}/{qg.max_marks} — {qg.feedback}
+                                </p>
+                              ))}
+                            </div>
+                          )}
+                          {aiGrade?.reason && !aiGrade?.question_grades && (
                             <p className="mt-1 text-xs text-muted-foreground max-w-[200px] truncate" title={aiGrade.reason}>
                               AI: {aiGrade.reason}
+                            </p>
+                          )}
+                          {aiGrade?.overall_feedback && (
+                            <p className="mt-1 text-xs font-medium text-muted-foreground" title={aiGrade.overall_feedback}>
+                              {aiGrade.overall_feedback}
                             </p>
                           )}
                         </TableCell>
