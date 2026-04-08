@@ -637,8 +637,10 @@ export type Database = {
           created_by: string | null
           description: string | null
           due_date: string | null
+          extracted_questions: Json | null
           id: string
           is_active: boolean
+          question_file_url: string | null
           section: string | null
           subject: string
           test_type: string
@@ -651,8 +653,10 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           due_date?: string | null
+          extracted_questions?: Json | null
           id?: string
           is_active?: boolean
+          question_file_url?: string | null
           section?: string | null
           subject: string
           test_type?: string
@@ -665,8 +669,10 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           due_date?: string | null
+          extracted_questions?: Json | null
           id?: string
           is_active?: boolean
+          question_file_url?: string | null
           section?: string | null
           subject?: string
           test_type?: string
