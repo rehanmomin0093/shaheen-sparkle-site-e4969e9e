@@ -8,10 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Loader2, Save, CheckCircle, XCircle } from "lucide-react";
 
-type Status = "present" | "absent" | "late";
+type Status = "present" | "absent";
 
 const AttendanceTab = () => {
   const { user } = useAuth();
@@ -26,7 +27,6 @@ const AttendanceTab = () => {
     assignment?.section
   );
 
-  // Fetch existing attendance for this date
   const { data: existingAttendance } = useQuery({
     queryKey: ["attendance", date, assignment?.class_name],
     queryFn: async () => {
@@ -42,13 +42,13 @@ const AttendanceTab = () => {
     enabled: !!students?.length,
   });
 
-  // Populate statuses from existing attendance
   useEffect(() => {
     if (!students) return;
     const map: Record<string, Status> = {};
     students.forEach((s) => {
       const existing = existingAttendance?.find((a) => a.student_id === s.id);
-      map[s.id] = (existing?.status as Status) ?? "present";
+      const val = existing?.status;
+      map[s.id] = val === "absent" ? "absent" : "present";
     });
     setStatuses(map);
   }, [students, existingAttendance]);
@@ -62,7 +62,6 @@ const AttendanceTab = () => {
         status: statuses[s.id] || "present",
         marked_by: user?.id,
       }));
-      // Upsert attendance
       const { error } = await supabase
         .from("attendance")
         .upsert(records, { onConflict: "student_id,date" });
@@ -74,14 +73,6 @@ const AttendanceTab = () => {
     },
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
-
-  const toggleStatus = (studentId: string) => {
-    setStatuses((prev) => {
-      const current = prev[studentId] || "present";
-      const next: Status = current === "present" ? "absent" : current === "absent" ? "late" : "present";
-      return { ...prev, [studentId]: next };
-    });
-  };
 
   if (loadingAssignment || loadingStudents) {
     return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -99,7 +90,6 @@ const AttendanceTab = () => {
 
   const presentCount = Object.values(statuses).filter((s) => s === "present").length;
   const absentCount = Object.values(statuses).filter((s) => s === "absent").length;
-  const lateCount = Object.values(statuses).filter((s) => s === "late").length;
 
   return (
     <Card>
@@ -122,7 +112,6 @@ const AttendanceTab = () => {
         <div className="mt-3 flex gap-3">
           <Badge variant="outline" className="bg-green-50 text-green-700">Present: {presentCount}</Badge>
           <Badge variant="outline" className="bg-red-50 text-red-700">Absent: {absentCount}</Badge>
-          <Badge variant="outline" className="bg-yellow-50 text-yellow-700">Late: {lateCount}</Badge>
         </div>
       </CardHeader>
       <CardContent>
@@ -142,20 +131,28 @@ const AttendanceTab = () => {
                   <TableCell className="font-medium">{s.roll_number || "-"}</TableCell>
                   <TableCell>{s.name}</TableCell>
                   <TableCell className="text-center">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleStatus(s.id)}
-                      className={
-                        status === "present" ? "text-green-600 hover:text-green-700" :
-                        status === "absent" ? "text-red-600 hover:text-red-700" :
-                        "text-yellow-600 hover:text-yellow-700"
+                    <Select
+                      value={status}
+                      onValueChange={(val) =>
+                        setStatuses((prev) => ({ ...prev, [s.id]: val as Status }))
                       }
                     >
-                      {status === "present" && <><CheckCircle className="mr-1 h-4 w-4" /> Present</>}
-                      {status === "absent" && <><XCircle className="mr-1 h-4 w-4" /> Absent</>}
-                      {status === "late" && <><Clock className="mr-1 h-4 w-4" /> Late</>}
-                    </Button>
+                      <SelectTrigger className="w-[130px] mx-auto">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="present">
+                          <span className="flex items-center gap-1.5 text-green-600">
+                            <CheckCircle className="h-4 w-4" /> Present
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="absent">
+                          <span className="flex items-center gap-1.5 text-red-600">
+                            <XCircle className="h-4 w-4" /> Absent
+                          </span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </TableCell>
                 </TableRow>
               );
