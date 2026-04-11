@@ -41,6 +41,10 @@ const headerMap: Record<string, string> = {
   roll_number: "roll_number",
   roll_no: "roll_number",
   rollno: "roll_number",
+  sl_no: "roll_number",
+  slno: "roll_number",
+  urn_no: "roll_number",
+  urn: "roll_number",
   phone: "phone",
   mobile: "phone",
   contact: "phone",
@@ -96,8 +100,8 @@ const BulkStudentImport = ({ onImported }: Props) => {
           if (headerMap[norm]) colMap[h] = headerMap[norm];
         });
 
-        if (!Object.values(colMap).includes("name") || !Object.values(colMap).includes("class")) {
-          setErrors(["File must have at least 'Name' and 'Class' columns"]);
+        if (!Object.values(colMap).includes("name")) {
+          setErrors(["File must have at least a 'Name' column"]);
           return;
         }
 
@@ -112,10 +116,6 @@ const BulkStudentImport = ({ onImported }: Props) => {
 
           if (!mapped.name) {
             errs.push(`Row ${i + 2}: Name is empty`);
-            return;
-          }
-          if (!mapped.class) {
-            errs.push(`Row ${i + 2}: Class is empty`);
             return;
           }
 
