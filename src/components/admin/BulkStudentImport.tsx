@@ -100,8 +100,8 @@ const BulkStudentImport = ({ onImported }: Props) => {
           if (headerMap[norm]) colMap[h] = headerMap[norm];
         });
 
-        if (!Object.values(colMap).includes("name") || !Object.values(colMap).includes("class")) {
-          setErrors(["File must have at least 'Name' and 'Class' columns"]);
+        if (!Object.values(colMap).includes("name")) {
+          setErrors(["File must have at least a 'Name' column"]);
           return;
         }
 
