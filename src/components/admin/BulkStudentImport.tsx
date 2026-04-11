@@ -118,10 +118,6 @@ const BulkStudentImport = ({ onImported }: Props) => {
             errs.push(`Row ${i + 2}: Name is empty`);
             return;
           }
-          if (!mapped.class) {
-            errs.push(`Row ${i + 2}: Class is empty`);
-            return;
-          }
 
           parsed.push({
             name: mapped.name,
