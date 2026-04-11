@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import ImageCropDialog from "@/components/shared/ImageCropDialog";
+import BulkStudentImport from "@/components/admin/BulkStudentImport";
 
 interface StudentForm {
   name: string;
@@ -184,6 +185,7 @@ const AdminStudents = () => {
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h1 className="font-serif text-3xl">Students</h1>
+        <BulkStudentImport onImported={() => queryClient.invalidateQueries({ queryKey: ["admin-students"] })} />
         <Dialog open={dialogOpen} onOpenChange={(o) => { if (!o) closeDialog(); else setDialogOpen(true); }}>
           <DialogTrigger asChild>
             <Button onClick={() => { setForm(emptyForm); setEditId(null); }}>
