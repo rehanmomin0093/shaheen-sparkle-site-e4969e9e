@@ -59,6 +59,7 @@ const ResultsTab = () => {
   useEffect(() => {
     if (!students) return;
     const map: Record<string, MarksEntry> = {};
+    const loadedTotals: Record<string, string> = { ...totalMarks };
     students.forEach((s) => {
       const entry: MarksEntry = {};
       SUBJECTS.forEach((sub) => {
@@ -69,10 +70,16 @@ const ResultsTab = () => {
           marks: existing ? String(existing.marks_obtained) : "",
           total: existing ? String(existing.total_marks) : "100",
         };
+        // Load total_marks from first found existing result per subject
+        if (existing) {
+          loadedTotals[sub] = String(existing.total_marks);
+        }
       });
       map[s.id] = entry;
     });
     setMarks(map);
+    setTotalMarks(loadedTotals);
+    totalMarksRef.current = loadedTotals;
   }, [students, existingResults]);
 
   const [autoSaveStatus, setAutoSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
