@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Trash2, Eye, FileText, Bot, Pencil, Upload } from "lucide-react";
+import { Loader2, Plus, Trash2, Eye, FileText, Pencil } from "lucide-react";
 
 const SUBJECTS = ["English", "Hindi", "Marathi", "Urdu", "Math", "Science", "Social Studies"];
 
@@ -48,13 +48,6 @@ const TestsTab = () => {
   const [totalMarks, setTotalMarks] = useState("100");
   const [dueDate, setDueDate] = useState("");
   const [questions, setQuestions] = useState<QuestionForm[]>([{ ...emptyQuestion }]);
-
-  // File-based question states
-  const [questionFile, setQuestionFile] = useState<File | null>(null);
-  const [questionFileUrl, setQuestionFileUrl] = useState("");
-  const [extractedQuestions, setExtractedQuestions] = useState<any>(null);
-  const [uploadingFile, setUploadingFile] = useState(false);
-  const [extracting, setExtracting] = useState(false);
 
   const { data: tests, isLoading } = useQuery({
     queryKey: ["teacher-tests", user?.id],
@@ -111,17 +104,10 @@ const TestsTab = () => {
         created_by: user!.id,
       };
 
-      // If file-based questions, add file data
-      if (testType === "file_upload" && questionFileUrl) {
-        insertData.question_file_url = questionFileUrl;
-        insertData.extracted_questions = extractedQuestions;
-        insertData.test_type = "upload"; // Students upload answer sheets
-      }
-
       const { data: test, error } = await supabase.from("tests").insert(insertData).select("id").single();
       if (error) throw error;
 
-      if ((testType === "mcq" || testType === "both") && questions.length > 0) {
+      if (testType === "mcq" && questions.length > 0) {
         const qRecords = questions
           .filter((q) => q.question_text.trim())
           .map((q, i) => ({
@@ -163,25 +149,6 @@ const TestsTab = () => {
     },
   });
 
-  const aiGradeMutation = useMutation({
-    mutationFn: async (submissionId: string) => {
-      const { data, error } = await supabase.functions.invoke("grade-submission", {
-        body: { submission_id: submissionId },
-      });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-      return data;
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["test-submissions"] });
-      toast({
-        title: `AI Graded: ${data.score} marks`,
-        description: data.reason || undefined,
-      });
-    },
-    onError: (e: Error) => toast({ title: "AI Grading Error", description: e.message, variant: "destructive" }),
-  });
-
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("tests").delete().eq("id", id);
@@ -202,9 +169,6 @@ const TestsTab = () => {
     setTotalMarks("100");
     setDueDate("");
     setQuestions([{ ...emptyQuestion }]);
-    setQuestionFile(null);
-    setQuestionFileUrl("");
-    setExtractedQuestions(null);
   };
 
   const addQuestion = () => setQuestions([...questions, { ...emptyQuestion }]);
@@ -213,41 +177,6 @@ const TestsTab = () => {
     const updated = [...questions];
     updated[i] = { ...updated[i], [field]: value };
     setQuestions(updated);
-  };
-
-  const handleQuestionFileUpload = async (file: File) => {
-    setUploadingFile(true);
-    setQuestionFile(file);
-    const path = `question-papers/${user!.id}/${Date.now()}_${file.name}`;
-    const { error } = await supabase.storage.from("site-assets").upload(path, file);
-    if (error) {
-      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
-      setUploadingFile(false);
-      return;
-    }
-    const { data } = supabase.storage.from("site-assets").getPublicUrl(path);
-    setQuestionFileUrl(data.publicUrl);
-    setUploadingFile(false);
-    toast({ title: "File uploaded! Now click 'Extract Questions' to analyze." });
-  };
-
-  const handleExtractQuestions = async () => {
-    if (!questionFileUrl) return;
-    setExtracting(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("extract-questions", {
-        body: { test_id: "preview", file_url: questionFileUrl },
-      });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-      setExtractedQuestions(data);
-      if (data.total_marks) setTotalMarks(String(data.total_marks));
-      toast({ title: `Extracted ${data.questions?.length || 0} questions!` });
-    } catch (e: any) {
-      toast({ title: "Extraction failed", description: e.message, variant: "destructive" });
-    } finally {
-      setExtracting(false);
-    }
   };
 
   if (!assignment) {
@@ -284,10 +213,7 @@ const TestsTab = () => {
                 )}
                 {tests?.map((t) => (
                   <TableRow key={t.id}>
-                    <TableCell className="font-medium">
-                      {t.title}
-                      {(t as any).question_file_url && <Badge variant="outline" className="ml-2 text-xs">File Q</Badge>}
-                    </TableCell>
+                    <TableCell className="font-medium">{t.title}</TableCell>
                     <TableCell>{t.subject}</TableCell>
                     <TableCell><Badge variant="outline">{t.test_type.toUpperCase()}</Badge></TableCell>
                     <TableCell>{t.due_date ? new Date(t.due_date).toLocaleDateString() : "-"}</TableCell>
@@ -297,11 +223,9 @@ const TestsTab = () => {
                       </Button>
                     </TableCell>
                     <TableCell className="text-right">
-                      {(t.test_type === "mcq" || t.test_type === "both") && (
-                        <Button variant="ghost" size="icon" onClick={() => setQuestionsOpen(t.id)}>
-                          <FileText className="h-4 w-4" />
-                        </Button>
-                      )}
+                      <Button variant="ghost" size="icon" onClick={() => setQuestionsOpen(t.id)}>
+                        <FileText className="h-4 w-4" />
+                      </Button>
                       <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteMutation.mutate(t.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -332,22 +256,10 @@ const TestsTab = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Test Type</Label>
-                <Select value={testType} onValueChange={setTestType}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="mcq">MCQ Only</SelectItem>
-                    <SelectItem value="upload">Upload Only</SelectItem>
-                    <SelectItem value="both">MCQ + Upload</SelectItem>
-                    <SelectItem value="file_upload">Upload Question Paper (Word/PDF)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
                 <Label>Total Marks</Label>
                 <Input type="number" value={totalMarks} onChange={(e) => setTotalMarks(e.target.value)} />
               </div>
-              <div className="space-y-2 sm:col-span-2">
+              <div className="space-y-2">
                 <Label>Due Date</Label>
                 <Input type="datetime-local" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
               </div>
@@ -357,114 +269,53 @@ const TestsTab = () => {
               <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Instructions for students..." />
             </div>
 
-            {/* File-based Question Upload */}
-            {testType === "file_upload" && (
-              <div className="space-y-4">
-                <Card className="p-4">
-                  <Label className="mb-2 block font-semibold">Upload Question Paper (Word/PDF)</Label>
-                  <p className="mb-3 text-sm text-muted-foreground">Upload a Word or PDF file containing questions. AI will extract and analyze them.</p>
-                  
-                  <div className="flex items-center gap-3">
-                    <label className="cursor-pointer">
-                      <input
-                        type="file"
-                        accept=".pdf,.doc,.docx"
-                        className="hidden"
-                        onChange={(e) => {
-                          const f = e.target.files?.[0];
-                          if (f) handleQuestionFileUpload(f);
-                        }}
-                      />
-                      <Button type="button" variant="outline" asChild disabled={uploadingFile}>
-                        <span>
-                          {uploadingFile ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-                          {questionFile ? questionFile.name : "Choose File"}
-                        </span>
-                      </Button>
-                    </label>
-
-                    {questionFileUrl && !extractedQuestions && (
-                      <Button onClick={handleExtractQuestions} disabled={extracting}>
-                        {extracting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
-                        Extract Questions with AI
+            {/* MCQ Questions */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="text-base font-semibold">MCQ Questions</Label>
+                <Button type="button" variant="outline" size="sm" onClick={addQuestion}><Plus className="mr-1 h-3 w-3" /> Add</Button>
+              </div>
+              {questions.map((q, i) => (
+                <Card key={i} className="p-4">
+                  <div className="mb-3 flex items-start justify-between">
+                    <span className="text-sm font-medium text-muted-foreground">Q{i + 1}</span>
+                    {questions.length > 1 && (
+                      <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => removeQuestion(i)}>
+                        <Trash2 className="h-3 w-3" />
                       </Button>
                     )}
                   </div>
-
-                  {questionFileUrl && (
-                    <p className="mt-2 text-sm text-primary">✓ File uploaded</p>
-                  )}
+                  <Textarea value={q.question_text} onChange={(e) => updateQuestion(i, "question_text", e.target.value)} placeholder="Question text" className="mb-3" />
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <Input value={q.option_a} onChange={(e) => updateQuestion(i, "option_a", e.target.value)} placeholder="Option A" />
+                    <Input value={q.option_b} onChange={(e) => updateQuestion(i, "option_b", e.target.value)} placeholder="Option B" />
+                    <Input value={q.option_c} onChange={(e) => updateQuestion(i, "option_c", e.target.value)} placeholder="Option C" />
+                    <Input value={q.option_d} onChange={(e) => updateQuestion(i, "option_d", e.target.value)} placeholder="Option D" />
+                  </div>
+                  <div className="mt-3 flex gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Correct</Label>
+                      <Select value={q.correct_option} onValueChange={(v) => updateQuestion(i, "correct_option", v)}>
+                        <SelectTrigger className="w-20"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {["A", "B", "C", "D"].map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Marks</Label>
+                      <Input type="number" value={q.marks} onChange={(e) => updateQuestion(i, "marks", e.target.value)} className="w-20" />
+                    </div>
+                  </div>
                 </Card>
-
-                {/* Extracted Questions Preview */}
-                {extractedQuestions && (
-                  <Card className="p-4">
-                    <div className="mb-3 flex items-center justify-between">
-                      <Label className="font-semibold">Extracted Questions ({extractedQuestions.questions?.length || 0})</Label>
-                      <Badge variant="outline">{extractedQuestions.summary || "Question Paper"}</Badge>
-                    </div>
-                    <div className="max-h-60 space-y-2 overflow-y-auto">
-                      {extractedQuestions.questions?.map((q: any, i: number) => (
-                        <div key={i} className="rounded border p-2 text-sm">
-                          <p className="font-medium">Q{q.number || i + 1}. {q.text}</p>
-                          <p className="text-xs text-muted-foreground">Marks: {q.marks} • Type: {q.type}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-                )}
-              </div>
-            )}
-
-            {/* MCQ Questions */}
-            {(testType === "mcq" || testType === "both") && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label className="text-base font-semibold">MCQ Questions</Label>
-                  <Button type="button" variant="outline" size="sm" onClick={addQuestion}><Plus className="mr-1 h-3 w-3" /> Add</Button>
-                </div>
-                {questions.map((q, i) => (
-                  <Card key={i} className="p-4">
-                    <div className="mb-3 flex items-start justify-between">
-                      <span className="text-sm font-medium text-muted-foreground">Q{i + 1}</span>
-                      {questions.length > 1 && (
-                        <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => removeQuestion(i)}>
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      )}
-                    </div>
-                    <Textarea value={q.question_text} onChange={(e) => updateQuestion(i, "question_text", e.target.value)} placeholder="Question text" className="mb-3" />
-                    <div className="grid gap-2 sm:grid-cols-2">
-                      <Input value={q.option_a} onChange={(e) => updateQuestion(i, "option_a", e.target.value)} placeholder="Option A" />
-                      <Input value={q.option_b} onChange={(e) => updateQuestion(i, "option_b", e.target.value)} placeholder="Option B" />
-                      <Input value={q.option_c} onChange={(e) => updateQuestion(i, "option_c", e.target.value)} placeholder="Option C" />
-                      <Input value={q.option_d} onChange={(e) => updateQuestion(i, "option_d", e.target.value)} placeholder="Option D" />
-                    </div>
-                    <div className="mt-3 flex gap-3">
-                      <div className="space-y-1">
-                        <Label className="text-xs">Correct</Label>
-                        <Select value={q.correct_option} onValueChange={(v) => updateQuestion(i, "correct_option", v)}>
-                          <SelectTrigger className="w-20"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            {["A", "B", "C", "D"].map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Marks</Label>
-                        <Input type="number" value={q.marks} onChange={(e) => updateQuestion(i, "marks", e.target.value)} className="w-20" />
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            )}
+              ))}
+            </div>
 
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={resetForm}>Cancel</Button>
               <Button
                 onClick={() => createMutation.mutate()}
-                disabled={!title.trim() || createMutation.isPending || (testType === "file_upload" && !questionFileUrl)}
+                disabled={!title.trim() || createMutation.isPending}
               >
                 {createMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Create Test
@@ -503,117 +354,52 @@ const TestsTab = () => {
           {submissions?.length === 0 ? (
             <p className="py-4 text-center text-muted-foreground">No submissions yet.</p>
           ) : (
-            <div className="space-y-3">
-              <div className="flex justify-end">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={aiGradeMutation.isPending}
-                  onClick={() => {
-                    const ungraded = submissions?.filter((s: any) => s.status !== "graded");
-                    if (ungraded?.length) {
-                      ungraded.forEach((s: any) => aiGradeMutation.mutate(s.id));
-                    } else {
-                      toast({ title: "All submissions already graded" });
-                    }
-                  }}
-                >
-                  {aiGradeMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
-                  AI Grade All
-                </Button>
-              </div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Student</TableHead>
-                    <TableHead>Roll</TableHead>
-                    <TableHead>Score</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Student</TableHead>
+                  <TableHead>Roll</TableHead>
+                  <TableHead>Score</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {submissions?.map((s: any) => (
+                  <TableRow key={s.id}>
+                    <TableCell>{s.students?.name}</TableCell>
+                    <TableCell>{s.students?.roll_number}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Input
+                          type="number"
+                          className="w-20"
+                          defaultValue={s.score ?? ""}
+                          placeholder="Score"
+                          onBlur={(e) => {
+                            const val = parseFloat(e.target.value);
+                            if (!isNaN(val) && val !== s.score) {
+                              gradeMutation.mutate({ submissionId: s.id, score: val });
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              const val = parseFloat((e.target as HTMLInputElement).value);
+                              if (!isNaN(val)) gradeMutation.mutate({ submissionId: s.id, score: val });
+                            }
+                          }}
+                        />
+                        <Pencil className="h-3 w-3 text-muted-foreground" />
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={s.status === "graded" ? "default" : "secondary"}>
+                        {s.status}
+                      </Badge>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {submissions?.map((s: any) => {
-                    const aiGrade = s.answers?._ai_grade;
-                    return (
-                      <TableRow key={s.id}>
-                        <TableCell>{s.students?.name}</TableCell>
-                        <TableCell>{s.students?.roll_number}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <Input
-                              type="number"
-                              className="w-20"
-                              defaultValue={s.score ?? ""}
-                              placeholder="Score"
-                              onBlur={(e) => {
-                                const val = parseFloat(e.target.value);
-                                if (!isNaN(val) && val !== s.score) {
-                                  gradeMutation.mutate({ submissionId: s.id, score: val });
-                                }
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                  const val = parseFloat((e.target as HTMLInputElement).value);
-                                  if (!isNaN(val)) gradeMutation.mutate({ submissionId: s.id, score: val });
-                                }
-                              }}
-                            />
-                            <Pencil className="h-3 w-3 text-muted-foreground" />
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={s.status === "graded" ? "default" : "secondary"}>
-                            {s.status}
-                            {aiGrade?.graded_by === "ai" && " (AI)"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              disabled={aiGradeMutation.isPending}
-                              onClick={() => aiGradeMutation.mutate(s.id)}
-                              title="Grade with AI"
-                            >
-                              <Bot className="h-4 w-4" />
-                            </Button>
-                            {s.file_url && (
-                              <Button variant="ghost" size="sm" asChild>
-                                <a href={s.file_url} target="_blank" rel="noopener noreferrer">
-                                  <FileText className="h-4 w-4" />
-                                </a>
-                              </Button>
-                            )}
-                          </div>
-                          {/* AI per-question grades */}
-                          {aiGrade?.question_grades && (
-                            <div className="mt-2 space-y-1">
-                              {aiGrade.question_grades.map((qg: any, i: number) => (
-                                <p key={i} className="text-xs text-muted-foreground">
-                                  Q{qg.question_number}: {qg.marks_given}/{qg.max_marks} — {qg.feedback}
-                                </p>
-                              ))}
-                            </div>
-                          )}
-                          {aiGrade?.reason && !aiGrade?.question_grades && (
-                            <p className="mt-1 text-xs text-muted-foreground max-w-[200px] truncate" title={aiGrade.reason}>
-                              AI: {aiGrade.reason}
-                            </p>
-                          )}
-                          {aiGrade?.overall_feedback && (
-                            <p className="mt-1 text-xs font-medium text-muted-foreground" title={aiGrade.overall_feedback}>
-                              {aiGrade.overall_feedback}
-                            </p>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </DialogContent>
       </Dialog>
