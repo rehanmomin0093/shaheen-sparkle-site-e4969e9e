@@ -74,7 +74,48 @@ const ResultsTab = () => {
     setMarks(map);
   }, [students, existingResults]);
 
-  const saveMutation = useMutation({
+  const [autoSaveStatus, setAutoSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Auto-save as draft (published=false)
+  const autoSaveMutation = useMutation({
+    mutationFn: async (currentMarks: Record<string, MarksEntry>) => {
+      if (!students) return;
+      const records: any[] = [];
+      students.forEach((s) => {
+        const entry = currentMarks[s.id];
+        if (!entry) return;
+        SUBJECTS.forEach((sub) => {
+          const m = entry[sub];
+          if (m?.marks && m.marks !== "") {
+            records.push({
+              student_id: s.id,
+              exam_type: examType,
+              subject: sub,
+              marks_obtained: parseFloat(m.marks),
+              total_marks: parseFloat(totalMarks[sub]) || 100,
+              academic_year: academicYear,
+              entered_by: user?.id,
+              published: false,
+            });
+          }
+        });
+      });
+      if (records.length === 0) return;
+      const { error } = await supabase
+        .from("student_results")
+        .upsert(records, { onConflict: "student_id,exam_type,subject,academic_year" });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      setAutoSaveStatus("saved");
+      queryClient.invalidateQueries({ queryKey: ["student-results"] });
+    },
+    onError: () => setAutoSaveStatus("error"),
+  });
+
+  // Publish to students (published=true)
+  const publishMutation = useMutation({
     mutationFn: async () => {
       if (!students) return;
       const records: any[] = [];
@@ -92,6 +133,7 @@ const ResultsTab = () => {
               total_marks: parseFloat(totalMarks[sub]) || 100,
               academic_year: academicYear,
               entered_by: user?.id,
+              published: true,
             });
           }
         });
@@ -104,19 +146,31 @@ const ResultsTab = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["student-results"] });
-      toast({ title: "Results saved!" });
+      toast({ title: "Results published! Students can now see their marks." });
     },
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
+  const triggerAutoSave = useCallback((updatedMarks: Record<string, MarksEntry>) => {
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    setAutoSaveStatus("saving");
+    autoSaveTimerRef.current = setTimeout(() => {
+      autoSaveMutation.mutate(updatedMarks);
+    }, 1500);
+  }, [examType, academicYear, students, totalMarks, user?.id]);
+
   const updateMark = (studentId: string, subject: string, value: string) => {
-    setMarks((prev) => ({
-      ...prev,
-      [studentId]: {
-        ...prev[studentId],
-        [subject]: { ...prev[studentId]?.[subject], marks: value },
-      },
-    }));
+    setMarks((prev) => {
+      const updated = {
+        ...prev,
+        [studentId]: {
+          ...prev[studentId],
+          [subject]: { ...prev[studentId]?.[subject], marks: value },
+        },
+      };
+      triggerAutoSave(updated);
+      return updated;
+    });
   };
 
   const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
