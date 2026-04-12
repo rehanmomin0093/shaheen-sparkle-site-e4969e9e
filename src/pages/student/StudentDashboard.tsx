@@ -198,6 +198,39 @@ const StudentDashboard = () => {
                   )}
                 </CardContent>
               </Card>
+              {/* MCQ Test Scores */}
+              {(() => {
+                const gradedSubmissions = (mySubmissions ?? []).filter((s) => s.score !== null && s.score !== undefined);
+                const testScoreData = gradedSubmissions.map((s) => {
+                  const t = (tests ?? []).find((t) => t.id === s.test_id);
+                  return {
+                    name: t?.title ?? "Test",
+                    score: Number(s.score),
+                    total: Number(t?.total_marks ?? 100),
+                    percent: t?.total_marks ? Math.round((Number(s.score) / Number(t.total_marks)) * 100) : 0,
+                  };
+                });
+                return (
+                  <Card className="lg:col-span-2">
+                    <CardHeader><CardTitle>MCQ Test Scores</CardTitle></CardHeader>
+                    <CardContent>
+                      {testScoreData.length === 0 ? (
+                        <p className="py-8 text-center text-muted-foreground">No test scores yet.</p>
+                      ) : (
+                        <ResponsiveContainer width="100%" height={250}>
+                          <BarChart data={testScoreData}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" fontSize={11} />
+                            <YAxis domain={[0, 100]} />
+                            <Tooltip formatter={(value: number, name: string) => [name === "percent" ? `${value}%` : value, name === "percent" ? "Percentage" : "Score"]} />
+                            <Bar dataKey="percent" fill="hsl(var(--accent-foreground))" radius={[4, 4, 0, 0]} name="Percentage" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })()}
               <Card className="lg:col-span-2">
                 <CardHeader><CardTitle>Attendance Trend (Month-wise)</CardTitle></CardHeader>
                 <CardContent>
