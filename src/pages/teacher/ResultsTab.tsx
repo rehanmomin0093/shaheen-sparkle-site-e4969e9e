@@ -233,26 +233,38 @@ const ResultsTab = () => {
             </Button>
           </div>
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".xlsx,.xls,.csv"
-            className="hidden"
-            onChange={handleFileImport}
-          />
-          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="mr-2 h-4 w-4" /> Import Excel/CSV
+        <div className="mt-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowActions((prev) => !prev)}
+          >
+            {showActions ? <ChevronUp className="mr-2 h-4 w-4" /> : <ChevronDown className="mr-2 h-4 w-4" />}
+            {showActions ? "Hide Options" : "Show Options"}
           </Button>
-          <Button variant="outline" size="sm" onClick={downloadTemplate}>
-            <FileDown className="mr-2 h-4 w-4" /> Download Template
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => handleExport("xlsx")}>
-            <FileSpreadsheet className="mr-2 h-4 w-4" /> Export Excel
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => handleExport("csv")}>
-            <FileDown className="mr-2 h-4 w-4" /> Export CSV
-          </Button>
+          {showActions && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                className="hidden"
+                onChange={handleFileImport}
+              />
+              <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                <Upload className="mr-2 h-4 w-4" /> Import Excel/CSV
+              </Button>
+              <Button variant="outline" size="sm" onClick={downloadTemplate}>
+                <FileDown className="mr-2 h-4 w-4" /> Download Template
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => handleExport("xlsx")}>
+                <FileSpreadsheet className="mr-2 h-4 w-4" /> Export Excel
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => handleExport("csv")}>
+                <FileDown className="mr-2 h-4 w-4" /> Export CSV
+              </Button>
+            </div>
+          )}
         </div>
       </CardHeader>
       <CardContent className="overflow-x-auto">
