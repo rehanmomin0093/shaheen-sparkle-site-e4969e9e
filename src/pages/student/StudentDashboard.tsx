@@ -101,10 +101,21 @@ const StudentDashboard = () => {
   const latestExamWithData = [...resultsByExam].reverse().find((r) => r.count > 0);
   const subjectChartData = latestExamWithData ? SUBJECTS.map((s) => ({ subject: s, marks: latestExamWithData.subjectMarks[s] ?? 0 })) : [];
 
-  const attendanceTrend = (attendance ?? []).slice(0, 30).reverse().map((a) => ({
-    day: new Date(a.date).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }),
-    value: a.status === "present" ? 1 : a.status === "late" ? 0.5 : 0,
-  }));
+  const attendanceTrend = (() => {
+    const monthMap: Record<string, { present: number; total: number }> = {};
+    (attendance ?? []).forEach((a) => {
+      const d = new Date(a.date);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      if (!monthMap[key]) monthMap[key] = { present: 0, total: 0 };
+      monthMap[key].total++;
+      if (a.status === "present") monthMap[key].present++;
+    });
+    return Object.keys(monthMap).sort().map((key) => {
+      const [y, m] = key.split("-");
+      const label = new Date(Number(y), Number(m) - 1).toLocaleDateString("en-IN", { month: "short", year: "2-digit" });
+      return { month: label, present: monthMap[key].present, total: monthMap[key].total };
+    });
+  })();
 
   return (
     <div className="min-h-screen bg-muted">
@@ -188,19 +199,19 @@ const StudentDashboard = () => {
                 </CardContent>
               </Card>
               <Card className="lg:col-span-2">
-                <CardHeader><CardTitle>Attendance Trend (Last 30 Days)</CardTitle></CardHeader>
+                <CardHeader><CardTitle>Attendance Trend (Month-wise)</CardTitle></CardHeader>
                 <CardContent>
                   {attendanceTrend.length === 0 ? (
                     <p className="py-8 text-center text-muted-foreground">No attendance data.</p>
                   ) : (
-                    <ResponsiveContainer width="100%" height={200}>
-                      <AreaChart data={attendanceTrend}>
+                    <ResponsiveContainer width="100%" height={250}>
+                      <BarChart data={attendanceTrend}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="day" fontSize={10} />
-                        <YAxis domain={[0, 1]} ticks={[0, 0.5, 1]} tickFormatter={(v) => v === 1 ? "P" : v === 0.5 ? "L" : "A"} />
-                        <Tooltip formatter={(v: number) => v === 1 ? "Present" : v === 0.5 ? "Late" : "Absent"} />
-                        <Area type="stepAfter" dataKey="value" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.2)" />
-                      </AreaChart>
+                        <XAxis dataKey="month" fontSize={12} />
+                        <YAxis allowDecimals={false} />
+                        <Tooltip formatter={(value: number, name: string) => [value, name === "present" ? "Present Days" : name]} />
+                        <Bar dataKey="present" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Present Days" />
+                      </BarChart>
                     </ResponsiveContainer>
                   )}
                 </CardContent>
