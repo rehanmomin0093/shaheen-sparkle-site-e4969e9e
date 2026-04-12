@@ -180,6 +180,24 @@ const TestsTab = () => {
     setQuestions(updated);
   };
 
+  const exportSubmissions = (format: "xlsx" | "csv") => {
+    if (!submissions || submissions.length === 0) return;
+    const testInfo = tests?.find((t) => t.id === submissionsOpen);
+    const rows = submissions.map((s: any) => ({
+      "Student Name": s.students?.name ?? "",
+      "Roll Number": s.students?.roll_number ?? "",
+      "Score": s.score ?? "",
+      "Total Marks": testInfo?.total_marks ?? "",
+      "Status": s.status,
+      "Submitted At": s.submitted_at ? new Date(s.submitted_at).toLocaleDateString() : "",
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Submissions");
+    const fileName = `${testInfo?.title ?? "test"}_results.${format}`;
+    XLSX.writeFile(wb, fileName, { bookType: format === "csv" ? "csv" : "xlsx" });
+  };
+
   if (!assignment) {
     return <Card><CardContent className="py-12 text-center text-muted-foreground">No class assigned. Contact admin.</CardContent></Card>;
   }
