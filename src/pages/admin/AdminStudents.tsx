@@ -301,16 +301,21 @@ const AdminStudents = () => {
         return sortedClasses.length === 0 ? (
           <Card><CardContent className="py-8 text-center text-muted-foreground">No students found</CardContent></Card>
         ) : (
-          sortedClasses.map((cls) => (
-            <div key={cls} className="mb-6">
-              <div className="mb-2 flex items-center gap-2">
-                <h2 className="font-serif text-xl font-semibold">Class {cls}</h2>
-                <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                  {grouped[cls]!.length} student{grouped[cls]!.length !== 1 ? "s" : ""}
-                </span>
-              </div>
-              <Card>
-                <CardContent className="p-0">
+          <Accordion type="multiple" className="space-y-3">
+            {sortedClasses.map((cls) => (
+              <AccordionItem key={cls} value={cls} className="border rounded-lg overflow-hidden">
+                <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/50">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-sm">
+                      {cls}
+                    </span>
+                    <span className="font-serif text-lg font-semibold">Class {cls}</span>
+                    <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                      {grouped[cls]!.length} student{grouped[cls]!.length !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="p-0">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -348,10 +353,10 @@ const AdminStudents = () => {
                       ))}
                     </TableBody>
                   </Table>
-                </CardContent>
-              </Card>
-            </div>
-          ))
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         );
       })()}
 
