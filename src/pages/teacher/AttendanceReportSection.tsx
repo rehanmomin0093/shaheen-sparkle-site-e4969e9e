@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Search, FileSpreadsheet, FileDown } from "lucide-react";
+import { Loader2, Search, FileSpreadsheet, FileDown, AlertTriangle } from "lucide-react";
 import * as XLSX from "xlsx";
 
 type SummaryRow = {
@@ -48,6 +48,7 @@ const AttendanceReportSection = () => {
   const [fromDate, setFromDate] = useState(thirtyDaysAgo);
   const [toDate, setToDate] = useState(today);
   const [appliedRange, setAppliedRange] = useState({ from: thirtyDaysAgo, to: today });
+  const [showBelow75, setShowBelow75] = useState(false);
 
   const { data: assignment } = useTeacherAssignment();
   const { data: students } = useTeacherStudents(assignment?.class_name, assignment?.section);
@@ -109,6 +110,12 @@ const AttendanceReportSection = () => {
           >
             <FileDown className="mr-2 h-4 w-4" /> Export CSV
           </Button>
+          <Button
+            variant={showBelow75 ? "destructive" : "outline"}
+            onClick={() => setShowBelow75(!showBelow75)}
+          >
+            <AlertTriangle className="mr-2 h-4 w-4" /> {showBelow75 ? "Show All" : "Below 75%"}
+          </Button>
         </div>
       </CardHeader>
       <CardContent>
@@ -117,6 +124,12 @@ const AttendanceReportSection = () => {
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : (
+          <>
+          {showBelow75 && (
+            <p className="mb-3 text-sm text-destructive font-medium">
+              Showing {summary.filter(s => s.percentage < 75).length} students with attendance below 75%
+            </p>
+          )}
           <Table>
             <TableHeader>
               <TableRow>
@@ -129,7 +142,7 @@ const AttendanceReportSection = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {summary.map((s, i) => (
+              {(showBelow75 ? summary.filter(s => s.percentage < 75) : summary).map((s, i) => (
                 <TableRow key={i}>
                   <TableCell className="font-medium">{s.roll_number || "-"}</TableCell>
                   <TableCell>{s.name}</TableCell>
@@ -149,6 +162,7 @@ const AttendanceReportSection = () => {
               ))}
             </TableBody>
           </Table>
+          </>
         )}
       </CardContent>
     </Card>
