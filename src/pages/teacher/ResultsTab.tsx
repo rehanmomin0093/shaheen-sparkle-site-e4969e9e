@@ -29,6 +29,7 @@ const ResultsTab = () => {
   const [totalMarks, setTotalMarks] = useState<Record<string, string>>(
     Object.fromEntries(SUBJECTS.map((s) => [s, "100"]))
   );
+  const [showActions, setShowActions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: assignment, isLoading: loadingAssignment } = useTeacherAssignment();
