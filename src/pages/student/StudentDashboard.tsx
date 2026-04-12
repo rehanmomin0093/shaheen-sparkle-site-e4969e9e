@@ -11,7 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { LogOut, ClipboardList, FileText, TrendingUp, BookOpen, Loader2, User } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { LogOut, ClipboardList, FileText, TrendingUp, BookOpen, Loader2, User, Settings, Lock } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart } from "recharts";
 import { useToast } from "@/hooks/use-toast";
 
