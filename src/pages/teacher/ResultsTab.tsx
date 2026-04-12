@@ -283,10 +283,13 @@ const ResultsTab = () => {
               </SelectContent>
             </Select>
             <Input value={academicYear} onChange={(e) => setAcademicYear(e.target.value)} className="w-28" placeholder="2025-26" />
-            <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              Save
+            <Button onClick={() => publishMutation.mutate()} disabled={publishMutation.isPending} className="bg-green-600 hover:bg-green-700 text-white">
+              {publishMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
+              Publish to Students
             </Button>
+            {autoSaveStatus === "saving" && <Badge variant="outline" className="animate-pulse"><Loader2 className="mr-1 h-3 w-3 animate-spin" /> Auto-saving...</Badge>}
+            {autoSaveStatus === "saved" && <Badge variant="outline" className="border-green-200 bg-green-50 text-green-700"><CheckCircle2 className="mr-1 h-3 w-3" /> Draft saved</Badge>}
+            {autoSaveStatus === "error" && <Badge variant="outline" className="border-red-200 bg-red-50 text-red-700"><CloudOff className="mr-1 h-3 w-3" /> Save failed</Badge>}
           </div>
         </div>
         <div className="mt-3">
