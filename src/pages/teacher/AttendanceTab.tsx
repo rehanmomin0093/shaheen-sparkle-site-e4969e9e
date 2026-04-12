@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save, CheckCircle, XCircle } from "lucide-react";
 
-type Status = "present" | "absent";
+type Status = "present" | "absent" | "unmarked";
 
 const AttendanceTab = () => {
   const { user } = useAuth();
@@ -47,8 +47,9 @@ const AttendanceTab = () => {
     const map: Record<string, Status> = {};
     students.forEach((s) => {
       const existing = existingAttendance?.find((a) => a.student_id === s.id);
-      const val = existing?.status;
-      map[s.id] = val === "absent" ? "absent" : "present";
+      if (existing?.status === "present") map[s.id] = "present";
+      else if (existing?.status === "absent") map[s.id] = "absent";
+      else map[s.id] = "unmarked";
     });
     setStatuses(map);
   }, [students, existingAttendance]);
@@ -56,10 +57,14 @@ const AttendanceTab = () => {
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (!students) return;
+      const unmarkedCount = students.filter((s) => statuses[s.id] === "unmarked").length;
+      if (unmarkedCount > 0) {
+        throw new Error(`Please mark attendance for all students. ${unmarkedCount} remaining.`);
+      }
       const records = students.map((s) => ({
         student_id: s.id,
         date,
-        status: statuses[s.id] || "present",
+        status: statuses[s.id] as "present" | "absent",
         marked_by: user?.id,
       }));
       const { error } = await supabase
@@ -90,6 +95,7 @@ const AttendanceTab = () => {
 
   const presentCount = Object.values(statuses).filter((s) => s === "present").length;
   const absentCount = Object.values(statuses).filter((s) => s === "absent").length;
+  const unmarkedCount = Object.values(statuses).filter((s) => s === "unmarked").length;
 
   return (
     <Card>
@@ -112,6 +118,7 @@ const AttendanceTab = () => {
         <div className="mt-3 flex gap-3">
           <Badge variant="outline" className="bg-green-50 text-green-700">Present: {presentCount}</Badge>
           <Badge variant="outline" className="bg-red-50 text-red-700">Absent: {absentCount}</Badge>
+          {unmarkedCount > 0 && <Badge variant="outline" className="bg-yellow-50 text-yellow-700">Unmarked: {unmarkedCount}</Badge>}
         </div>
       </CardHeader>
       <CardContent>
@@ -125,7 +132,7 @@ const AttendanceTab = () => {
           </TableHeader>
           <TableBody>
             {students?.map((s) => {
-              const status = statuses[s.id] || "present";
+              const status = statuses[s.id] || "unmarked";
               return (
                 <TableRow key={s.id}>
                   <TableCell className="font-medium">{s.roll_number || "-"}</TableCell>
