@@ -204,5 +204,3 @@ const AttendanceTab = () => {
 };
 
 export default AttendanceTab;
-
-export default AttendanceTab;
