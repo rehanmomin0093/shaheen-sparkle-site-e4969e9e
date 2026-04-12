@@ -332,7 +332,17 @@ const BulkStudentImport = ({ onImported }: Props) => {
                     {rows.map((r, i) => (
                       <TableRow key={i}>
                         <TableCell>{i + 1}</TableCell>
-                        <TableCell>{r.name}</TableCell>
+                        <TableCell>
+                          <input
+                            className="w-44 border rounded px-1 py-0.5 text-sm bg-background"
+                            value={r.name}
+                            onChange={(e) => {
+                              const updated = [...rows];
+                              updated[i] = { ...updated[i], name: e.target.value };
+                              setRows(updated);
+                            }}
+                          />
+                        </TableCell>
                         <TableCell>{r.class}</TableCell>
                         <TableCell>
                           <input
@@ -345,7 +355,17 @@ const BulkStudentImport = ({ onImported }: Props) => {
                             }}
                           />
                         </TableCell>
-                        <TableCell>{r.roll_number}</TableCell>
+                        <TableCell>
+                          <input
+                            className="w-20 border rounded px-1 py-0.5 text-sm bg-background"
+                            value={r.roll_number || ""}
+                            onChange={(e) => {
+                              const updated = [...rows];
+                              updated[i] = { ...updated[i], roll_number: e.target.value };
+                              setRows(updated);
+                            }}
+                          />
+                        </TableCell>
                         <TableCell>
                           <input
                             className="w-28 border rounded px-1 py-0.5 text-sm bg-background"
