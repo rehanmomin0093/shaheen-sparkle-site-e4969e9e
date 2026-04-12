@@ -10,9 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { LogOut, ClipboardList, FileText, TrendingUp, BookOpen, Loader2, User, Upload } from "lucide-react";
+import { LogOut, ClipboardList, FileText, TrendingUp, BookOpen, Loader2, User } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart } from "recharts";
 import { useToast } from "@/hooks/use-toast";
 
@@ -28,7 +27,6 @@ const StudentDashboard = () => {
     if (!loading && !user) navigate("/student-portal");
   }, [loading, user, navigate]);
 
-  // Get student record
   const { data: student, isLoading: loadingStudent } = useQuery({
     queryKey: ["my-student-record", user?.email],
     queryFn: async () => {
@@ -38,7 +36,6 @@ const StudentDashboard = () => {
     enabled: !!user?.email,
   });
 
-  // Attendance
   const { data: attendance } = useQuery({
     queryKey: ["my-attendance", student?.id],
     queryFn: async () => {
@@ -48,7 +45,6 @@ const StudentDashboard = () => {
     enabled: !!student?.id,
   });
 
-  // Results
   const { data: results } = useQuery({
     queryKey: ["my-results", student?.id],
     queryFn: async () => {
@@ -58,7 +54,6 @@ const StudentDashboard = () => {
     enabled: !!student?.id,
   });
 
-  // Tests assigned to student
   const { data: tests } = useQuery({
     queryKey: ["my-tests", student?.class],
     queryFn: async () => {
@@ -68,7 +63,6 @@ const StudentDashboard = () => {
     enabled: !!student?.class,
   });
 
-  // My submissions
   const { data: mySubmissions } = useQuery({
     queryKey: ["my-submissions", student?.id],
     queryFn: async () => {
@@ -86,14 +80,12 @@ const StudentDashboard = () => {
     return <div className="flex min-h-screen items-center justify-center"><Card className="max-w-md"><CardContent className="py-12 text-center text-muted-foreground">No student record found. Contact admin.</CardContent></Card></div>;
   }
 
-  // Attendance stats
   const totalDays = attendance?.length ?? 0;
   const presentDays = attendance?.filter((a) => a.status === "present").length ?? 0;
   const absentDays = attendance?.filter((a) => a.status === "absent").length ?? 0;
   const lateDays = attendance?.filter((a) => a.status === "late").length ?? 0;
   const attendancePercent = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0;
 
-  // Results by exam
   const examTypes = ["Unit Test 1", "Unit Test 2", "Half Yearly", "Annual"];
   const resultsByExam = examTypes.map((exam) => {
     const examResults = results?.filter((r) => r.exam_type === exam) ?? [];
@@ -109,8 +101,7 @@ const StudentDashboard = () => {
   const latestExamWithData = [...resultsByExam].reverse().find((r) => r.count > 0);
   const subjectChartData = latestExamWithData ? SUBJECTS.map((s) => ({ subject: s, marks: latestExamWithData.subjectMarks[s] ?? 0 })) : [];
 
-  // Attendance trend (last 30 days)
-  const attendanceTrend = (attendance ?? []).slice(0, 30).reverse().map((a, i) => ({
+  const attendanceTrend = (attendance ?? []).slice(0, 30).reverse().map((a) => ({
     day: new Date(a.date).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }),
     value: a.status === "present" ? 1 : a.status === "late" ? 0.5 : 0,
   }));
@@ -130,7 +121,6 @@ const StudentDashboard = () => {
       </header>
 
       <main className="container py-6">
-        {/* Quick Stats */}
         <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card><CardContent className="flex items-center gap-4 p-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10"><User className="h-5 w-5 text-primary" /></div>
@@ -300,12 +290,10 @@ const StudentDashboard = () => {
   );
 };
 
-// Tests section component
 const StudentTestsSection = ({ tests, submissions, student }: { tests: any[]; submissions: any[]; student: any }) => {
   const [activeTest, setActiveTest] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { user } = useAuth();
 
   const submittedIds = new Set(submissions.map((s) => s.test_id));
 
@@ -319,16 +307,12 @@ const StudentTestsSection = ({ tests, submissions, student }: { tests: any[]; su
   });
 
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [uploading, setUploading] = useState(false);
-  const [fileUrl, setFileUrl] = useState("");
-
   const test = tests.find((t) => t.id === activeTest);
 
   const submitMutation = useMutation({
     mutationFn: async () => {
-      // Auto-grade MCQ
       let score: number | null = null;
-      if (test && (test.test_type === "mcq" || test.test_type === "both") && questions?.length) {
+      if (test && questions?.length) {
         score = 0;
         questions.forEach((q) => {
           if (answers[q.id] === q.correct_option) score! += Number(q.marks);
@@ -339,10 +323,9 @@ const StudentTestsSection = ({ tests, submissions, student }: { tests: any[]; su
         test_id: activeTest!,
         student_id: student.id,
         answers: answers,
-        file_url: fileUrl || null,
         score,
-        status: test?.test_type === "mcq" ? "graded" : "submitted",
-        graded_at: test?.test_type === "mcq" ? new Date().toISOString() : null,
+        status: "graded",
+        graded_at: new Date().toISOString(),
       });
       if (error) throw error;
     },
@@ -351,24 +334,9 @@ const StudentTestsSection = ({ tests, submissions, student }: { tests: any[]; su
       toast({ title: "Test submitted!" });
       setActiveTest(null);
       setAnswers({});
-      setFileUrl("");
     },
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
-
-  const handleFileUpload = async (file: File) => {
-    setUploading(true);
-    const path = `test-submissions/${student.id}/${Date.now()}_${file.name}`;
-    const { error } = await supabase.storage.from("site-assets").upload(path, file);
-    if (error) {
-      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
-      setUploading(false);
-      return;
-    }
-    const { data } = supabase.storage.from("site-assets").getPublicUrl(path);
-    setFileUrl(data.publicUrl);
-    setUploading(false);
-  };
 
   return (
     <div className="space-y-4">
@@ -382,10 +350,9 @@ const StudentTestsSection = ({ tests, submissions, student }: { tests: any[]; su
               <CardContent className="flex items-center justify-between p-4">
                 <div>
                   <h3 className="font-semibold">{t.title}</h3>
-                  <p className="text-sm text-muted-foreground">{t.subject} • {t.test_type.toUpperCase()} • Total: {t.total_marks}</p>
+                  <p className="text-sm text-muted-foreground">{t.subject} • Total: {t.total_marks}</p>
                   {t.due_date && <p className="text-xs text-muted-foreground">Due: {new Date(t.due_date).toLocaleDateString()}</p>}
                   {t.description && <p className="mt-1 text-sm text-muted-foreground">{t.description}</p>}
-                  {(t as any).question_file_url && <Badge variant="outline" className="mt-1">Question Paper Attached</Badge>}
                 </div>
                 <div className="text-right">
                   {submission ? (
@@ -404,29 +371,14 @@ const StudentTestsSection = ({ tests, submissions, student }: { tests: any[]; su
       )}
 
       {/* Take Test Dialog */}
-      <Dialog open={!!activeTest} onOpenChange={(o) => { if (!o) { setActiveTest(null); setAnswers({}); setFileUrl(""); } }}>
+      <Dialog open={!!activeTest} onOpenChange={(o) => { if (!o) { setActiveTest(null); setAnswers({}); } }}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader><DialogTitle>{test?.title}</DialogTitle></DialogHeader>
           {test?.description && <p className="text-sm text-muted-foreground">{test.description}</p>}
 
           <div className="space-y-6">
-            {/* Show extracted questions from file-based tests */}
-            {(test as any)?.extracted_questions?.questions && (
-              <Card className="p-4">
-                <Label className="mb-3 block font-semibold">Questions from Question Paper</Label>
-                <div className="max-h-60 space-y-3 overflow-y-auto">
-                  {(test as any).extracted_questions.questions.map((q: any, i: number) => (
-                    <div key={i} className="rounded border p-3">
-                      <p className="font-medium">Q{q.number || i + 1}. {q.text}</p>
-                      <p className="text-xs text-muted-foreground">Marks: {q.marks}</p>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            )}
-
             {/* MCQ Questions */}
-            {(test?.test_type === "mcq" || test?.test_type === "both") && questions?.map((q, i) => (
+            {questions?.map((q, i) => (
               <Card key={q.id} className="p-4">
                 <p className="mb-3 font-medium">Q{i + 1}. {q.question_text} <span className="text-xs text-muted-foreground">({q.marks} marks)</span></p>
                 <RadioGroup value={answers[q.id] ?? ""} onValueChange={(v) => setAnswers({ ...answers, [q.id]: v })}>
@@ -445,26 +397,8 @@ const StudentTestsSection = ({ tests, submissions, student }: { tests: any[]; su
               </Card>
             ))}
 
-            {/* File Upload for answer sheet */}
-            {(test?.test_type === "upload" || test?.test_type === "both" || (test as any)?.question_file_url) && (
-              <Card className="p-4">
-                <Label className="mb-2 block font-medium">Upload Answer Sheet (Photo/PDF)</Label>
-                <p className="mb-3 text-xs text-muted-foreground">Upload a clear photo or PDF of your handwritten answer sheet</p>
-                {fileUrl ? (
-                  <p className="text-sm text-primary">File uploaded ✓</p>
-                ) : (
-                  <label className="cursor-pointer">
-                    <input type="file" accept="image/*,.pdf,.doc,.docx" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }} />
-                    <Button type="button" variant="outline" asChild disabled={uploading}>
-                      <span>{uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />} Choose File</span>
-                    </Button>
-                  </label>
-                )}
-              </Card>
-            )}
-
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => { setActiveTest(null); setAnswers({}); setFileUrl(""); }}>Cancel</Button>
+              <Button variant="outline" onClick={() => { setActiveTest(null); setAnswers({}); }}>Cancel</Button>
               <Button onClick={() => submitMutation.mutate()} disabled={submitMutation.isPending}>
                 {submitMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Submit Test
