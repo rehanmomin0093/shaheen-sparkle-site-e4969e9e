@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Trash2, Eye, FileText, Pencil, Download } from "lucide-react";
+import { Loader2, Plus, Trash2, Eye, FileText, Pencil, Download, ChevronDown, ChevronUp } from "lucide-react";
 import * as XLSX from "xlsx";
 
 const SUBJECTS = ["English", "Hindi", "Marathi", "Urdu", "Math", "Science", "Social Studies"];
@@ -49,6 +49,7 @@ const TestsTab = () => {
   const [totalMarks, setTotalMarks] = useState("100");
   const [dueDate, setDueDate] = useState("");
   const [questions, setQuestions] = useState<QuestionForm[]>([{ ...emptyQuestion }]);
+  const [showExportOptions, setShowExportOptions] = useState(false);
 
   const { data: tests, isLoading } = useQuery({
     queryKey: ["teacher-tests", user?.id],
@@ -373,16 +374,24 @@ const TestsTab = () => {
             <div className="flex items-center justify-between">
               <DialogTitle>Submissions</DialogTitle>
               {submissions && submissions.length > 0 && (
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => exportSubmissions("xlsx")}>
-                    <Download className="mr-1 h-3 w-3" /> Excel
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => exportSubmissions("csv")}>
-                    <Download className="mr-1 h-3 w-3" /> CSV
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm" onClick={() => setShowExportOptions(!showExportOptions)}>
+                    {showExportOptions ? <ChevronUp className="mr-1 h-3 w-3" /> : <ChevronDown className="mr-1 h-3 w-3" />}
+                    {showExportOptions ? "Hide Options" : "Show Options"}
                   </Button>
                 </div>
               )}
             </div>
+            {showExportOptions && submissions && submissions.length > 0 && (
+              <div className="flex gap-2 pt-2">
+                <Button variant="outline" size="sm" onClick={() => exportSubmissions("xlsx")}>
+                  <Download className="mr-1 h-3 w-3" /> Excel
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => exportSubmissions("csv")}>
+                  <Download className="mr-1 h-3 w-3" /> CSV
+                </Button>
+              </div>
+            )}
           </DialogHeader>
           {submissions?.length === 0 ? (
             <p className="py-4 text-center text-muted-foreground">No submissions yet.</p>
