@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Trash2, Eye, FileText, Pencil, Download } from "lucide-react";
+import { Loader2, Plus, Trash2, Eye, FileText, Pencil, Download, ChevronDown, ChevronUp } from "lucide-react";
 import * as XLSX from "xlsx";
 
 const SUBJECTS = ["English", "Hindi", "Marathi", "Urdu", "Math", "Science", "Social Studies"];
