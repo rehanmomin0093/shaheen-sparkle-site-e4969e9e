@@ -87,7 +87,7 @@ const ResultsTab = () => {
               exam_type: examType,
               subject: sub,
               marks_obtained: parseFloat(m.marks),
-              total_marks: parseFloat(m.total) || 100,
+              total_marks: parseFloat(totalMarks[sub]) || 100,
               academic_year: academicYear,
               entered_by: user?.id,
             });
