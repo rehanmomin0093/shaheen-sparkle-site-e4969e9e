@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, Upload, FileSpreadsheet, FileDown } from "lucide-react";
+import { Loader2, Save, Upload, FileSpreadsheet, FileDown, ChevronDown, ChevronUp } from "lucide-react";
 import * as XLSX from "xlsx";
 
 const EXAM_TYPES = ["Unit Test 1", "Unit Test 2", "Half Yearly", "Annual"] as const;
