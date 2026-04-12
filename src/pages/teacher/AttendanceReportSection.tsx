@@ -48,6 +48,7 @@ const AttendanceReportSection = () => {
   const [fromDate, setFromDate] = useState(thirtyDaysAgo);
   const [toDate, setToDate] = useState(today);
   const [appliedRange, setAppliedRange] = useState({ from: thirtyDaysAgo, to: today });
+  const [showBelow75, setShowBelow75] = useState(false);
 
   const { data: assignment } = useTeacherAssignment();
   const { data: students } = useTeacherStudents(assignment?.class_name, assignment?.section);
