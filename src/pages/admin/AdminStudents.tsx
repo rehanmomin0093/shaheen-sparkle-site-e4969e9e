@@ -283,50 +283,76 @@ const AdminStudents = () => {
         </select>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Photo</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Class</TableHead>
-                <TableHead>Section</TableHead>
-                <TableHead>Roll No.</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredStudents?.length === 0 && (
-                <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No students found</TableCell></TableRow>
-              )}
-              {filteredStudents?.map((s) => (
-                <TableRow key={s.id}>
-                  <TableCell>
-                    {s.photo_url ? (
-                      <img src={s.photo_url} alt={s.name} className="h-10 w-10 rounded-full object-cover" />
-                    ) : (
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
-                        {s.name.charAt(0)}
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell className="font-medium">{s.name}</TableCell>
-                  <TableCell>{s.class}</TableCell>
-                  <TableCell>{s.section}</TableCell>
-                  <TableCell>{s.roll_number}</TableCell>
-                  <TableCell>{s.phone}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(s)}><Edit2 className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteMutation.mutate(s.id)}><Trash2 className="h-4 w-4" /></Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      {/* Group students by class */}
+      {(() => {
+        const grouped: Record<string, typeof filteredStudents> = {};
+        filteredStudents?.forEach((s) => {
+          const cls = s.class || "Unassigned";
+          if (!grouped[cls]) grouped[cls] = [];
+          grouped[cls]!.push(s);
+        });
+        const sortedClasses = Object.keys(grouped).sort((a, b) => {
+          const na = parseInt(a), nb = parseInt(b);
+          if (!isNaN(na) && !isNaN(nb)) return na - nb;
+          return a.localeCompare(b);
+        });
+
+        return sortedClasses.length === 0 ? (
+          <Card><CardContent className="py-8 text-center text-muted-foreground">No students found</CardContent></Card>
+        ) : (
+          sortedClasses.map((cls) => (
+            <div key={cls} className="mb-6">
+              <div className="mb-2 flex items-center gap-2">
+                <h2 className="font-serif text-xl font-semibold">Class {cls}</h2>
+                <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                  {grouped[cls]!.length} student{grouped[cls]!.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+              <Card>
+                <CardContent className="p-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Photo</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Section</TableHead>
+                        <TableHead>Roll No.</TableHead>
+                        <TableHead>Phone</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {grouped[cls]!.map((s) => (
+                        <TableRow key={s.id}>
+                          <TableCell>
+                            {s.photo_url ? (
+                              <img src={s.photo_url} alt={s.name} className="h-10 w-10 rounded-full object-cover" />
+                            ) : (
+                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
+                                {s.name.charAt(0)}
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell className="font-medium">{s.name}</TableCell>
+                          <TableCell>{s.section}</TableCell>
+                          <TableCell>{s.roll_number}</TableCell>
+                          <TableCell>{s.phone}</TableCell>
+                          <TableCell className="text-sm text-muted-foreground">{s.email}</TableCell>
+                          <TableCell className="text-right">
+                            <Button variant="ghost" size="icon" onClick={() => openEdit(s)}><Edit2 className="h-4 w-4" /></Button>
+                            <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteMutation.mutate(s.id)}><Trash2 className="h-4 w-4" /></Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
+          ))
+        );
+      })()}
 
       <p className="mt-3 text-sm text-muted-foreground">
         Total: {filteredStudents?.length ?? 0} student{(filteredStudents?.length ?? 0) !== 1 ? "s" : ""}
