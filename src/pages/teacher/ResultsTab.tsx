@@ -26,6 +26,9 @@ const ResultsTab = () => {
   const [examType, setExamType] = useState<string>(EXAM_TYPES[0]);
   const [academicYear, setAcademicYear] = useState("2025-26");
   const [marks, setMarks] = useState<Record<string, MarksEntry>>({});
+  const [totalMarks, setTotalMarks] = useState<Record<string, string>>(
+    Object.fromEntries(SUBJECTS.map((s) => [s, "100"]))
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: assignment, isLoading: loadingAssignment } = useTeacherAssignment();
