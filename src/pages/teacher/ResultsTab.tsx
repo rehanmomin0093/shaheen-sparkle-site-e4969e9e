@@ -357,6 +357,7 @@ const ResultsTab = () => {
                     onChange={(e) => {
                       const newTotalMarks = { ...totalMarks, [sub]: e.target.value };
                       setTotalMarks(newTotalMarks);
+                      totalMarksRef.current = newTotalMarks;
                       // Trigger auto-save with updated total marks
                       if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
                       setAutoSaveStatus("saving");
