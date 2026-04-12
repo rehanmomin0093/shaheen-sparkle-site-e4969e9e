@@ -1,0 +1,1 @@
+ALTER TABLE public.student_results ADD COLUMN published boolean NOT NULL DEFAULT false;
