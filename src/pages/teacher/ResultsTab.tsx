@@ -26,6 +26,9 @@ const ResultsTab = () => {
   const [examType, setExamType] = useState<string>(EXAM_TYPES[0]);
   const [academicYear, setAcademicYear] = useState("2025-26");
   const [marks, setMarks] = useState<Record<string, MarksEntry>>({});
+  const [totalMarks, setTotalMarks] = useState<Record<string, string>>(
+    Object.fromEntries(SUBJECTS.map((s) => [s, "100"]))
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: assignment, isLoading: loadingAssignment } = useTeacherAssignment();
@@ -84,7 +87,7 @@ const ResultsTab = () => {
               exam_type: examType,
               subject: sub,
               marks_obtained: parseFloat(m.marks),
-              total_marks: parseFloat(m.total) || 100,
+              total_marks: parseFloat(totalMarks[sub]) || 100,
               academic_year: academicYear,
               entered_by: user?.id,
             });
@@ -264,6 +267,24 @@ const ResultsTab = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
+            <TableRow className="bg-muted/50">
+              <TableCell className="sticky left-0 bg-muted/50 font-bold" colSpan={2}>Out of Marks</TableCell>
+              {SUBJECTS.map((sub) => (
+                <TableCell key={sub} className="text-center">
+                  <Input
+                    type="number"
+                    min="1"
+                    value={totalMarks[sub]}
+                    onChange={(e) => setTotalMarks((prev) => ({ ...prev, [sub]: e.target.value }))}
+                    className="mx-auto w-16 text-center font-bold"
+                  />
+                </TableCell>
+              ))}
+              <TableCell className="text-center font-bold">
+                {SUBJECTS.reduce((s, sub) => s + (parseFloat(totalMarks[sub]) || 100), 0)}
+              </TableCell>
+              <TableCell className="text-center font-bold">-</TableCell>
+            </TableRow>
             {students?.map((s) => (
               <TableRow key={s.id}>
                 <TableCell className="sticky left-0 bg-background font-medium">{s.roll_number || "-"}</TableCell>
@@ -273,7 +294,7 @@ const ResultsTab = () => {
                     <Input
                       type="number"
                       min="0"
-                      max="100"
+                      max={totalMarks[sub] || "100"}
                       value={marks[s.id]?.[sub]?.marks ?? ""}
                       onChange={(e) => updateMark(s.id, sub, e.target.value)}
                       className="mx-auto w-16 text-center"
@@ -282,16 +303,16 @@ const ResultsTab = () => {
                   </TableCell>
                 ))}
                 {(() => {
-                  const total = SUBJECTS.reduce((sum, sub) => {
+                  const obtained = SUBJECTS.reduce((sum, sub) => {
                     const v = parseFloat(marks[s.id]?.[sub]?.marks || "");
                     return isNaN(v) ? sum : sum + v;
                   }, 0);
-                  const maxMarks = SUBJECTS.length * 100;
+                  const maxMarks = SUBJECTS.reduce((s, sub) => s + (parseFloat(totalMarks[sub]) || 100), 0);
                   const hasAny = SUBJECTS.some((sub) => marks[s.id]?.[sub]?.marks !== "" && marks[s.id]?.[sub]?.marks !== undefined);
                   return (
                     <>
-                      <TableCell className="text-center font-semibold">{hasAny ? total : "-"}</TableCell>
-                      <TableCell className="text-center font-semibold">{hasAny ? `${Math.round((total / maxMarks) * 100)}%` : "-"}</TableCell>
+                      <TableCell className="text-center font-semibold">{hasAny ? obtained : "-"}</TableCell>
+                      <TableCell className="text-center font-semibold">{hasAny ? `${Math.round((obtained / maxMarks) * 100)}%` : "-"}</TableCell>
                     </>
                   );
                 })()}
