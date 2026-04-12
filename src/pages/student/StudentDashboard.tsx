@@ -414,43 +414,45 @@ const StudentTestsSection = ({ tests, submissions, student }: { tests: any[]; su
         })
       )}
 
-      {/* Take Test Dialog */}
-      <Dialog open={!!activeTest} onOpenChange={(o) => { if (!o) { setActiveTest(null); setAnswers({}); } }}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-          <DialogHeader><DialogTitle>{test?.title}</DialogTitle></DialogHeader>
-          {test?.description && <p className="text-sm text-muted-foreground">{test.description}</p>}
-
-          <div className="space-y-6">
-            {/* MCQ Questions */}
-            {questions?.map((q, i) => (
-              <Card key={q.id} className="p-4">
-                <p className="mb-3 font-medium">Q{i + 1}. {q.question_text} <span className="text-xs text-muted-foreground">({q.marks} marks)</span></p>
-                <RadioGroup value={answers[q.id] ?? ""} onValueChange={(v) => setAnswers({ ...answers, [q.id]: v })}>
-                  {[
-                    { key: "A", text: q.option_a },
-                    { key: "B", text: q.option_b },
-                    { key: "C", text: q.option_c },
-                    { key: "D", text: q.option_d },
-                  ].map((opt) => (
-                    <div key={opt.key} className="flex items-center space-x-2">
-                      <RadioGroupItem value={opt.key} id={`${q.id}-${opt.key}`} />
-                      <Label htmlFor={`${q.id}-${opt.key}`}>{opt.key}) {opt.text}</Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-              </Card>
-            ))}
-
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => { setActiveTest(null); setAnswers({}); }}>Cancel</Button>
-              <Button onClick={() => submitMutation.mutate()} disabled={submitMutation.isPending}>
-                {submitMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Submit Test
-              </Button>
+      {/* Full-screen Test View - no back until submit */}
+      {activeTest && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-background">
+          <header className="flex items-center justify-between border-b px-6 py-3">
+            <h2 className="font-serif text-xl font-bold text-primary">{test?.title}</h2>
+            <span className="text-sm text-muted-foreground">{test?.subject} • Total: {test?.total_marks} marks</span>
+          </header>
+          <div className="flex-1 overflow-y-auto p-6">
+            {test?.description && <p className="mb-4 text-sm text-muted-foreground">{test.description}</p>}
+            <div className="mx-auto max-w-3xl space-y-6">
+              {questions?.map((q, i) => (
+                <Card key={q.id} className="p-4">
+                  <p className="mb-3 font-medium">Q{i + 1}. {q.question_text} <span className="text-xs text-muted-foreground">({q.marks} marks)</span></p>
+                  <RadioGroup value={answers[q.id] ?? ""} onValueChange={(v) => setAnswers({ ...answers, [q.id]: v })}>
+                    {[
+                      { key: "A", text: q.option_a },
+                      { key: "B", text: q.option_b },
+                      { key: "C", text: q.option_c },
+                      { key: "D", text: q.option_d },
+                    ].map((opt) => (
+                      <div key={opt.key} className="flex items-center space-x-2">
+                        <RadioGroupItem value={opt.key} id={`${q.id}-${opt.key}`} />
+                        <Label htmlFor={`${q.id}-${opt.key}`}>{opt.key}) {opt.text}</Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </Card>
+              ))}
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+          <footer className="flex items-center justify-end gap-3 border-t px-6 py-4">
+            <p className="mr-auto text-sm text-muted-foreground">⚠️ You must submit the test to exit.</p>
+            <Button onClick={() => submitMutation.mutate()} disabled={submitMutation.isPending} size="lg">
+              {submitMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Submit Test
+            </Button>
+          </footer>
+        </div>
+      )}
     </div>
   );
 };
