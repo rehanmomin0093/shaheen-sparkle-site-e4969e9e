@@ -65,38 +65,78 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Try to invite the user; if they already exist, look them up instead
+    // Create the user account
     let userId: string;
-    const { data: inviteData, error: inviteError } =
-      await adminClient.auth.admin.inviteUserByEmail(email);
 
-    if (inviteError) {
-      // If user already exists, find them and just assign the role
-      if (inviteError.message.includes("already been registered")) {
-        const { data: { users }, error: listError } =
-          await adminClient.auth.admin.listUsers();
-        if (listError) {
-          return new Response(JSON.stringify({ error: listError.message }), {
-            status: 500,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-        const existing = users.find((u) => u.email === email);
-        if (!existing) {
-          return new Response(JSON.stringify({ error: "User not found" }), {
-            status: 404,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-        userId = existing.id;
-      } else {
-        return new Response(JSON.stringify({ error: inviteError.message }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+    if (role === "user") {
+      // Students get a default password of 123456
+      const { data: createData, error: createError } =
+        await adminClient.auth.admin.createUser({
+          email,
+          password: "123456",
+          email_confirm: true,
         });
+
+      if (createError) {
+        // If user already exists, find them and just assign the role
+        if (createError.message.includes("already been registered")) {
+          const { data: { users }, error: listError } =
+            await adminClient.auth.admin.listUsers();
+          if (listError) {
+            return new Response(JSON.stringify({ error: listError.message }), {
+              status: 500,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+          const existing = users.find((u) => u.email === email);
+          if (!existing) {
+            return new Response(JSON.stringify({ error: "User not found" }), {
+              status: 404,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+          userId = existing.id;
+        } else {
+          return new Response(JSON.stringify({ error: createError.message }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      } else {
+        userId = createData.user.id;
       }
     } else {
-      userId = inviteData.user.id;
+      // Teachers still get an invite email
+      const { data: inviteData, error: inviteError } =
+        await adminClient.auth.admin.inviteUserByEmail(email);
+
+      if (inviteError) {
+        if (inviteError.message.includes("already been registered")) {
+          const { data: { users }, error: listError } =
+            await adminClient.auth.admin.listUsers();
+          if (listError) {
+            return new Response(JSON.stringify({ error: listError.message }), {
+              status: 500,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+          const existing = users.find((u) => u.email === email);
+          if (!existing) {
+            return new Response(JSON.stringify({ error: "User not found" }), {
+              status: 404,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+          userId = existing.id;
+        } else {
+          return new Response(JSON.stringify({ error: inviteError.message }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      } else {
+        userId = inviteData.user.id;
+      }
     }
 
     // Assign the role
