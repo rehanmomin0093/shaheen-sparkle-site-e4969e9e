@@ -30,6 +30,7 @@ const ResultsTab = () => {
   const [totalMarks, setTotalMarks] = useState<Record<string, string>>(
     Object.fromEntries(SUBJECTS.map((s) => [s, "100"]))
   );
+  const totalMarksRef = useRef(totalMarks);
   const [showActions, setShowActions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -58,6 +59,7 @@ const ResultsTab = () => {
   useEffect(() => {
     if (!students) return;
     const map: Record<string, MarksEntry> = {};
+    const loadedTotals: Record<string, string> = { ...totalMarks };
     students.forEach((s) => {
       const entry: MarksEntry = {};
       SUBJECTS.forEach((sub) => {
@@ -68,10 +70,16 @@ const ResultsTab = () => {
           marks: existing ? String(existing.marks_obtained) : "",
           total: existing ? String(existing.total_marks) : "100",
         };
+        // Load total_marks from first found existing result per subject
+        if (existing) {
+          loadedTotals[sub] = String(existing.total_marks);
+        }
       });
       map[s.id] = entry;
     });
     setMarks(map);
+    setTotalMarks(loadedTotals);
+    totalMarksRef.current = loadedTotals;
   }, [students, existingResults]);
 
   const [autoSaveStatus, setAutoSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
@@ -93,7 +101,7 @@ const ResultsTab = () => {
               exam_type: examType,
               subject: sub,
               marks_obtained: parseFloat(m.marks),
-              total_marks: parseFloat(totalMarks[sub]) || 100,
+              total_marks: parseFloat(totalMarksRef.current[sub]) || 100,
               academic_year: academicYear,
               entered_by: user?.id,
               published: false,
@@ -130,7 +138,7 @@ const ResultsTab = () => {
               exam_type: examType,
               subject: sub,
               marks_obtained: parseFloat(m.marks),
-              total_marks: parseFloat(totalMarks[sub]) || 100,
+              total_marks: parseFloat(totalMarksRef.current[sub]) || 100,
               academic_year: academicYear,
               entered_by: user?.id,
               published: true,
@@ -349,6 +357,7 @@ const ResultsTab = () => {
                     onChange={(e) => {
                       const newTotalMarks = { ...totalMarks, [sub]: e.target.value };
                       setTotalMarks(newTotalMarks);
+                      totalMarksRef.current = newTotalMarks;
                       // Trigger auto-save with updated total marks
                       if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
                       setAutoSaveStatus("saving");
