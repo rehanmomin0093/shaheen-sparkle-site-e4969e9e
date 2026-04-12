@@ -100,6 +100,7 @@ const AttendanceTab = () => {
   const unmarkedCount = Object.values(statuses).filter((s) => s === "unmarked").length;
 
   return (
+    <>
     <Card>
       <CardHeader>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
