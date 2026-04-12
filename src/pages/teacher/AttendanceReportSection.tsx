@@ -142,7 +142,7 @@ const AttendanceReportSection = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {summary.map((s, i) => (
+              {(showBelow75 ? summary.filter(s => s.percentage < 75) : summary).map((s, i) => (
                 <TableRow key={i}>
                   <TableCell className="font-medium">{s.roll_number || "-"}</TableCell>
                   <TableCell>{s.name}</TableCell>
@@ -162,6 +162,7 @@ const AttendanceReportSection = () => {
               ))}
             </TableBody>
           </Table>
+          </>
         )}
       </CardContent>
     </Card>
