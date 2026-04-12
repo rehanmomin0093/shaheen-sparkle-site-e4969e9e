@@ -351,7 +351,21 @@ const TestsTab = () => {
       {/* Submissions Dialog */}
       <Dialog open={!!submissionsOpen} onOpenChange={(o) => { if (!o) setSubmissionsOpen(null); }}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-          <DialogHeader><DialogTitle>Submissions</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <DialogTitle>Submissions</DialogTitle>
+              {submissions && submissions.length > 0 && (
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => exportSubmissions("xlsx")}>
+                    <Download className="mr-1 h-3 w-3" /> Excel
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => exportSubmissions("csv")}>
+                    <Download className="mr-1 h-3 w-3" /> CSV
+                  </Button>
+                </div>
+              )}
+            </div>
+          </DialogHeader>
           {submissions?.length === 0 ? (
             <p className="py-4 text-center text-muted-foreground">No submissions yet.</p>
           ) : (
