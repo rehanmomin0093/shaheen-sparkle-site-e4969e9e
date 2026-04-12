@@ -49,7 +49,7 @@ const TestsTab = () => {
   const [totalMarks, setTotalMarks] = useState("100");
   const [dueDate, setDueDate] = useState("");
   const [questions, setQuestions] = useState<QuestionForm[]>([{ ...emptyQuestion }]);
-  const [showExportOptions, setShowExportOptions] = useState(false);
+  const [submissionsFullScreen, setSubmissionsFullScreen] = useState(false);
 
   const { data: tests, isLoading } = useQuery({
     queryKey: ["teacher-tests", user?.id],
