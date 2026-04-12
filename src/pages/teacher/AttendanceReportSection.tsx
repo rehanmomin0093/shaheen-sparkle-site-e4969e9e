@@ -110,6 +110,12 @@ const AttendanceReportSection = () => {
           >
             <FileDown className="mr-2 h-4 w-4" /> Export CSV
           </Button>
+          <Button
+            variant={showBelow75 ? "destructive" : "outline"}
+            onClick={() => setShowBelow75(!showBelow75)}
+          >
+            <AlertTriangle className="mr-2 h-4 w-4" /> {showBelow75 ? "Show All" : "Below 75%"}
+          </Button>
         </div>
       </CardHeader>
       <CardContent>
