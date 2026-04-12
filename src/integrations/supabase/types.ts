@@ -335,6 +335,7 @@ export type Database = {
           exam_type: string
           id: string
           marks_obtained: number
+          published: boolean
           student_id: string
           subject: string
           total_marks: number
@@ -346,6 +347,7 @@ export type Database = {
           exam_type: string
           id?: string
           marks_obtained?: number
+          published?: boolean
           student_id: string
           subject: string
           total_marks?: number
@@ -357,6 +359,7 @@ export type Database = {
           exam_type?: string
           id?: string
           marks_obtained?: number
+          published?: boolean
           student_id?: string
           subject?: string
           total_marks?: number

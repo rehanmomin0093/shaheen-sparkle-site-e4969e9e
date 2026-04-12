@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, Upload, FileSpreadsheet, FileDown, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, Save, Upload, FileSpreadsheet, FileDown, ChevronDown, ChevronUp, CheckCircle2, CloudOff } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import * as XLSX from "xlsx";
 
 const EXAM_TYPES = ["Unit Test 1", "Unit Test 2", "Half Yearly", "Annual"] as const;
@@ -73,7 +74,48 @@ const ResultsTab = () => {
     setMarks(map);
   }, [students, existingResults]);
 
-  const saveMutation = useMutation({
+  const [autoSaveStatus, setAutoSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Auto-save as draft (published=false)
+  const autoSaveMutation = useMutation({
+    mutationFn: async (currentMarks: Record<string, MarksEntry>) => {
+      if (!students) return;
+      const records: any[] = [];
+      students.forEach((s) => {
+        const entry = currentMarks[s.id];
+        if (!entry) return;
+        SUBJECTS.forEach((sub) => {
+          const m = entry[sub];
+          if (m?.marks && m.marks !== "") {
+            records.push({
+              student_id: s.id,
+              exam_type: examType,
+              subject: sub,
+              marks_obtained: parseFloat(m.marks),
+              total_marks: parseFloat(totalMarks[sub]) || 100,
+              academic_year: academicYear,
+              entered_by: user?.id,
+              published: false,
+            });
+          }
+        });
+      });
+      if (records.length === 0) return;
+      const { error } = await supabase
+        .from("student_results")
+        .upsert(records, { onConflict: "student_id,exam_type,subject,academic_year" });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      setAutoSaveStatus("saved");
+      queryClient.invalidateQueries({ queryKey: ["student-results"] });
+    },
+    onError: () => setAutoSaveStatus("error"),
+  });
+
+  // Publish to students (published=true)
+  const publishMutation = useMutation({
     mutationFn: async () => {
       if (!students) return;
       const records: any[] = [];
@@ -91,6 +133,7 @@ const ResultsTab = () => {
               total_marks: parseFloat(totalMarks[sub]) || 100,
               academic_year: academicYear,
               entered_by: user?.id,
+              published: true,
             });
           }
         });
@@ -103,19 +146,31 @@ const ResultsTab = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["student-results"] });
-      toast({ title: "Results saved!" });
+      toast({ title: "Results published! Students can now see their marks." });
     },
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
+  const triggerAutoSave = useCallback((updatedMarks: Record<string, MarksEntry>) => {
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    setAutoSaveStatus("saving");
+    autoSaveTimerRef.current = setTimeout(() => {
+      autoSaveMutation.mutate(updatedMarks);
+    }, 1500);
+  }, [examType, academicYear, students, totalMarks, user?.id]);
+
   const updateMark = (studentId: string, subject: string, value: string) => {
-    setMarks((prev) => ({
-      ...prev,
-      [studentId]: {
-        ...prev[studentId],
-        [subject]: { ...prev[studentId]?.[subject], marks: value },
-      },
-    }));
+    setMarks((prev) => {
+      const updated = {
+        ...prev,
+        [studentId]: {
+          ...prev[studentId],
+          [subject]: { ...prev[studentId]?.[subject], marks: value },
+        },
+      };
+      triggerAutoSave(updated);
+      return updated;
+    });
   };
 
   const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -228,10 +283,13 @@ const ResultsTab = () => {
               </SelectContent>
             </Select>
             <Input value={academicYear} onChange={(e) => setAcademicYear(e.target.value)} className="w-28" placeholder="2025-26" />
-            <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              Save
+            <Button onClick={() => publishMutation.mutate()} disabled={publishMutation.isPending} className="bg-green-600 hover:bg-green-700 text-white">
+              {publishMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
+              Publish to Students
             </Button>
+            {autoSaveStatus === "saving" && <Badge variant="outline" className="animate-pulse"><Loader2 className="mr-1 h-3 w-3 animate-spin" /> Auto-saving...</Badge>}
+            {autoSaveStatus === "saved" && <Badge variant="outline" className="border-green-200 bg-green-50 text-green-700"><CheckCircle2 className="mr-1 h-3 w-3" /> Draft saved</Badge>}
+            {autoSaveStatus === "error" && <Badge variant="outline" className="border-red-200 bg-red-50 text-red-700"><CloudOff className="mr-1 h-3 w-3" /> Save failed</Badge>}
           </div>
         </div>
         <div className="mt-3">
