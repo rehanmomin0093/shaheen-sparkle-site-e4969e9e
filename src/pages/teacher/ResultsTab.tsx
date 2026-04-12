@@ -281,6 +281,20 @@ const ResultsTab = () => {
                     />
                   </TableCell>
                 ))}
+                {(() => {
+                  const total = SUBJECTS.reduce((sum, sub) => {
+                    const v = parseFloat(marks[s.id]?.[sub]?.marks || "");
+                    return isNaN(v) ? sum : sum + v;
+                  }, 0);
+                  const maxMarks = SUBJECTS.length * 100;
+                  const hasAny = SUBJECTS.some((sub) => marks[s.id]?.[sub]?.marks !== "" && marks[s.id]?.[sub]?.marks !== undefined);
+                  return (
+                    <>
+                      <TableCell className="text-center font-semibold">{hasAny ? total : "-"}</TableCell>
+                      <TableCell className="text-center font-semibold">{hasAny ? `${Math.round((total / maxMarks) * 100)}%` : "-"}</TableCell>
+                    </>
+                  );
+                })()}
               </TableRow>
             ))}
           </TableBody>
