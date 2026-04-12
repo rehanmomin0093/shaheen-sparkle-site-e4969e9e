@@ -13,7 +13,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Trash2, Eye, FileText, Pencil } from "lucide-react";
+import { Loader2, Plus, Trash2, Eye, FileText, Pencil, Download } from "lucide-react";
+import * as XLSX from "xlsx";
 
 const SUBJECTS = ["English", "Hindi", "Marathi", "Urdu", "Math", "Science", "Social Studies"];
 
@@ -177,6 +178,24 @@ const TestsTab = () => {
     const updated = [...questions];
     updated[i] = { ...updated[i], [field]: value };
     setQuestions(updated);
+  };
+
+  const exportSubmissions = (format: "xlsx" | "csv") => {
+    if (!submissions || submissions.length === 0) return;
+    const testInfo = tests?.find((t) => t.id === submissionsOpen);
+    const rows = submissions.map((s: any) => ({
+      "Student Name": s.students?.name ?? "",
+      "Roll Number": s.students?.roll_number ?? "",
+      "Score": s.score ?? "",
+      "Total Marks": testInfo?.total_marks ?? "",
+      "Status": s.status,
+      "Submitted At": s.submitted_at ? new Date(s.submitted_at).toLocaleDateString() : "",
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Submissions");
+    const fileName = `${testInfo?.title ?? "test"}_results.${format}`;
+    XLSX.writeFile(wb, fileName, { bookType: format === "csv" ? "csv" : "xlsx" });
   };
 
   if (!assignment) {
@@ -350,7 +369,21 @@ const TestsTab = () => {
       {/* Submissions Dialog */}
       <Dialog open={!!submissionsOpen} onOpenChange={(o) => { if (!o) setSubmissionsOpen(null); }}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-          <DialogHeader><DialogTitle>Submissions</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <DialogTitle>Submissions</DialogTitle>
+              {submissions && submissions.length > 0 && (
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => exportSubmissions("xlsx")}>
+                    <Download className="mr-1 h-3 w-3" /> Excel
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => exportSubmissions("csv")}>
+                    <Download className="mr-1 h-3 w-3" /> CSV
+                  </Button>
+                </div>
+              )}
+            </div>
+          </DialogHeader>
           {submissions?.length === 0 ? (
             <p className="py-4 text-center text-muted-foreground">No submissions yet.</p>
           ) : (
