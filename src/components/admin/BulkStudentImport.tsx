@@ -22,6 +22,7 @@ interface ImportRow {
 }
 
 const EXPECTED_COLUMNS = ["name", "father_name", "mother_name", "class", "section", "roll_number", "phone", "email", "address", "date_of_birth", "admission_date"];
+type SheetCell = string | number | boolean | Date | null | undefined;
 
 const normalizeHeader = (h: string) =>
   h.trim().toLowerCase().replace(/[^a-z0-9]/g, "_").replace(/_+/g, "_").replace(/^_|_$/g, "");
@@ -57,6 +58,82 @@ const headerMap: Record<string, string> = {
   admission_date: "admission_date",
 };
 
+const headerPriority: Record<string, number> = {
+  roll_number: 3,
+  roll_no: 3,
+  rollno: 3,
+  urn_no: 2,
+  urn: 2,
+  sl_no: 1,
+  slno: 1,
+};
+
+const isEmptyRow = (row: SheetCell[]) =>
+  row.every((value) => String(value ?? "").trim() === "");
+
+const formatDateCell = (value: SheetCell) => {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return value.toISOString().split("T")[0];
+  }
+
+  if (typeof value === "number") {
+    const parsed = XLSX.SSF.parse_date_code(value);
+    if (parsed) {
+      const year = String(parsed.y);
+      const month = String(parsed.m).padStart(2, "0");
+      const day = String(parsed.d).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+  }
+
+  return String(value ?? "").trim();
+};
+
+const formatCellValue = (value: SheetCell, field: string) => {
+  if (field === "date_of_birth" || field === "admission_date") {
+    return formatDateCell(value);
+  }
+
+  return String(value ?? "").trim();
+};
+
+const detectHeaderRow = (rows: SheetCell[][]) => {
+  let bestMatch:
+    | {
+        headerRowIndex: number;
+        fieldToColumn: Partial<Record<keyof ImportRow, number>>;
+        score: number;
+      }
+    | null = null;
+
+  rows.slice(0, 10).forEach((row, headerRowIndex) => {
+    const fieldToColumn: Partial<Record<keyof ImportRow, number>> = {};
+    const fieldScores: Partial<Record<keyof ImportRow, number>> = {};
+
+    row.forEach((cell, columnIndex) => {
+      const normalized = normalizeHeader(String(cell ?? ""));
+      const field = headerMap[normalized] as keyof ImportRow | undefined;
+
+      if (!field) return;
+
+      const priority = headerPriority[normalized] ?? 2;
+      if ((fieldScores[field] ?? -1) < priority) {
+        fieldToColumn[field] = columnIndex;
+        fieldScores[field] = priority;
+      }
+    });
+
+    const score = Object.keys(fieldToColumn).length;
+    if (fieldToColumn.name === undefined) return;
+
+    if (!bestMatch || score > bestMatch.score) {
+      bestMatch = { headerRowIndex, fieldToColumn, score };
+    }
+  });
+
+  return bestMatch;
+};
+
 interface Props {
   onImported: () => void;
 }
@@ -86,36 +163,40 @@ const BulkStudentImport = ({ onImported }: Props) => {
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
         const wb = XLSX.read(data, { type: "array" });
         const ws = wb.Sheets[wb.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json<Record<string, any>>(ws, { defval: "" });
+        const sheetRows = XLSX.utils.sheet_to_json<SheetCell[]>(ws, {
+          header: 1,
+          defval: "",
+          blankrows: false,
+        });
 
-        if (json.length === 0) {
+        if (sheetRows.length === 0) {
           setErrors(["File is empty or has no data rows"]);
+          setRows([]);
           return;
         }
 
-        const rawHeaders = Object.keys(json[0]);
-        const colMap: Record<string, string> = {};
-        rawHeaders.forEach((h) => {
-          const norm = normalizeHeader(h);
-          if (headerMap[norm]) colMap[h] = headerMap[norm];
-        });
+        const headerInfo = detectHeaderRow(sheetRows);
 
-        if (!Object.values(colMap).includes("name")) {
+        if (!headerInfo?.fieldToColumn.name) {
           setErrors(["File must have at least a 'Name' column"]);
+          setRows([]);
           return;
         }
 
         const errs: string[] = [];
         const parsed: ImportRow[] = [];
 
-        json.forEach((row, i) => {
-          const mapped: any = {};
-          Object.entries(colMap).forEach(([raw, field]) => {
-            mapped[field] = String(row[raw] || "").trim();
-          });
+        sheetRows.slice(headerInfo.headerRowIndex + 1).forEach((row, i) => {
+          if (isEmptyRow(row)) return;
+
+          const mapped = Object.entries(headerInfo.fieldToColumn).reduce<Record<string, string>>((acc, [field, columnIndex]) => {
+            if (columnIndex === undefined) return acc;
+            acc[field] = formatCellValue(row[columnIndex], field);
+            return acc;
+          }, {});
 
           if (!mapped.name) {
-            errs.push(`Row ${i + 2}: Name is empty`);
+            errs.push(`Row ${headerInfo.headerRowIndex + i + 2}: Name is empty`);
             return;
           }
 
@@ -123,7 +204,7 @@ const BulkStudentImport = ({ onImported }: Props) => {
             name: mapped.name,
             father_name: mapped.father_name || "",
             mother_name: mapped.mother_name || "",
-            class: mapped.class,
+            class: mapped.class || "",
             section: mapped.section || "",
             roll_number: mapped.roll_number || "",
             phone: mapped.phone || "",
@@ -134,10 +215,15 @@ const BulkStudentImport = ({ onImported }: Props) => {
           });
         });
 
+        if (parsed.length === 0 && errs.length === 0) {
+          errs.push("No valid student rows found below the header row");
+        }
+
         setErrors(errs);
         setRows(parsed);
       } catch {
         setErrors(["Failed to parse file. Please use a valid Excel or CSV file."]);
+        setRows([]);
       }
     };
     reader.readAsArrayBuffer(file);
