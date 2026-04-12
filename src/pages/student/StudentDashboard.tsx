@@ -199,19 +199,19 @@ const StudentDashboard = () => {
                 </CardContent>
               </Card>
               <Card className="lg:col-span-2">
-                <CardHeader><CardTitle>Attendance Trend (Last 30 Days)</CardTitle></CardHeader>
+                <CardHeader><CardTitle>Attendance Trend (Month-wise)</CardTitle></CardHeader>
                 <CardContent>
                   {attendanceTrend.length === 0 ? (
                     <p className="py-8 text-center text-muted-foreground">No attendance data.</p>
                   ) : (
-                    <ResponsiveContainer width="100%" height={200}>
-                      <AreaChart data={attendanceTrend}>
+                    <ResponsiveContainer width="100%" height={250}>
+                      <BarChart data={attendanceTrend}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="day" fontSize={10} />
-                        <YAxis domain={[0, 1]} ticks={[0, 0.5, 1]} tickFormatter={(v) => v === 1 ? "P" : v === 0.5 ? "L" : "A"} />
-                        <Tooltip formatter={(v: number) => v === 1 ? "Present" : v === 0.5 ? "Late" : "Absent"} />
-                        <Area type="stepAfter" dataKey="value" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.2)" />
-                      </AreaChart>
+                        <XAxis dataKey="month" fontSize={12} />
+                        <YAxis allowDecimals={false} />
+                        <Tooltip formatter={(value: number, name: string) => [value, name === "present" ? "Present Days" : name]} />
+                        <Bar dataKey="present" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Present Days" />
+                      </BarChart>
                     </ResponsiveContainer>
                   )}
                 </CardContent>
