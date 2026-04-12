@@ -124,6 +124,12 @@ const AttendanceReportSection = () => {
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : (
+          <>
+          {showBelow75 && (
+            <p className="mb-3 text-sm text-destructive font-medium">
+              Showing {summary.filter(s => s.percentage < 75).length} students with attendance below 75%
+            </p>
+          )}
           <Table>
             <TableHeader>
               <TableRow>
