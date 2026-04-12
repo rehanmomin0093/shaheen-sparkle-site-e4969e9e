@@ -23,6 +23,7 @@ const AttendanceTab = () => {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [statuses, setStatuses] = useState<Record<string, Status>>({});
   const [absentInput, setAbsentInput] = useState("");
+  const [view, setView] = useState<View>("daily");
 
   const { data: assignment, isLoading: loadingAssignment } = useTeacherAssignment();
   const { data: students, isLoading: loadingStudents } = useTeacherStudents(
