@@ -197,7 +197,10 @@ const AttendanceTab = () => {
         </Table>
       </CardContent>
     </Card>
+    <AttendanceReportSection />
+    </>
   );
+};
 };
 
 export default AttendanceTab;
