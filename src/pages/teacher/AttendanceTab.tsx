@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save, CheckCircle, XCircle } from "lucide-react";
+import AttendanceReportSection from "./AttendanceReportSection";
 
 type Status = "present" | "absent" | "unmarked";
 
@@ -99,6 +100,7 @@ const AttendanceTab = () => {
   const unmarkedCount = Object.values(statuses).filter((s) => s === "unmarked").length;
 
   return (
+    <>
     <Card>
       <CardHeader>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -196,6 +198,8 @@ const AttendanceTab = () => {
         </Table>
       </CardContent>
     </Card>
+    <AttendanceReportSection />
+    </>
   );
 };
 
