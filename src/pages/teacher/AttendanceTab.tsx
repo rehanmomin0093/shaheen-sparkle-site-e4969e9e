@@ -14,6 +14,7 @@ import { Loader2, Save, CheckCircle, XCircle } from "lucide-react";
 import AttendanceReportSection from "./AttendanceReportSection";
 
 type Status = "present" | "absent" | "unmarked";
+type View = "daily" | "report";
 
 const AttendanceTab = () => {
   const { user } = useAuth();
