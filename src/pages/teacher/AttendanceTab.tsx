@@ -20,6 +20,7 @@ const AttendanceTab = () => {
   const queryClient = useQueryClient();
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [statuses, setStatuses] = useState<Record<string, Status>>({});
+  const [absentInput, setAbsentInput] = useState("");
 
   const { data: assignment, isLoading: loadingAssignment } = useTeacherAssignment();
   const { data: students, isLoading: loadingStudents } = useTeacherStudents(
@@ -119,6 +120,35 @@ const AttendanceTab = () => {
           <Badge variant="outline" className="bg-green-50 text-green-700">Present: {presentCount}</Badge>
           <Badge variant="outline" className="bg-red-50 text-red-700">Absent: {absentCount}</Badge>
           {unmarkedCount > 0 && <Badge variant="outline" className="bg-yellow-50 text-yellow-700">Unmarked: {unmarkedCount}</Badge>}
+        </div>
+        <div className="mt-4 flex items-end gap-3">
+          <div className="flex-1">
+            <label className="text-sm font-medium mb-1 block">Quick Absent — Enter roll numbers (comma separated)</label>
+            <Input
+              placeholder="e.g. 3101, 3110, 3120"
+              value={absentInput}
+              onChange={(e) => setAbsentInput(e.target.value)}
+            />
+          </div>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              if (!students || !absentInput.trim()) return;
+              const absentRolls = absentInput.split(",").map((r) => r.trim()).filter(Boolean);
+              const newStatuses: Record<string, Status> = {};
+              students.forEach((s) => {
+                if (absentRolls.includes(s.roll_number || "")) {
+                  newStatuses[s.id] = "absent";
+                } else {
+                  newStatuses[s.id] = "present";
+                }
+              });
+              setStatuses(newStatuses);
+              toast({ title: `${absentRolls.length} marked absent, rest marked present` });
+            }}
+          >
+            Apply
+          </Button>
         </div>
       </CardHeader>
       <CardContent>
