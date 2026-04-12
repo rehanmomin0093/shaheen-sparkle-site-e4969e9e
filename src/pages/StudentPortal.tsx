@@ -18,6 +18,12 @@ const StudentPortal = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate("/student-dashboard", { replace: true });
+    }
+  }, [authLoading, user, navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
