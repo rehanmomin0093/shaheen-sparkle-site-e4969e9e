@@ -385,11 +385,21 @@ const ResultsTab = () => {
                       const newTotalMarks = { ...totalMarks, [sub]: e.target.value };
                       setTotalMarks(newTotalMarks);
                       totalMarksRef.current = newTotalMarks;
-                      // Trigger auto-save with updated total marks
+                      // Save total marks config to site_content
                       if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
                       setAutoSaveStatus("saving");
-                      autoSaveTimerRef.current = setTimeout(() => {
-                        autoSaveMutation.mutate(marks);
+                      autoSaveTimerRef.current = setTimeout(async () => {
+                        try {
+                          await supabase.from("site_content").upsert(
+                            { key: totalMarksKey, section: "results_config", content_type: "json", value: JSON.stringify(newTotalMarks) },
+                            { onConflict: "key" }
+                          );
+                          // Also auto-save student marks with updated totals
+                          autoSaveMutation.mutate(marks);
+                          queryClient.invalidateQueries({ queryKey: ["total-marks-config"] });
+                        } catch {
+                          setAutoSaveStatus("error");
+                        }
                       }, 1500);
                     }}
                     className="mx-auto w-16 text-center font-bold"
