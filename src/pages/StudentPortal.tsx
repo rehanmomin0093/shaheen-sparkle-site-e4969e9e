@@ -29,28 +29,24 @@ const StudentPortal = () => {
     setLoading(true);
 
     try {
-      // Look up email by roll number
-      const { data: student, error: lookupError } = await supabase
-        .from("students")
-        .select("email")
-        .eq("roll_number", rollNo.trim())
-        .maybeSingle();
+      // Call edge function that handles roll-number-based login
+      const { data, error: fnError } = await supabase.functions.invoke("student-login", {
+        body: { roll_number: rollNo.trim(), password },
+      });
 
-      if (lookupError) throw lookupError;
-      if (!student || !student.email) {
-        toast({ title: "Login failed", description: "Roll number not found or no email linked.", variant: "destructive" });
+      if (fnError) throw fnError;
+      if (data?.error) {
+        toast({ title: "Login failed", description: data.error, variant: "destructive" });
         setLoading(false);
         return;
       }
 
-      const { error } = await supabase.auth.signInWithPassword({
-        email: student.email,
-        password,
-      });
-
-      if (error) {
-        toast({ title: "Login failed", description: error.message, variant: "destructive" });
-      } else {
+      if (data?.session) {
+        // Set the session from the edge function response
+        await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        });
         toast({ title: "Welcome!", description: "Redirecting to your dashboard..." });
         navigate("/student-dashboard");
       }
