@@ -40,6 +40,8 @@ const ResultsTab = () => {
     assignment?.section
   );
 
+  const totalMarksKey = `total_marks_${assignment?.class_name}_${assignment?.section || "all"}_${examType}_${academicYear}`;
+
   const { data: existingResults } = useQuery({
     queryKey: ["student-results", examType, academicYear, assignment?.class_name],
     queryFn: async () => {
@@ -56,10 +58,39 @@ const ResultsTab = () => {
     enabled: !!students?.length,
   });
 
+  // Load saved total marks config from site_content
+  const { data: savedTotalMarks } = useQuery({
+    queryKey: ["total-marks-config", totalMarksKey],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("site_content")
+        .select("value")
+        .eq("key", totalMarksKey)
+        .eq("section", "results_config")
+        .maybeSingle();
+      if (data?.value) {
+        try { return JSON.parse(data.value) as Record<string, string>; } catch { return null; }
+      }
+      return null;
+    },
+    enabled: !!assignment,
+  });
+
   useEffect(() => {
     if (!students) return;
     const map: Record<string, MarksEntry> = {};
-    const loadedTotals: Record<string, string> = { ...totalMarks };
+    // Priority: saved config > existing results > default 100
+    const loadedTotals: Record<string, string> = Object.fromEntries(SUBJECTS.map((s) => [s, "100"]));
+    if (savedTotalMarks) {
+      SUBJECTS.forEach((sub) => { if (savedTotalMarks[sub]) loadedTotals[sub] = savedTotalMarks[sub]; });
+    } else {
+      students.forEach((s) => {
+        SUBJECTS.forEach((sub) => {
+          const existing = existingResults?.find((r) => r.student_id === s.id && r.subject === sub);
+          if (existing) loadedTotals[sub] = String(existing.total_marks);
+        });
+      });
+    }
     students.forEach((s) => {
       const entry: MarksEntry = {};
       SUBJECTS.forEach((sub) => {
@@ -68,19 +99,15 @@ const ResultsTab = () => {
         );
         entry[sub] = {
           marks: existing ? String(existing.marks_obtained) : "",
-          total: existing ? String(existing.total_marks) : "100",
+          total: existing ? String(existing.total_marks) : loadedTotals[sub],
         };
-        // Load total_marks from first found existing result per subject
-        if (existing) {
-          loadedTotals[sub] = String(existing.total_marks);
-        }
       });
       map[s.id] = entry;
     });
     setMarks(map);
     setTotalMarks(loadedTotals);
     totalMarksRef.current = loadedTotals;
-  }, [students, existingResults]);
+  }, [students, existingResults, savedTotalMarks]);
 
   const [autoSaveStatus, setAutoSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
