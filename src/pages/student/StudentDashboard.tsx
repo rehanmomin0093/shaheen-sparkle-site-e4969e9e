@@ -11,7 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { LogOut, ClipboardList, FileText, TrendingUp, BookOpen, Loader2, User } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { LogOut, ClipboardList, FileText, TrendingUp, BookOpen, Loader2, User, Settings, Lock } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart } from "recharts";
 import { useToast } from "@/hooks/use-toast";
 
@@ -22,6 +23,11 @@ const StudentDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState("progress");
+  const [showSettings, setShowSettings] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) navigate("/student-portal");
@@ -133,25 +139,81 @@ const StudentDashboard = () => {
 
       <main className="container py-6">
         <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Card><CardContent className="flex items-center gap-4 p-4">
+          <Card className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => setShowSettings(true)}><CardContent className="flex items-center gap-4 p-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10"><User className="h-5 w-5 text-primary" /></div>
             <div><p className="text-xs text-muted-foreground">Roll Number</p><p className="font-bold">{student.roll_number || "-"}</p></div>
           </CardContent></Card>
-          <Card><CardContent className="flex items-center gap-4 p-4">
+          <Card className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => setActiveTab("attendance")}><CardContent className="flex items-center gap-4 p-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10"><ClipboardList className="h-5 w-5 text-primary" /></div>
             <div><p className="text-xs text-muted-foreground">Attendance</p><p className="font-bold">{attendancePercent}%</p></div>
           </CardContent></Card>
-          <Card><CardContent className="flex items-center gap-4 p-4">
+          <Card className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => setActiveTab("results")}><CardContent className="flex items-center gap-4 p-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10"><TrendingUp className="h-5 w-5 text-primary" /></div>
             <div><p className="text-xs text-muted-foreground">Latest Result</p><p className="font-bold">{latestExamWithData ? `${latestExamWithData.percent}%` : "-"}</p></div>
           </CardContent></Card>
-          <Card><CardContent className="flex items-center gap-4 p-4">
+          <Card className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => setActiveTab("tests")}><CardContent className="flex items-center gap-4 p-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10"><BookOpen className="h-5 w-5 text-primary" /></div>
             <div><p className="text-xs text-muted-foreground">Pending Tests</p><p className="font-bold">{(tests?.length ?? 0) - (mySubmissions?.length ?? 0)}</p></div>
           </CardContent></Card>
         </div>
 
-        <Tabs defaultValue="progress" className="space-y-6">
+        {/* Settings Dialog */}
+        <Dialog open={showSettings} onOpenChange={setShowSettings}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2"><Settings className="h-5 w-5" /> Student Settings</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-2">
+              <div className="rounded-lg border p-4">
+                <p className="text-sm text-muted-foreground">Name</p>
+                <p className="font-semibold">{student.name}</p>
+              </div>
+              <div className="rounded-lg border p-4">
+                <p className="text-sm text-muted-foreground">Roll Number</p>
+                <p className="font-semibold">{student.roll_number || "-"}</p>
+              </div>
+              <div className="rounded-lg border p-4">
+                <p className="text-sm text-muted-foreground">Class</p>
+                <p className="font-semibold">{student.class}{student.section ? ` - ${student.section}` : ""}</p>
+              </div>
+              <div className="border-t pt-4">
+                <h3 className="mb-3 flex items-center gap-2 font-semibold"><Lock className="h-4 w-4" /> Change Password</h3>
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="new-pw">New Password</Label>
+                    <Input id="new-pw" type="password" placeholder="Min 6 characters" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label htmlFor="confirm-pw">Confirm Password</Label>
+                    <Input id="confirm-pw" type="password" placeholder="Re-enter password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                  </div>
+                  <Button
+                    className="w-full"
+                    disabled={changingPassword || newPassword.length < 6 || newPassword !== confirmPassword}
+                    onClick={async () => {
+                      setChangingPassword(true);
+                      const { error } = await supabase.auth.updateUser({ password: newPassword });
+                      setChangingPassword(false);
+                      if (error) {
+                        toast({ title: "Error", description: error.message, variant: "destructive" });
+                      } else {
+                        toast({ title: "Success", description: "Password changed successfully!" });
+                        setNewPassword("");
+                        setConfirmPassword("");
+                        setShowSettings(false);
+                      }
+                    }}
+                  >
+                    {changingPassword && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Update Password
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
             <TabsTrigger value="progress" className="gap-2"><TrendingUp className="h-4 w-4" /> Progress</TabsTrigger>
             <TabsTrigger value="attendance" className="gap-2"><ClipboardList className="h-4 w-4" /> Attendance</TabsTrigger>
