@@ -315,7 +315,7 @@ const BulkStudentImport = ({ onImported }: Props) => {
               <p className="text-sm font-medium text-green-600">
                 ✓ {rows.length} students ready to import
               </p>
-              <div className="max-h-60 overflow-auto rounded border">
+              <div className="max-h-[50vh] overflow-auto rounded border">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -325,26 +325,51 @@ const BulkStudentImport = ({ onImported }: Props) => {
                       <TableHead>Section</TableHead>
                       <TableHead>Roll No.</TableHead>
                       <TableHead>Phone</TableHead>
+                      <TableHead>Email</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {rows.slice(0, 20).map((r, i) => (
+                    {rows.map((r, i) => (
                       <TableRow key={i}>
                         <TableCell>{i + 1}</TableCell>
                         <TableCell>{r.name}</TableCell>
                         <TableCell>{r.class}</TableCell>
-                        <TableCell>{r.section}</TableCell>
+                        <TableCell>
+                          <input
+                            className="w-16 border rounded px-1 py-0.5 text-sm bg-background"
+                            value={r.section || ""}
+                            onChange={(e) => {
+                              const updated = [...rows];
+                              updated[i] = { ...updated[i], section: e.target.value };
+                              setRows(updated);
+                            }}
+                          />
+                        </TableCell>
                         <TableCell>{r.roll_number}</TableCell>
-                        <TableCell>{r.phone}</TableCell>
-                      </TableRow>
-                    ))}
-                    {rows.length > 20 && (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center text-muted-foreground">
-                          ...and {rows.length - 20} more rows
+                        <TableCell>
+                          <input
+                            className="w-28 border rounded px-1 py-0.5 text-sm bg-background"
+                            value={r.phone || ""}
+                            onChange={(e) => {
+                              const updated = [...rows];
+                              updated[i] = { ...updated[i], phone: e.target.value };
+                              setRows(updated);
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <input
+                            className="w-36 border rounded px-1 py-0.5 text-sm bg-background"
+                            value={r.email || ""}
+                            onChange={(e) => {
+                              const updated = [...rows];
+                              updated[i] = { ...updated[i], email: e.target.value };
+                              setRows(updated);
+                            }}
+                          />
                         </TableCell>
                       </TableRow>
-                    )}
+                    ))}
                   </TableBody>
                 </Table>
               </div>
