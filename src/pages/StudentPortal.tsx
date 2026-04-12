@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,8 +8,10 @@ import { Label } from "@/components/ui/label";
 import { GraduationCap, Lock, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 const StudentPortal = () => {
+  const { user, loading: authLoading } = useAuth();
   const [rollNo, setRollNo] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
