@@ -346,7 +346,16 @@ const ResultsTab = () => {
                     type="number"
                     min="1"
                     value={totalMarks[sub]}
-                    onChange={(e) => setTotalMarks((prev) => ({ ...prev, [sub]: e.target.value }))}
+                    onChange={(e) => {
+                      const newTotalMarks = { ...totalMarks, [sub]: e.target.value };
+                      setTotalMarks(newTotalMarks);
+                      // Trigger auto-save with updated total marks
+                      if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+                      setAutoSaveStatus("saving");
+                      autoSaveTimerRef.current = setTimeout(() => {
+                        autoSaveMutation.mutate(marks);
+                      }, 1500);
+                    }}
                     className="mx-auto w-16 text-center font-bold"
                   />
                 </TableCell>
