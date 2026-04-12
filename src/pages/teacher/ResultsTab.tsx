@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, Upload, FileSpreadsheet, FileDown } from "lucide-react";
+import * as XLSX from "xlsx";
 
 const EXAM_TYPES = ["Unit Test 1", "Unit Test 2", "Half Yearly", "Annual"] as const;
 const SUBJECTS = ["English", "Hindi", "Marathi", "Math", "Science", "Social Studies"] as const;
@@ -25,6 +26,7 @@ const ResultsTab = () => {
   const [examType, setExamType] = useState<string>(EXAM_TYPES[0]);
   const [academicYear, setAcademicYear] = useState("2025-26");
   const [marks, setMarks] = useState<Record<string, MarksEntry>>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: assignment, isLoading: loadingAssignment } = useTeacherAssignment();
   const { data: students, isLoading: loadingStudents } = useTeacherStudents(
@@ -32,7 +34,6 @@ const ResultsTab = () => {
     assignment?.section
   );
 
-  // Fetch existing results
   const { data: existingResults } = useQuery({
     queryKey: ["student-results", examType, academicYear, assignment?.class_name],
     queryFn: async () => {
@@ -113,6 +114,84 @@ const ResultsTab = () => {
     }));
   };
 
+  const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !students) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const data = evt.target?.result;
+        const wb = XLSX.read(data, { type: "binary" });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows: any[] = XLSX.utils.sheet_to_json(ws);
+
+        if (!rows.length) {
+          toast({ title: "Error", description: "No data found in file", variant: "destructive" });
+          return;
+        }
+
+        const newMarks = { ...marks };
+        let matched = 0;
+
+        rows.forEach((row) => {
+          const rollNo = String(row["Roll"] || row["Roll No"] || row["roll_number"] || "").trim();
+          const student = students.find((s) => s.roll_number === rollNo);
+          if (!student) return;
+
+          SUBJECTS.forEach((sub) => {
+            const val = row[sub];
+            if (val !== undefined && val !== null && val !== "" && val !== "-") {
+              if (!newMarks[student.id]) newMarks[student.id] = {};
+              newMarks[student.id][sub] = {
+                marks: String(val),
+                total: newMarks[student.id]?.[sub]?.total || "100",
+              };
+              matched++;
+            }
+          });
+        });
+
+        setMarks(newMarks);
+        toast({ title: `Imported ${matched} marks from ${rows.length} rows. Click Save to store.` });
+      } catch (err) {
+        toast({ title: "Error", description: "Failed to parse file", variant: "destructive" });
+      }
+    };
+    reader.readAsBinaryString(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleExport = (format: "xlsx" | "csv") => {
+    if (!students) return;
+    const rows = students.map((s) => {
+      const row: any = { "Roll": s.roll_number || "-", "Name": s.name };
+      SUBJECTS.forEach((sub) => {
+        row[sub] = marks[s.id]?.[sub]?.marks || "-";
+      });
+      return row;
+    });
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Results");
+    const filename = `Results_${assignment?.class_name}_${examType}_${academicYear}`;
+    XLSX.writeFile(wb, `${filename}.${format}`, format === "csv" ? { bookType: "csv" } : undefined);
+  };
+
+  const downloadTemplate = () => {
+    if (!students) return;
+    const rows = students.map((s) => {
+      const row: any = { "Roll": s.roll_number || "", "Name": s.name };
+      SUBJECTS.forEach((sub) => { row[sub] = ""; });
+      return row;
+    });
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Template");
+    XLSX.writeFile(wb, `Marks_Template_${assignment?.class_name}.xlsx`);
+  };
+
   if (loadingAssignment || loadingStudents) {
     return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
@@ -150,6 +229,27 @@ const ResultsTab = () => {
               Save
             </Button>
           </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            className="hidden"
+            onChange={handleFileImport}
+          />
+          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+            <Upload className="mr-2 h-4 w-4" /> Import Excel/CSV
+          </Button>
+          <Button variant="outline" size="sm" onClick={downloadTemplate}>
+            <FileDown className="mr-2 h-4 w-4" /> Download Template
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => handleExport("xlsx")}>
+            <FileSpreadsheet className="mr-2 h-4 w-4" /> Export Excel
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => handleExport("csv")}>
+            <FileDown className="mr-2 h-4 w-4" /> Export CSV
+          </Button>
         </div>
       </CardHeader>
       <CardContent className="overflow-x-auto">
