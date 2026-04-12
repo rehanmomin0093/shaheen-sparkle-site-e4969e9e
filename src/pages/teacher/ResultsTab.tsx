@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, Upload, FileSpreadsheet, FileDown } from "lucide-react";
+import { Loader2, Save, Upload, FileSpreadsheet, FileDown, ChevronDown, ChevronUp } from "lucide-react";
 import * as XLSX from "xlsx";
 
 const EXAM_TYPES = ["Unit Test 1", "Unit Test 2", "Half Yearly", "Annual"] as const;
@@ -29,6 +29,7 @@ const ResultsTab = () => {
   const [totalMarks, setTotalMarks] = useState<Record<string, string>>(
     Object.fromEntries(SUBJECTS.map((s) => [s, "100"]))
   );
+  const [showActions, setShowActions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: assignment, isLoading: loadingAssignment } = useTeacherAssignment();
@@ -233,26 +234,38 @@ const ResultsTab = () => {
             </Button>
           </div>
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".xlsx,.xls,.csv"
-            className="hidden"
-            onChange={handleFileImport}
-          />
-          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="mr-2 h-4 w-4" /> Import Excel/CSV
+        <div className="mt-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowActions((prev) => !prev)}
+          >
+            {showActions ? <ChevronUp className="mr-2 h-4 w-4" /> : <ChevronDown className="mr-2 h-4 w-4" />}
+            {showActions ? "Hide Options" : "Show Options"}
           </Button>
-          <Button variant="outline" size="sm" onClick={downloadTemplate}>
-            <FileDown className="mr-2 h-4 w-4" /> Download Template
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => handleExport("xlsx")}>
-            <FileSpreadsheet className="mr-2 h-4 w-4" /> Export Excel
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => handleExport("csv")}>
-            <FileDown className="mr-2 h-4 w-4" /> Export CSV
-          </Button>
+          {showActions && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                className="hidden"
+                onChange={handleFileImport}
+              />
+              <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                <Upload className="mr-2 h-4 w-4" /> Import Excel/CSV
+              </Button>
+              <Button variant="outline" size="sm" onClick={downloadTemplate}>
+                <FileDown className="mr-2 h-4 w-4" /> Download Template
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => handleExport("xlsx")}>
+                <FileSpreadsheet className="mr-2 h-4 w-4" /> Export Excel
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => handleExport("csv")}>
+                <FileDown className="mr-2 h-4 w-4" /> Export CSV
+              </Button>
+            </div>
+          )}
         </div>
       </CardHeader>
       <CardContent className="overflow-x-auto">
