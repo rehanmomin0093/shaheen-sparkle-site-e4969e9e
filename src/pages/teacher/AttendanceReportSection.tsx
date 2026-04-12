@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Search, FileSpreadsheet, FileDown } from "lucide-react";
+import { Loader2, Search, FileSpreadsheet, FileDown, AlertTriangle } from "lucide-react";
 import * as XLSX from "xlsx";
 
 type SummaryRow = {
