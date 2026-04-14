@@ -12,13 +12,6 @@ const Contact = () => {
     { icon: Mail, label: t("contact.email"), value: t("contact.emailValue") },
     { icon: Clock, label: t("contact.officeHours"), value: t("contact.officeHoursValue") },
   ];
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    toast({ title: t("contact.sent"), description: t("contact.sentDesc") });
-    (e.target as HTMLFormElement).reset();
-  };
-
   return (
     <>
       <section className="bg-primary py-24 text-primary-foreground">
