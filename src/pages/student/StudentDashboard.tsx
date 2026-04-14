@@ -78,7 +78,20 @@ const StudentDashboard = () => {
     enabled: !!student?.id,
   });
 
-  if (loading || loadingStudent) {
+  const { data: teacherLinks } = useQuery({
+    queryKey: ["student-teacher-links", student?.class, student?.section],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("teacher_links")
+        .select("*")
+        .eq("class_name", student!.class)
+        .order("created_at", { ascending: false });
+      return data ?? [];
+    },
+    enabled: !!student?.class,
+  });
+
+
     return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
