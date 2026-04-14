@@ -198,16 +198,7 @@ const Index = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/40 to-foreground/10 z-[1]" />
 
         <div className="container relative z-10 py-24 text-center">
-          <motion.span initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="inline-block text-xs font-semibold uppercase tracking-[0.2em] text-secondary drop-shadow-md">
-            Welcome to
-          </motion.span>
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="font-serif text-4xl font-bold text-primary-foreground md:text-6xl drop-shadow-lg">
-            Shaheen School
-          </motion.h1>
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }} className="mx-auto mt-4 max-w-2xl text-lg text-primary-foreground/90 drop-shadow-md">
-            Nurturing the Falcons of Tomorrow — Excellence in Education Since Establishment
-          </motion.p>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.6 }} className="mt-8 flex flex-wrap items-center justify-center gap-4">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.6 }} className="flex flex-wrap items-center justify-center gap-4">
             <Link to="/admissions">
               <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 glow-on-hover animate-float text-base px-8">
                 Apply Now <ArrowRight className="ml-2 h-5 w-5" />
