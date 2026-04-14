@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,22 +9,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CheckCircle2 } from "lucide-react";
-import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import SectionHeading from "@/components/shared/SectionHeading";
 import { supabase } from "@/integrations/supabase/client";
 
-const steps = [
-  { step: "01", title: "Fill Inquiry Form", desc: "Submit the online inquiry form with student & parent details." },
-  { step: "02", title: "Document Verification", desc: "Bring original documents to the school office for verification." },
-  { step: "03", title: "Entrance Assessment", desc: "Student appears for an age-appropriate assessment." },
-  { step: "04", title: "Admission Confirmation", desc: "Pay fees and complete enrollment to secure the seat." },
-];
-
 const Admissions = () => {
   const location = useLocation();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [classApplying, setClassApplying] = useState("");
+
+  const steps = [
+    { step: "01", title: t("admissions.step01"), desc: t("admissions.step01Desc") },
+    { step: "02", title: t("admissions.step02"), desc: t("admissions.step02Desc") },
+    { step: "03", title: t("admissions.step03"), desc: t("admissions.step03Desc") },
+    { step: "04", title: t("admissions.step04"), desc: t("admissions.step04Desc") },
+  ];
 
   useEffect(() => {
     if (location.hash) {
@@ -32,8 +35,6 @@ const Admissions = () => {
       }, 100);
     }
   }, [location]);
-  const [submitted, setSubmitted] = useState(false);
-  const [classApplying, setClassApplying] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -46,38 +47,32 @@ const Admissions = () => {
     const message = (form.querySelector("#message") as HTMLTextAreaElement).value.trim() || null;
 
     if (!classApplying) {
-      toast({ title: "Error", description: "Please select a class.", variant: "destructive" });
+      toast({ title: t("admissions.errorTitle"), description: t("admissions.selectClassError"), variant: "destructive" });
       setIsSubmitting(false);
       return;
     }
 
     const { error } = await supabase.from("admission_inquiries").insert({
-      student_name: studentName,
-      parent_name: parentName,
-      phone,
-      email,
-      class_applying: classApplying,
-      message,
+      student_name: studentName, parent_name: parentName, phone, email, class_applying: classApplying, message,
     });
 
     setIsSubmitting(false);
-
     if (error) {
       if (error.code === "23505") {
         const msg = error.message.includes("unique_phone")
-          ? "This phone number has already been used for an admission inquiry."
+          ? t("admissions.duplicatePhone")
           : error.message.includes("unique_email")
-          ? "This email has already been used for an admission inquiry."
-          : "An inquiry with this phone or email already exists.";
-        toast({ title: "Duplicate Inquiry", description: msg, variant: "destructive" });
+          ? t("admissions.duplicateEmail")
+          : t("admissions.duplicateGeneral");
+        toast({ title: t("admissions.duplicateInquiry"), description: msg, variant: "destructive" });
       } else {
-        toast({ title: "Error", description: "Something went wrong. Please try again.", variant: "destructive" });
+        toast({ title: t("admissions.errorTitle"), description: t("admissions.genericError"), variant: "destructive" });
       }
       return;
     }
 
     setSubmitted(true);
-    toast({ title: "Inquiry Submitted!", description: "We'll contact you within 2 working days." });
+    toast({ title: t("admissions.inquirySubmittedTitle"), description: t("admissions.inquirySubmittedDesc") });
   };
 
   return (
@@ -85,26 +80,19 @@ const Admissions = () => {
       <section className="bg-primary py-24 text-primary-foreground">
         <div className="container">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="mb-2 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-secondary">Admissions</span>
-            <h1 className="font-serif text-4xl md:text-6xl">Join the Shaheen Family</h1>
-            <p className="mt-4 max-w-2xl opacity-80">Admissions are open for the 2026–27 academic year. Follow the steps below and submit your inquiry.</p>
+            <span className="mb-2 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-secondary">{t("admissions.label")}</span>
+            <h1 className="font-serif text-4xl md:text-6xl">{t("admissions.title")}</h1>
+            <p className="mt-4 max-w-2xl opacity-80">{t("admissions.subtitle")}</p>
           </motion.div>
         </div>
       </section>
 
-      {/* Process */}
       <section id="process" className="py-24">
         <div className="container">
-          <SectionHeading label="Process" title="How to Apply" />
+          <SectionHeading label={t("admissions.processLabel")} title={t("admissions.howToApply")} />
           <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2 lg:grid-cols-4">
             {steps.map((s, i) => (
-              <motion.div
-                key={s.step}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.4 }}
-              >
+              <motion.div key={s.step} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1, duration: 0.4 }}>
                 <Card className="h-full border-none shadow-md">
                   <CardContent className="p-6">
                     <span className="font-serif text-3xl text-secondary">{s.step}</span>
@@ -118,17 +106,16 @@ const Admissions = () => {
         </div>
       </section>
 
-      {/* Inquiry Form */}
       <section id="apply" className="bg-muted py-24">
         <div className="container">
-          <SectionHeading label="Inquiry" title="Admission Inquiry Form" description="Fill in the details below and our admissions team will get back to you." />
+          <SectionHeading label={t("admissions.inquiryLabel")} title={t("admissions.formTitle")} description={t("admissions.formDesc")} />
           <div className="mx-auto max-w-2xl">
             {submitted ? (
               <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
                 <CheckCircle2 className="mx-auto mb-4 h-16 w-16 text-primary" />
-                <h3 className="font-serif text-2xl">Thank You!</h3>
-                <p className="mt-2 text-muted-foreground">Your inquiry has been submitted. We'll contact you within 2 working days.</p>
-                <Button className="mt-6" onClick={() => setSubmitted(false)}>Submit Another Inquiry</Button>
+                <h3 className="font-serif text-2xl">{t("admissions.thankYou")}</h3>
+                <p className="mt-2 text-muted-foreground">{t("admissions.inquirySubmitted")}</p>
+                <Button className="mt-6" onClick={() => setSubmitted(false)}>{t("admissions.submitAnother")}</Button>
               </motion.div>
             ) : (
               <Card className="border-none shadow-lg">
@@ -136,44 +123,41 @@ const Admissions = () => {
                   <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="grid gap-5 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="studentName">Student Name *</Label>
-                        <Input id="studentName" required placeholder="Full name of the student" />
+                        <Label htmlFor="studentName">{t("admissions.studentName")}</Label>
+                        <Input id="studentName" required placeholder={t("admissions.studentNamePlaceholder")} />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="parentName">Parent/Guardian Name *</Label>
-                        <Input id="parentName" required placeholder="Full name" />
+                        <Label htmlFor="parentName">{t("admissions.parentName")}</Label>
+                        <Input id="parentName" required placeholder={t("admissions.parentNamePlaceholder")} />
                       </div>
                     </div>
                     <div className="grid gap-5 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="phone">Phone Number *</Label>
+                        <Label htmlFor="phone">{t("admissions.phoneNumber")}</Label>
                         <Input id="phone" type="tel" required placeholder="+91 98765 43210" />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email">{t("admissions.emailLabel")}</Label>
                         <Input id="email" type="email" placeholder="parent@email.com" />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label>Class Applying For *</Label>
+                      <Label>{t("admissions.classLabel")}</Label>
                       <Select required value={classApplying} onValueChange={setClassApplying}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select class" />
-                        </SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder={t("admissions.selectClass")} /></SelectTrigger>
                         <SelectContent>
-                          {["Nursery", "LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5",
-                            "Class 6", "Class 7", "Class 8", "Class 9", "Class 10"].map((c) => (
+                          {["Nursery", "LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10"].map((c) => (
                             <SelectItem key={c} value={c}>{c}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="message">Additional Message</Label>
-                      <Textarea id="message" placeholder="Any specific questions or requirements..." rows={4} />
+                      <Label htmlFor="message">{t("admissions.additionalMessage")}</Label>
+                      <Textarea id="message" placeholder={t("admissions.additionalMessagePlaceholder")} rows={4} />
                     </div>
                     <Button type="submit" size="lg" className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90" disabled={isSubmitting}>
-                      {isSubmitting ? "Submitting..." : "Submit Inquiry"}
+                      {isSubmitting ? t("admissions.submitting") : t("admissions.submitInquiry")}
                     </Button>
                   </form>
                 </CardContent>

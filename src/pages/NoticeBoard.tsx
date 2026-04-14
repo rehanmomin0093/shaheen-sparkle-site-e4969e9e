@@ -1,14 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileDown, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const categories = ["All", "Circulars", "Results", "Events", "General"];
 
 const NoticeBoard = () => {
   const location = useLocation();
@@ -16,6 +14,15 @@ const NoticeBoard = () => {
   const highlightId = searchParams.get("id");
   const [active, setActive] = useState("All");
   const highlightRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
+
+  const categories = [
+    { key: "All", label: t("notices.all") },
+    { key: "Circulars", label: t("notices.circulars") },
+    { key: "Results", label: t("notices.results") },
+    { key: "Events", label: t("notices.events") },
+    { key: "General", label: t("notices.general") },
+  ];
 
   const { data: notices, isLoading } = useQuery({
     queryKey: ["public-all-notices"],
@@ -28,17 +35,13 @@ const NoticeBoard = () => {
 
   useEffect(() => {
     if (highlightId && highlightRef.current) {
-      setTimeout(() => {
-        highlightRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-      }, 300);
+      setTimeout(() => { highlightRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }); }, 300);
     }
   }, [highlightId, notices]);
 
   useEffect(() => {
     if (location.hash) {
-      setTimeout(() => {
-        document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
+      setTimeout(() => { document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: "smooth" }); }, 100);
     }
   }, [location]);
 
@@ -49,9 +52,9 @@ const NoticeBoard = () => {
       <section className="bg-primary py-24 text-primary-foreground">
         <div className="container">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="mb-2 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-secondary">Notices</span>
-            <h1 className="font-serif text-4xl md:text-6xl">Notice Board & Downloads</h1>
-            <p className="mt-4 max-w-2xl opacity-80">Stay updated with the latest announcements, circulars, and downloadable documents.</p>
+            <span className="mb-2 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-secondary">{t("notices.label")}</span>
+            <h1 className="font-serif text-4xl md:text-6xl">{t("notices.title")}</h1>
+            <p className="mt-4 max-w-2xl opacity-80">{t("notices.subtitle")}</p>
           </motion.div>
         </div>
       </section>
@@ -61,14 +64,14 @@ const NoticeBoard = () => {
           <div className="mb-10 flex flex-wrap justify-center gap-2">
             {categories.map((cat) => (
               <button
-                key={cat}
-                onClick={() => setActive(cat)}
+                key={cat.key}
+                onClick={() => setActive(cat.key)}
                 className={cn(
                   "rounded px-4 py-2 text-sm font-medium transition-colors",
-                  active === cat ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  active === cat.key ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
                 )}
               >
-                {cat}
+                {cat.label}
               </button>
             ))}
           </div>
@@ -96,13 +99,7 @@ const NoticeBoard = () => {
                         <p className="mt-1 font-medium">{n.title}</p>
                       </div>
                       {n.pdf_url && (
-                        <a
-                          href={n.pdf_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="shrink-0 rounded p-2 text-muted-foreground opacity-0 transition-all hover:bg-muted hover:text-foreground group-hover:opacity-100"
-                          title="Download PDF"
-                        >
+                        <a href={n.pdf_url} target="_blank" rel="noopener noreferrer" className="shrink-0 rounded p-2 text-muted-foreground opacity-0 transition-all hover:bg-muted hover:text-foreground group-hover:opacity-100" title={t("notices.downloadPdf")}>
                           <FileDown className="h-5 w-5" />
                         </a>
                       )}
@@ -114,7 +111,7 @@ const NoticeBoard = () => {
           )}
 
           {!isLoading && filtered.length === 0 && (
-            <p className="mt-10 text-center text-muted-foreground">No notices in this category.</p>
+            <p className="mt-10 text-center text-muted-foreground">{t("notices.noNotices")}</p>
           )}
         </div>
       </section>

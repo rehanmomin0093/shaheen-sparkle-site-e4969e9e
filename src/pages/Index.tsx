@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import SectionHeading from "@/components/shared/SectionHeading";
@@ -15,22 +16,12 @@ import { cn } from "@/lib/utils";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const programs = [
-  { title: "Primary School", grades: "Nursery — Class 5", desc: "A nurturing foundation with focus on literacy, numeracy, and creative exploration.", icon: BookOpen },
-  { title: "Secondary School", grades: "Class 6 — Class 10", desc: "Rigorous academics combined with sports, arts, and leadership development.", icon: GraduationCap },
-  { title: "High School", grades: "Class 11 — Class 12 / PUC", desc: "Advanced streams in Science, Commerce, and Arts with dedicated labs and career guidance.", icon: Award },
+const defaultHeroImages = [
+  "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1920&q=90",
+  "https://images.unsplash.com/photo-1523050854058-8df90110c476?w=1920&q=90",
+  "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1920&q=90",
+  "https://images.unsplash.com/photo-1577896851231-70ef18881754?w=1920&q=90",
 ];
-
-const academicHighlights = [
-  { title: "Departments", desc: "Science, Commerce, Arts, and specialized vocational streams.", icon: Building2 },
-  { title: "Smart Classrooms", desc: "Interactive whiteboards and projectors in every classroom.", icon: Monitor },
-  { title: "Science Labs", desc: "Fully equipped Physics, Chemistry, and Biology laboratories.", icon: FlaskConical },
-  { title: "Library", desc: "10,000+ books with a quiet, air-conditioned reading area.", icon: Library },
-  { title: "Sports Complex", desc: "Cricket ground, basketball court, indoor games, and gym.", icon: Dumbbell },
-];
-
-const galleryFilters = ["All", "Events", "Sports", "Campus", "Cultural"];
-
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -39,14 +30,8 @@ const fadeUp = {
 
 const statIcons = [Calendar, Users, GraduationCap, Award];
 const statKeys = ["stat_years", "stat_students", "stat_faculty", "stat_pass_rate"];
-const statLabels = ["Years of Excellence", "Students", "Faculty Members", "Pass Rate"];
 
-const defaultHeroImages = [
-  "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1920&q=90",
-  "https://images.unsplash.com/photo-1523050854058-8df90110c476?w=1920&q=90",
-  "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1920&q=90",
-  "https://images.unsplash.com/photo-1577896851231-70ef18881754?w=1920&q=90",
-];
+const galleryFilters = ["All", "Events", "Sports", "Campus", "Cultural"];
 
 function useCountUp(target: number, duration = 2000) {
   const [count, setCount] = useState(0);
@@ -97,6 +82,9 @@ const StatCard = ({ icon: Icon, label, value }: { icon: any; label: string; valu
 
 const Index = () => {
   const location = useLocation();
+  const { t } = useTranslation();
+
+  const statLabels = [t("home.yearsOfExcellence"), t("home.students"), t("home.facultyMembers"), t("home.passRate")];
 
   useEffect(() => {
     if (location.hash) {
@@ -105,6 +93,7 @@ const Index = () => {
       }, 100);
     }
   }, [location]);
+
   const { data: content } = useSiteContent();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -122,32 +111,24 @@ const Index = () => {
     const phone = (form.elements.namedItem("phone") as HTMLInputElement).value.trim();
     const email = (form.elements.namedItem("email") as HTMLInputElement).value.trim() || null;
 
-    if (!indexClassApplying) {
-      setIndexSubmitting(false);
-      return;
-    }
+    if (!indexClassApplying) { setIndexSubmitting(false); return; }
 
     const { error } = await supabase.from("admission_inquiries").insert({
-      student_name: studentName,
-      phone,
-      email,
-      class_applying: indexClassApplying,
+      student_name: studentName, phone, email, class_applying: indexClassApplying,
     });
 
     setIndexSubmitting(false);
-
     if (error) {
       if (error.code === "23505") {
         const msg = error.message.includes("unique_phone")
-          ? "This phone number has already been used for an admission inquiry."
+          ? t("admissions.duplicatePhone")
           : error.message.includes("unique_email")
-          ? "This email has already been used for an admission inquiry."
-          : "An inquiry with this phone or email already exists.";
+          ? t("admissions.duplicateEmail")
+          : t("admissions.duplicateGeneral");
         alert(msg);
       }
       return;
     }
-
     setIndexAdmissionSubmitted(true);
   };
 
@@ -176,11 +157,33 @@ const Index = () => {
 
   const c = (key: string, fallback: string) => content?.[key] ?? fallback;
 
+  const programs = [
+    { title: t("home.primarySchool"), grades: t("home.primaryGrades"), desc: t("home.primaryDesc"), icon: BookOpen },
+    { title: t("home.secondarySchool"), grades: t("home.secondaryGrades"), desc: t("home.secondaryDesc"), icon: GraduationCap },
+    { title: t("home.highSchool"), grades: t("home.highGrades"), desc: t("home.highDesc"), icon: Award },
+  ];
+
+  const academicHighlights = [
+    { title: t("home.departments"), desc: t("home.departmentsDesc"), icon: Building2 },
+    { title: t("home.smartClassrooms"), desc: t("home.smartClassroomsDesc"), icon: Monitor },
+    { title: t("home.scienceLabs"), desc: t("home.scienceLabsDesc"), icon: FlaskConical },
+    { title: t("home.library"), desc: t("home.libraryDesc"), icon: Library },
+    { title: t("home.sportsComplex"), desc: t("home.sportsComplexDesc"), icon: Dumbbell },
+  ];
+
+  const galleryFilterLabels: Record<string, string> = {
+    All: t("home.all"),
+    Events: t("nav.events"),
+    Sports: t("nav.sports"),
+    Campus: t("nav.campusPhotos"),
+    Cultural: t("home.cultural"),
+  };
+
   return (
     <>
       <PopupBanner />
 
-      {/* Hero with parallax */}
+      {/* Hero */}
       <section className="relative flex min-h-[85vh] items-center overflow-hidden">
         <AnimatePresence initial={false} mode="popLayout" custom={direction}>
           <motion.div
@@ -194,17 +197,13 @@ const Index = () => {
             transition={{ duration: 0.6, ease: "easeInOut" }}
           />
         </AnimatePresence>
-
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/40 to-foreground/10 z-[1]" />
-
-
-        <button onClick={prevSlide} className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-background/30 p-2 text-primary-foreground backdrop-blur-sm transition-all duration-300 hover:bg-background/60 hover:scale-110">
+        <button onClick={prevSlide} className="absolute start-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-background/30 p-2 text-primary-foreground backdrop-blur-sm transition-all duration-300 hover:bg-background/60 hover:scale-110">
           <ChevronLeft className="h-6 w-6" />
         </button>
-        <button onClick={nextSlide} className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-background/30 p-2 text-primary-foreground backdrop-blur-sm transition-all duration-300 hover:bg-background/60 hover:scale-110">
+        <button onClick={nextSlide} className="absolute end-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-background/30 p-2 text-primary-foreground backdrop-blur-sm transition-all duration-300 hover:bg-background/60 hover:scale-110">
           <ChevronRight className="h-6 w-6" />
         </button>
-
         <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-2">
           {heroImages.map((_, i) => (
             <button key={i} onClick={() => setCurrentSlide(i)} className={`h-2.5 rounded-full transition-all duration-500 ${i === currentSlide ? "bg-secondary w-8" : "bg-background/50 w-2.5 hover:bg-background/80"}`} />
@@ -230,33 +229,33 @@ const Index = () => {
         <div className="container">
           <div className="grid gap-12 lg:grid-cols-2">
             <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
-              <h2 className="font-serif text-3xl md:text-4xl">About Shaheen</h2>
+              <h2 className="font-serif text-3xl md:text-4xl">{t("home.aboutShaheen")}</h2>
               <div className="mt-2 h-1 w-12 rounded-full bg-primary" />
               <p className="mt-6 text-justify leading-relaxed text-muted-foreground">
-                {c("about_text", "Shaheen School is one of the iconic institutions of higher education, distinguished by its compassion to produce well-rounded individuals with competence for improving the human condition and building the nation.")}
+                {c("about_text", t("home.aboutText"))}
               </p>
               <Link to="/about">
                 <Button className="group mt-6 bg-primary text-primary-foreground hover:bg-primary/90">
-                  Learn More <ArrowRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  {t("home.learnMore")} <ArrowRight className="ms-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180" />
                 </Button>
               </Link>
             </motion.div>
-            <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="rounded-lg border-l-4 border-primary bg-muted p-8">
-              <h2 className="font-serif text-3xl md:text-4xl">Our Vision</h2>
+            <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="rounded-lg border-s-4 border-primary bg-muted p-8">
+              <h2 className="font-serif text-3xl md:text-4xl">{t("home.ourVision")}</h2>
               <div className="mt-2 h-1 w-12 rounded-full bg-primary" />
-              <p className="mt-6 leading-relaxed text-muted-foreground">{c("vision_text", "To be a beacon of educational excellence, empowering every child to discover their potential and contribute meaningfully to society.")}</p>
-              <h2 className="mt-10 font-serif text-3xl md:text-4xl">Our Mission</h2>
+              <p className="mt-6 leading-relaxed text-muted-foreground">{c("vision_text", t("home.visionText"))}</p>
+              <h2 className="mt-10 font-serif text-3xl md:text-4xl">{t("home.ourMission")}</h2>
               <div className="mt-2 h-1 w-12 rounded-full bg-primary" />
-              <p className="mt-6 leading-relaxed text-muted-foreground">{c("mission_text", "Providing holistic education that blends academic rigour with moral values, creative thinking, and physical fitness.")}</p>
+              <p className="mt-6 leading-relaxed text-muted-foreground">{c("mission_text", t("home.missionText"))}</p>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Academic Highlights — 5 cards */}
+      {/* Academic Highlights */}
       <section id="academics" className="bg-muted py-24">
         <div className="container">
-          <SectionHeading label="Academics" title="Academic Highlights" description="World-class facilities designed for modern education." />
+          <SectionHeading label={t("home.academics")} title={t("home.academicHighlights")} description={t("home.academicHighlightsDesc")} />
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
             {academicHighlights.map((h, i) => (
               <motion.div key={h.title} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
@@ -276,7 +275,7 @@ const Index = () => {
       {/* Programs */}
       <section className="py-24">
         <div className="container">
-          <SectionHeading label="Programs" title="Programs We Offer" description="A comprehensive curriculum designed for every stage of a student's journey." />
+          <SectionHeading label={t("home.programs")} title={t("home.programsWeOffer")} description={t("home.programsDesc")} />
           <div className="grid gap-6 md:grid-cols-3">
             {programs.map((p, i) => (
               <motion.div key={p.title} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
@@ -297,14 +296,14 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Notice Board — Vertical scrolling */}
+      {/* Notice Board */}
       <section id="notices" className="bg-muted py-24">
         <div className="container">
-          <SectionHeading label="Notice Board" title="Latest Announcements" />
+          <SectionHeading label={t("home.noticeBoardLabel")} title={t("home.latestAnnouncements")} />
           <div className="mx-auto max-w-3xl space-y-4">
             {(notices ?? []).map((n, i) => (
               <motion.div key={n.id} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                <Card className="group border-l-4 border-l-transparent transition-all duration-300 hover:shadow-md hover:border-l-secondary">
+                <Card className="group border-l-4 border-l-transparent transition-all duration-300 hover:shadow-md hover:border-l-secondary rtl:border-l-0 rtl:border-r-4 rtl:border-r-transparent rtl:hover:border-r-secondary">
                   <CardContent className="flex items-center justify-between gap-4 p-5">
                     <div>
                       <span className="text-xs text-muted-foreground">{n.date}</span>
@@ -317,19 +316,19 @@ const Index = () => {
             ))}
           </div>
           <div className="mt-10 text-center">
-            <Link to="/notices"><Button variant="outline" className="group">All Notices <ArrowRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" /></Button></Link>
+            <Link to="/notices"><Button variant="outline" className="group">{t("home.allNotices")} <ArrowRight className="ms-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" /></Button></Link>
           </div>
         </div>
       </section>
 
-      {/* Gallery with filters and lightbox */}
+      {/* Gallery */}
       <section id="gallery" className="bg-muted py-24">
         <div className="container">
-          <SectionHeading label="Gallery" title="Campus Life" description="Glimpses of activities, events, and everyday life at Shaheen." />
+          <SectionHeading label={t("home.galleryLabel")} title={t("home.campusLife")} description={t("home.campusLifeDesc")} />
           <div className="mb-8 flex flex-wrap justify-center gap-2">
             {galleryFilters.map((f) => (
               <button key={f} onClick={() => setGalleryFilter(f)} className={cn("rounded px-4 py-2 text-sm font-medium transition-colors", galleryFilter === f ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-card/80")}>
-                {f}
+                {galleryFilterLabels[f] || f}
               </button>
             ))}
           </div>
@@ -338,13 +337,13 @@ const Index = () => {
               <motion.div key={img.id} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="group relative aspect-[4/3] overflow-hidden rounded-lg cursor-pointer" onClick={() => setLightboxImage(img.src)}>
                 <img src={img.src} alt={img.alt || "Gallery image"} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
                 <div className="absolute inset-0 bg-gradient-to-t from-foreground/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                <span className="absolute bottom-3 left-3 text-sm font-medium text-primary-foreground opacity-0 transition-opacity duration-300 group-hover:opacity-100 drop-shadow-md">{img.alt || img.category}</span>
+                <span className="absolute bottom-3 start-3 text-sm font-medium text-primary-foreground opacity-0 transition-opacity duration-300 group-hover:opacity-100 drop-shadow-md">{img.alt || img.category}</span>
               </motion.div>
             ))}
           </div>
-          {filteredGallery.length === 0 && <p className="mt-8 text-center text-muted-foreground">No images in this category yet.</p>}
+          {filteredGallery.length === 0 && <p className="mt-8 text-center text-muted-foreground">{t("home.noImages")}</p>}
           <div className="mt-10 text-center">
-            <Link to="/gallery"><Button variant="outline" className="group">View Full Gallery <ArrowRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" /></Button></Link>
+            <Link to="/gallery"><Button variant="outline" className="group">{t("home.viewFullGallery")} <ArrowRight className="ms-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" /></Button></Link>
           </div>
         </div>
       </section>
@@ -359,25 +358,25 @@ const Index = () => {
       {/* Admission Form */}
       <section id="admissions" className="py-24">
         <div className="container">
-          <SectionHeading label="Admissions" title="Apply for Admission" description="Fill out the form below to start your application." />
+          <SectionHeading label={t("home.admissions")} title={t("home.applyForAdmission")} description={t("home.applyForAdmissionDesc")} />
           <div className="mx-auto max-w-xl">
             <Card className="border-none shadow-lg">
               <CardContent className="p-6 space-y-4">
                 {indexAdmissionSubmitted ? (
                   <div className="text-center py-6">
                     <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-primary" />
-                    <h3 className="font-serif text-xl">Thank You!</h3>
-                    <p className="mt-2 text-sm text-muted-foreground">Your inquiry has been submitted. We'll contact you soon.</p>
+                    <h3 className="font-serif text-xl">{t("home.thankYou")}</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">{t("home.inquirySubmittedShort")}</p>
                   </div>
                 ) : (
                   <form onSubmit={handleIndexAdmission} className="space-y-4">
-                    <Input placeholder="Student Name" name="studentName" required className="bg-background" />
+                    <Input placeholder={t("home.studentName")} name="studentName" required className="bg-background" />
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <Input placeholder="Email Address" type="email" name="email" className="bg-background" />
-                      <Input placeholder="Phone Number" type="tel" name="phone" required className="bg-background" />
+                      <Input placeholder={t("home.emailAddress")} type="email" name="email" className="bg-background" />
+                      <Input placeholder={t("home.phoneNumber")} type="tel" name="phone" required className="bg-background" />
                     </div>
                     <Select value={indexClassApplying} onValueChange={setIndexClassApplying}>
-                      <SelectTrigger className="bg-background"><SelectValue placeholder="Class Applying For" /></SelectTrigger>
+                      <SelectTrigger className="bg-background"><SelectValue placeholder={t("home.classApplyingFor")} /></SelectTrigger>
                       <SelectContent>
                         {["Nursery", "LKG", "UKG", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th"].map((cls) => (
                           <SelectItem key={cls} value={cls}>{cls}</SelectItem>
@@ -385,7 +384,7 @@ const Index = () => {
                       </SelectContent>
                     </Select>
                     <Button type="submit" className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 group" disabled={indexSubmitting}>
-                      {indexSubmitting ? "Submitting..." : "Submit Application"} {!indexSubmitting && <Send className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />}
+                      {indexSubmitting ? t("home.submitting") : t("home.submitApplication")} {!indexSubmitting && <Send className="ms-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />}
                     </Button>
                   </form>
                 )}
@@ -402,9 +401,9 @@ const Index = () => {
         ))}
         <div className="container relative z-10 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
-            <h2 className="font-serif text-3xl md:text-5xl">Admissions Open for 2026–27</h2>
-            <p className="mx-auto mt-4 max-w-xl opacity-80">Join the Shaheen family. Give your child the education they deserve — apply now.</p>
-            <Link to="/admissions"><Button size="lg" className="mt-8 animate-float bg-secondary text-secondary-foreground hover:bg-secondary/90 glow-on-hover">Start Application</Button></Link>
+            <h2 className="font-serif text-3xl md:text-5xl">{t("home.admissionsOpen")}</h2>
+            <p className="mx-auto mt-4 max-w-xl opacity-80">{t("home.admissionsOpenDesc")}</p>
+            <Link to="/admissions"><Button size="lg" className="mt-8 animate-float bg-secondary text-secondary-foreground hover:bg-secondary/90 glow-on-hover">{t("home.startApplication")}</Button></Link>
           </motion.div>
         </div>
       </section>
@@ -412,13 +411,13 @@ const Index = () => {
       {/* Contact Preview */}
       <section className="py-24">
         <div className="container">
-          <SectionHeading label="Contact" title="Get In Touch" description="Have questions? Reach out to us anytime." />
+          <SectionHeading label={t("home.contactLabel")} title={t("home.getInTouch")} description={t("home.getInTouchDesc")} />
           <div className="grid gap-12 lg:grid-cols-2">
             <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-6">
               {[
-                { icon: MapPin, title: "Address", text: "Shaheen Campus, Main Road, City — 000000" },
-                { icon: Phone, title: "Phone", text: "+91 98765 43210" },
-                { icon: Mail, title: "Email", text: "info@shaheenschool.edu" },
+                { icon: MapPin, title: t("home.address"), text: t("home.addressValue") },
+                { icon: Phone, title: t("home.phone"), text: t("home.phoneValue") },
+                { icon: Mail, title: t("home.email"), text: t("home.emailValue") },
               ].map((item) => (
                 <div key={item.title} className="flex items-start gap-4">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
@@ -435,13 +434,13 @@ const Index = () => {
               <Card className="border-none shadow-lg">
                 <CardContent className="p-6 space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Input placeholder="Your Name" className="bg-background" />
-                    <Input placeholder="Your Email" type="email" className="bg-background" />
+                    <Input placeholder={t("home.yourName")} className="bg-background" />
+                    <Input placeholder={t("home.yourEmail")} type="email" className="bg-background" />
                   </div>
-                  <Input placeholder="Subject" className="bg-background" />
-                  <Textarea placeholder="Your Message" rows={4} className="bg-background" />
+                  <Input placeholder={t("home.subject")} className="bg-background" />
+                  <Textarea placeholder={t("home.yourMessage")} rows={4} className="bg-background" />
                   <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 group">
-                    Send Message <Send className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                    {t("home.sendMessage")} <Send className="ms-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                   </Button>
                 </CardContent>
               </Card>

@@ -2,82 +2,84 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, GraduationCap, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import NewsTicker from "./NewsTicker";
+import LanguageToggle from "./LanguageToggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-const topBarLinks = [
-  { label: "Videos", to: "/videos" },
-  { label: "Achievements", to: "/achievements" },
-  { label: "Press Media", to: "/press-media" },
-];
-
-interface NavItem {
-  label: string;
-  to: string;
-  dropdown?: { label: string; to: string }[];
-}
-
-const navLinks: NavItem[] = [
-  { label: "Home", to: "/" },
-  {
-    label: "About",
-    to: "/about",
-    dropdown: [
-      { label: "School History", to: "/about#history" },
-      { label: "Vision & Mission", to: "/about#vision" },
-      { label: "Management", to: "/about#management" },
-      { label: "Staff", to: "/about#staff" },
-    ],
-  },
-  {
-    label: "Academic",
-    to: "/academics",
-    dropdown: [
-      { label: "Curriculum", to: "/academics#curriculum" },
-      { label: "Departments", to: "/academics#departments" },
-      { label: "Time Table", to: "/academics#timetable" },
-      { label: "Faculty", to: "/faculty" },
-    ],
-  },
-  {
-    label: "Gallery",
-    to: "/gallery",
-    dropdown: [
-      { label: "Events", to: "/gallery?cat=events" },
-      { label: "Sports", to: "/gallery?cat=sports" },
-      { label: "Cultural Programs", to: "/gallery?cat=cultural" },
-      { label: "Campus Photos", to: "/gallery?cat=campus" },
-    ],
-  },
-  {
-    label: "Notice Board",
-    to: "/notices",
-    dropdown: [
-      { label: "Latest Notices", to: "/notices#latest" },
-      { label: "Announcements", to: "/notices#announcements" },
-      { label: "Upcoming Events", to: "/notices#events" },
-    ],
-  },
-  {
-    label: "Admission",
-    to: "/admissions",
-    dropdown: [
-      { label: "Admission Process", to: "/admissions#process" },
-      { label: "Eligibility", to: "/admissions#eligibility" },
-      { label: "Fees Structure", to: "/admissions#fees" },
-      { label: "Apply Online", to: "/admissions#apply" },
-    ],
-  },
-  { label: "Contact", to: "/contact" },
-];
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [expandedMobile, setExpandedMobile] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
-  
+  const { t } = useTranslation();
   const location = useLocation();
+
+  const topBarLinks = [
+    { label: t("nav.videos"), to: "/videos" },
+    { label: t("nav.achievements"), to: "/achievements" },
+    { label: t("nav.pressMedia"), to: "/press-media" },
+  ];
+
+  interface NavItem {
+    label: string;
+    to: string;
+    dropdown?: { label: string; to: string }[];
+  }
+
+  const navLinks: NavItem[] = [
+    { label: t("nav.home"), to: "/" },
+    {
+      label: t("nav.about"),
+      to: "/about",
+      dropdown: [
+        { label: t("nav.schoolHistory"), to: "/about#history" },
+        { label: t("nav.visionMission"), to: "/about#vision" },
+        { label: t("nav.management"), to: "/about#management" },
+        { label: t("nav.staff"), to: "/about#staff" },
+      ],
+    },
+    {
+      label: t("nav.academic"),
+      to: "/academics",
+      dropdown: [
+        { label: t("nav.curriculum"), to: "/academics#curriculum" },
+        { label: t("nav.departments"), to: "/academics#departments" },
+        { label: t("nav.timeTable"), to: "/academics#timetable" },
+        { label: t("nav.faculty"), to: "/faculty" },
+      ],
+    },
+    {
+      label: t("nav.gallery"),
+      to: "/gallery",
+      dropdown: [
+        { label: t("nav.events"), to: "/gallery?cat=events" },
+        { label: t("nav.sports"), to: "/gallery?cat=sports" },
+        { label: t("nav.culturalPrograms"), to: "/gallery?cat=cultural" },
+        { label: t("nav.campusPhotos"), to: "/gallery?cat=campus" },
+      ],
+    },
+    {
+      label: t("nav.noticeBoard"),
+      to: "/notices",
+      dropdown: [
+        { label: t("nav.latestNotices"), to: "/notices#latest" },
+        { label: t("nav.announcements"), to: "/notices#announcements" },
+        { label: t("nav.upcomingEvents"), to: "/notices#events" },
+      ],
+    },
+    {
+      label: t("nav.admission"),
+      to: "/admissions",
+      dropdown: [
+        { label: t("nav.admissionProcess"), to: "/admissions#process" },
+        { label: t("nav.eligibility"), to: "/admissions#eligibility" },
+        { label: t("nav.feesStructure"), to: "/admissions#fees" },
+        { label: t("nav.applyOnline"), to: "/admissions#apply" },
+      ],
+    },
+    { label: t("nav.contact"), to: "/contact" },
+  ];
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -93,28 +95,28 @@ const Navbar = () => {
     <div className="sticky top-0 z-50">
       {/* Top utility bar */}
       <div className="relative z-40 bg-primary text-primary-foreground">
-        <div className="container flex h-9 items-center justify-end gap-0">
-          {topBarLinks.map((l, i) => (
-            <Link
-              key={l.to}
-              to={l.to}
-              className="flex items-center px-3 py-1 text-xs font-medium tracking-wide text-primary-foreground/90 transition-colors duration-200 hover:text-primary-foreground"
-            >
-              {i > 0 && <span className="mr-3 text-primary-foreground/40">|</span>}
-              {l.label}
-            </Link>
-          ))}
+        <div className="container flex h-9 items-center justify-between gap-0">
+          <LanguageToggle />
+          <div className="flex items-center">
+            {topBarLinks.map((l, i) => (
+              <Link
+                key={l.to}
+                to={l.to}
+                className="flex items-center px-3 py-1 text-xs font-medium tracking-wide text-primary-foreground/90 transition-colors duration-200 hover:text-primary-foreground"
+              >
+                {i > 0 && <span className="mx-3 text-primary-foreground/40">|</span>}
+                {l.label}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
-
 
       {/* Main navbar */}
       <header
         className={cn(
           "relative z-40 border-b border-border/50 backdrop-blur-xl transition-all duration-300",
-          isScrolled
-            ? "bg-card/95 shadow-lg"
-            : "bg-[hsl(142_40%_85%/0.95)]"
+          isScrolled ? "bg-card/95 shadow-lg" : "bg-[hsl(142_40%_85%/0.95)]"
         )}
       >
         <div className="container flex h-16 items-center justify-between">
@@ -123,37 +125,29 @@ const Navbar = () => {
               <GraduationCap className="h-6 w-6 text-primary-foreground" />
             </div>
             <div className="leading-tight">
-              <span className="block font-serif text-lg font-bold text-foreground">Shaheen</span>
-              <span className="block text-[10px] uppercase tracking-widest text-muted-foreground">School & High School</span>
+              <span className="block font-serif text-lg font-bold text-foreground">{t("common.schoolName")}</span>
+              <span className="block text-[10px] uppercase tracking-widest text-muted-foreground">{t("common.schoolSubtitle")}</span>
             </div>
           </Link>
 
           {/* Desktop nav */}
           <nav className="hidden items-center gap-0.5 lg:flex">
             {navLinks.map((l) => (
-              <div
-                key={l.to}
-                className="group relative"
-              >
+              <div key={l.to} className="group relative">
                 <Link
                   to={l.to}
                   className={cn(
                     "animated-underline flex items-center gap-1 rounded px-3 py-2 text-sm font-medium transition-all duration-200 hover:text-primary",
                     "hover:shadow-[0_0_12px_hsl(var(--secondary)/0.3)]",
-                    location.pathname === l.to
-                      ? "text-primary after:!scale-x-100 after:!origin-bottom-left"
-                      : "text-foreground/70"
+                    location.pathname === l.to ? "text-primary after:!scale-x-100 after:!origin-bottom-left" : "text-foreground/70"
                   )}
                 >
                   {l.label}
-                  {l.dropdown && (
-                    <ChevronDown className="h-3 w-3 transition-transform duration-200 group-hover:rotate-180" />
-                  )}
+                  {l.dropdown && <ChevronDown className="h-3 w-3 transition-transform duration-200 group-hover:rotate-180" />}
                 </Link>
 
-                {/* Desktop dropdown */}
                 {l.dropdown && (
-                  <div className="invisible absolute left-0 top-full z-[60] min-w-[200px] pt-1 opacity-0 translate-y-2 transition-all duration-200 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0">
+                  <div className="invisible absolute start-0 top-full z-[60] min-w-[200px] pt-1 opacity-0 translate-y-2 transition-all duration-200 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0">
                     <div className="rounded-md border border-border bg-card shadow-xl">
                       <div className="py-1">
                         {l.dropdown.map((sub) => (
@@ -172,13 +166,13 @@ const Navbar = () => {
               </div>
             ))}
             <Link to="/student-portal">
-              <Button size="sm" className="ml-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-transform duration-200 hover:scale-105">
-                Student Portal
+              <Button size="sm" className="ms-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-transform duration-200 hover:scale-105">
+                {t("nav.studentPortal")}
               </Button>
             </Link>
             <Link to="/staff-portal">
-              <Button size="sm" className="ml-1 bg-primary text-primary-foreground hover:bg-primary/90 transition-transform duration-200 hover:scale-105">
-                Teacher Portal
+              <Button size="sm" className="ms-1 bg-primary text-primary-foreground hover:bg-primary/90 transition-transform duration-200 hover:scale-105">
+                {t("nav.teacherPortal")}
               </Button>
             </Link>
           </nav>
@@ -207,9 +201,7 @@ const Navbar = () => {
                     onClick={() => setOpen(false)}
                     className={cn(
                       "rounded px-3 py-2 text-xs font-semibold uppercase tracking-wide transition-colors",
-                      location.pathname === l.to
-                        ? "bg-primary/10 text-primary"
-                        : "text-foreground/60 hover:bg-primary/5"
+                      location.pathname === l.to ? "bg-primary/10 text-primary" : "text-foreground/60 hover:bg-primary/5"
                     )}
                   >
                     {l.label}
@@ -224,18 +216,11 @@ const Navbar = () => {
                           onClick={() => toggleMobileDropdown(l.label)}
                           className={cn(
                             "flex w-full items-center justify-between rounded px-3 py-2 text-sm font-medium transition-colors",
-                            location.pathname === l.to
-                              ? "bg-primary/10 text-primary"
-                              : "text-foreground/70 hover:bg-primary/10"
+                            location.pathname === l.to ? "bg-primary/10 text-primary" : "text-foreground/70 hover:bg-primary/10"
                           )}
                         >
                           {l.label}
-                          <ChevronDown
-                            className={cn(
-                              "h-4 w-4 transition-transform duration-200",
-                              expandedMobile === l.label && "rotate-180"
-                            )}
-                          />
+                          <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", expandedMobile === l.label && "rotate-180")} />
                         </button>
                         <AnimatePresence>
                           {expandedMobile === l.label && (
@@ -246,13 +231,13 @@ const Navbar = () => {
                               transition={{ duration: 0.2 }}
                               className="overflow-hidden"
                             >
-                              <div className="ml-4 flex flex-col gap-0.5 border-l-2 border-primary/20 pl-3 py-1">
+                              <div className="ms-4 flex flex-col gap-0.5 border-s-2 border-primary/20 ps-3 py-1">
                                 <Link
                                   to={l.to}
                                   onClick={() => setOpen(false)}
                                   className="rounded px-2 py-1.5 text-sm font-medium text-primary hover:bg-primary/10"
                                 >
-                                  View All {l.label}
+                                  {t("nav.viewAll")} {l.label}
                                 </Link>
                                 {l.dropdown.map((sub) => (
                                   <Link
@@ -275,9 +260,7 @@ const Navbar = () => {
                         onClick={() => setOpen(false)}
                         className={cn(
                           "block rounded px-3 py-2 text-sm font-medium transition-colors",
-                          location.pathname === l.to
-                            ? "bg-primary/10 text-primary"
-                            : "text-foreground/70 hover:bg-primary/10"
+                          location.pathname === l.to ? "bg-primary/10 text-primary" : "text-foreground/70 hover:bg-primary/10"
                         )}
                       >
                         {l.label}
@@ -287,12 +270,12 @@ const Navbar = () => {
                 ))}
                 <Link to="/student-portal" onClick={() => setOpen(false)}>
                   <Button size="sm" className="mt-2 w-full bg-secondary text-secondary-foreground">
-                    Student Portal
+                    {t("nav.studentPortal")}
                   </Button>
                 </Link>
                 <Link to="/staff-portal" onClick={() => setOpen(false)}>
                   <Button size="sm" className="mt-1 w-full bg-primary text-primary-foreground">
-                    Teacher Portal
+                    {t("nav.teacherPortal")}
                   </Button>
                 </Link>
               </div>
@@ -301,7 +284,6 @@ const Navbar = () => {
         </AnimatePresence>
       </header>
 
-      {/* News ticker — lower z-index so dropdowns overlay it */}
       <div className="relative z-10">
         <NewsTicker />
       </div>

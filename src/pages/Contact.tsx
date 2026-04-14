@@ -6,21 +6,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import SectionHeading from "@/components/shared/SectionHeading";
-
-const contactInfo = [
-  { icon: MapPin, label: "Address", value: "Shaheen Campus, Main Road, City — 000000" },
-  { icon: Phone, label: "Phone", value: "+91 98765 43210" },
-  { icon: Mail, label: "Email", value: "info@shaheenschool.edu" },
-  { icon: Clock, label: "Office Hours", value: "Mon–Sat: 8:00 AM – 4:00 PM" },
-];
 
 const Contact = () => {
   const { toast } = useToast();
+  const { t } = useTranslation();
+
+  const contactInfo = [
+    { icon: MapPin, label: t("contact.address"), value: t("contact.addressValue") },
+    { icon: Phone, label: t("contact.phone"), value: t("contact.phoneValue") },
+    { icon: Mail, label: t("contact.email"), value: t("contact.emailValue") },
+    { icon: Clock, label: t("contact.officeHours"), value: t("contact.officeHoursValue") },
+  ];
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast({ title: "Message Sent!", description: "We'll get back to you soon." });
+    toast({ title: t("contact.sent"), description: t("contact.sentDesc") });
     (e.target as HTMLFormElement).reset();
   };
 
@@ -29,9 +31,9 @@ const Contact = () => {
       <section className="bg-primary py-24 text-primary-foreground">
         <div className="container">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="mb-2 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-secondary">Contact</span>
-            <h1 className="font-serif text-4xl md:text-6xl">Get in Touch</h1>
-            <p className="mt-4 max-w-2xl opacity-80">Have questions? Reach out to us — we'd love to hear from you.</p>
+            <span className="mb-2 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-secondary">{t("contact.label")}</span>
+            <h1 className="font-serif text-4xl md:text-6xl">{t("contact.title")}</h1>
+            <p className="mt-4 max-w-2xl opacity-80">{t("contact.subtitle")}</p>
           </motion.div>
         </div>
       </section>
@@ -39,9 +41,8 @@ const Contact = () => {
       <section className="py-24">
         <div className="container">
           <div className="grid gap-12 lg:grid-cols-2">
-            {/* Info + Map */}
             <div>
-              <SectionHeading label="Reach Us" title="Contact Information" align="left" />
+              <SectionHeading label={t("contact.reachUs")} title={t("contact.contactInfo")} align="left" />
               <div className="space-y-6">
                 {contactInfo.map((c) => (
                   <div key={c.label} className="flex items-start gap-4">
@@ -56,7 +57,6 @@ const Contact = () => {
                 ))}
               </div>
 
-              {/* Map placeholder */}
               <div className="mt-8 overflow-hidden rounded border border-border">
                 <iframe
                   title="School Location"
@@ -68,31 +68,30 @@ const Contact = () => {
               </div>
             </div>
 
-            {/* Form */}
             <div>
-              <SectionHeading label="Write to Us" title="Send a Message" align="left" />
+              <SectionHeading label={t("contact.writeToUs")} title={t("contact.sendMessage")} align="left" />
               <Card className="border-none shadow-lg">
                 <CardContent className="p-8">
                   <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="grid gap-5 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="name">Your Name *</Label>
-                        <Input id="name" required placeholder="Full name" />
+                        <Label htmlFor="name">{t("contact.yourName")}</Label>
+                        <Input id="name" required placeholder={t("contact.namePlaceholder")} />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="email">Email *</Label>
-                        <Input id="email" type="email" required placeholder="your@email.com" />
+                        <Label htmlFor="email">{t("contact.emailFieldLabel")}</Label>
+                        <Input id="email" type="email" required placeholder={t("contact.emailPlaceholder")} />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="subject">Subject</Label>
-                      <Input id="subject" placeholder="What is this regarding?" />
+                      <Label htmlFor="subject">{t("contact.subject")}</Label>
+                      <Input id="subject" placeholder={t("contact.subjectPlaceholder")} />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="message">Message *</Label>
-                      <Textarea id="message" required placeholder="Your message..." rows={5} />
+                      <Label htmlFor="message">{t("contact.message")}</Label>
+                      <Textarea id="message" required placeholder={t("contact.messagePlaceholder")} rows={5} />
                     </div>
-                    <Button type="submit" size="lg" className="w-full">Send Message</Button>
+                    <Button type="submit" size="lg" className="w-full">{t("contact.send")}</Button>
                   </form>
                 </CardContent>
               </Card>

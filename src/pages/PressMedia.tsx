@@ -1,12 +1,16 @@
+import { useTranslation } from "react-i18next";
 import SectionHeading from "@/components/shared/SectionHeading";
 
-const PressMedia = () => (
-  <section className="py-24">
-    <div className="container">
-      <SectionHeading label="News" title="Press & Media" description="Shaheen in the news and media coverage." />
-      <p className="text-center text-muted-foreground">Coming soon.</p>
-    </div>
-  </section>
-);
+const PressMedia = () => {
+  const { t } = useTranslation();
+  return (
+    <section className="py-24">
+      <div className="container">
+        <SectionHeading label={t("pressMedia.label")} title={t("pressMedia.title")} description={t("pressMedia.desc")} />
+        <p className="text-center text-muted-foreground">{t("common.comingSoon")}</p>
+      </div>
+    </section>
+  );
+};
 
 export default PressMedia;
