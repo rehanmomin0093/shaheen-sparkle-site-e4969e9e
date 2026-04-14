@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { LogOut, ClipboardList, FileText, Ruler, BookOpen, Loader2 } from "lucide-react";
+import { LogOut, ClipboardList, FileText, Ruler, BookOpen, Loader2, Link as LinkIcon } from "lucide-react";
 import AttendanceTab from "./AttendanceTab";
 import ResultsTab from "./ResultsTab";
 import PhysicalDataTab from "./PhysicalDataTab";
 import TestsTab from "./TestsTab";
+import LinksTab from "./LinksTab";
 
 const TeacherDashboard = () => {
   const { user, isTeacher, isAdmin, loading, signOut } = useAuth();
@@ -42,7 +43,7 @@ const TeacherDashboard = () => {
 
       <main className="container py-6">
         <Tabs defaultValue="attendance" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
             <TabsTrigger value="attendance" className="gap-2">
               <ClipboardList className="h-4 w-4" /> Attendance
             </TabsTrigger>
@@ -55,12 +56,16 @@ const TeacherDashboard = () => {
             <TabsTrigger value="tests" className="gap-2">
               <BookOpen className="h-4 w-4" /> Tests
             </TabsTrigger>
+            <TabsTrigger value="links" className="gap-2">
+              <LinkIcon className="h-4 w-4" /> Links
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="attendance"><AttendanceTab /></TabsContent>
           <TabsContent value="results"><ResultsTab /></TabsContent>
           <TabsContent value="physical"><PhysicalDataTab /></TabsContent>
           <TabsContent value="tests"><TestsTab /></TabsContent>
+          <TabsContent value="links"><LinksTab /></TabsContent>
         </Tabs>
       </main>
     </div>
