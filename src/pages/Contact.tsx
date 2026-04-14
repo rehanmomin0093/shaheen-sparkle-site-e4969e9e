@@ -1,16 +1,9 @@
 import { motion } from "framer-motion";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import SectionHeading from "@/components/shared/SectionHeading";
 
 const Contact = () => {
-  const { toast } = useToast();
   const { t } = useTranslation();
 
   const contactInfo = [
@@ -19,13 +12,6 @@ const Contact = () => {
     { icon: Mail, label: t("contact.email"), value: t("contact.emailValue") },
     { icon: Clock, label: t("contact.officeHours"), value: t("contact.officeHoursValue") },
   ];
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    toast({ title: t("contact.sent"), description: t("contact.sentDesc") });
-    (e.target as HTMLFormElement).reset();
-  };
-
   return (
     <>
       <section className="bg-primary py-24 text-primary-foreground">
@@ -66,35 +52,6 @@ const Contact = () => {
                   allowFullScreen
                 />
               </div>
-            </div>
-
-            <div>
-              <SectionHeading label={t("contact.writeToUs")} title={t("contact.sendMessage")} align="left" />
-              <Card className="border-none shadow-lg">
-                <CardContent className="p-8">
-                  <form onSubmit={handleSubmit} className="space-y-5">
-                    <div className="grid gap-5 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">{t("contact.yourName")}</Label>
-                        <Input id="name" required placeholder={t("contact.namePlaceholder")} />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email">{t("contact.emailFieldLabel")}</Label>
-                        <Input id="email" type="email" required placeholder={t("contact.emailPlaceholder")} />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="subject">{t("contact.subject")}</Label>
-                      <Input id="subject" placeholder={t("contact.subjectPlaceholder")} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="message">{t("contact.message")}</Label>
-                      <Textarea id="message" required placeholder={t("contact.messagePlaceholder")} rows={5} />
-                    </div>
-                    
-                  </form>
-                </CardContent>
-              </Card>
             </div>
           </div>
         </div>
