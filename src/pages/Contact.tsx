@@ -54,7 +54,7 @@ const Contact = () => {
                 />
               </div>
               <a
-                href="https://www.google.com/maps/place/Shaheen+School+And+High+School/@17.2881865,74.1811811,19z/data=!3m1!1e3!4m6!3m5!1s0x3bc18248f6eab781:0xa269e8a344181df1!8m2!3d17.2885036!4d74.1807828!16s%2Fg%2F11df1tpdw7"
+                href="https://www.google.com/maps/search/?api=1&query=Shaheen+School+And+High+School&query_place_id=ChIJgbfq9kgCGDsR8R0YRKPoaaI"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
