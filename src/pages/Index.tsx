@@ -202,7 +202,7 @@ const Index = () => {
             Welcome to
           </motion.span>
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="font-serif text-4xl font-bold text-primary-foreground md:text-6xl drop-shadow-lg">
-            Shaheen School & High School
+            Shaheen School
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }} className="mx-auto mt-4 max-w-2xl text-lg text-primary-foreground/90 drop-shadow-md">
             Nurturing the Falcons of Tomorrow — Excellence in Education Since Establishment
