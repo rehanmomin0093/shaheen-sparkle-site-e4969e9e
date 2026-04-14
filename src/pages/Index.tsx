@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import SectionHeading from "@/components/shared/SectionHeading";
-import { GraduationCap, Users, Award, BookOpen, Calendar, ArrowRight, ChevronLeft, ChevronRight, MapPin, Phone, Mail, Send, Monitor, FlaskConical, Library, Dumbbell, Building2 } from "lucide-react";
+import { GraduationCap, Users, Award, BookOpen, Calendar, ArrowRight, ChevronLeft, ChevronRight, MapPin, Phone, Mail, Send, Monitor, FlaskConical, Library, Dumbbell, Building2, CheckCircle2 } from "lucide-react";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import PopupBanner from "@/components/shared/PopupBanner";
 import { useQuery } from "@tanstack/react-query";
@@ -110,6 +110,46 @@ const Index = () => {
   const [direction, setDirection] = useState(1);
   const [galleryFilter, setGalleryFilter] = useState("All");
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [indexClassApplying, setIndexClassApplying] = useState("");
+  const [indexSubmitting, setIndexSubmitting] = useState(false);
+  const [indexAdmissionSubmitted, setIndexAdmissionSubmitted] = useState(false);
+
+  const handleIndexAdmission = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIndexSubmitting(true);
+    const form = e.currentTarget;
+    const studentName = (form.elements.namedItem("studentName") as HTMLInputElement).value.trim();
+    const phone = (form.elements.namedItem("phone") as HTMLInputElement).value.trim();
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value.trim() || null;
+
+    if (!indexClassApplying) {
+      setIndexSubmitting(false);
+      return;
+    }
+
+    const { error } = await supabase.from("admission_inquiries").insert({
+      student_name: studentName,
+      phone,
+      email,
+      class_applying: indexClassApplying,
+    });
+
+    setIndexSubmitting(false);
+
+    if (error) {
+      if (error.code === "23505") {
+        const msg = error.message.includes("unique_phone")
+          ? "This phone number has already been used for an admission inquiry."
+          : error.message.includes("unique_email")
+          ? "This email has already been used for an admission inquiry."
+          : "An inquiry with this phone or email already exists.";
+        alert(msg);
+      }
+      return;
+    }
+
+    setIndexAdmissionSubmitted(true);
+  };
 
   const heroImages = [
     content?.hero_image_1, content?.hero_image_2, content?.hero_image_3, content?.hero_image_4,
