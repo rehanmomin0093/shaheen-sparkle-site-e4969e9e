@@ -514,6 +514,42 @@ export type Database = {
           },
         ]
       }
+      teacher_links: {
+        Row: {
+          class_name: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          section: string | null
+          subject: string
+          title: string
+          url: string
+        }
+        Insert: {
+          class_name: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          section?: string | null
+          subject?: string
+          title: string
+          url: string
+        }
+        Update: {
+          class_name?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          section?: string | null
+          subject?: string
+          title?: string
+          url?: string
+        }
+        Relationships: []
+      }
       teachers: {
         Row: {
           area_of_expertise: string | null

@@ -12,7 +12,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { LogOut, ClipboardList, FileText, TrendingUp, BookOpen, Loader2, User, Settings, Lock } from "lucide-react";
+import { LogOut, ClipboardList, FileText, TrendingUp, BookOpen, Loader2, User, Settings, Lock, ExternalLink, Link as LinkIcon } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart } from "recharts";
 import { useToast } from "@/hooks/use-toast";
 
@@ -76,6 +76,19 @@ const StudentDashboard = () => {
       return data ?? [];
     },
     enabled: !!student?.id,
+  });
+
+  const { data: teacherLinks } = useQuery({
+    queryKey: ["student-teacher-links", student?.class, student?.section],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("teacher_links")
+        .select("*")
+        .eq("class_name", student!.class)
+        .order("created_at", { ascending: false });
+      return data ?? [];
+    },
+    enabled: !!student?.class,
   });
 
   if (loading || loadingStudent) {
@@ -157,7 +170,37 @@ const StudentDashboard = () => {
           </CardContent></Card>
         </div>
 
-        {/* Settings Dialog */}
+        {/* Important Links from Teacher */}
+        {teacherLinks && teacherLinks.length > 0 && (
+          <Card className="mb-6">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <LinkIcon className="h-4 w-4 text-primary" /> Important Links from Teacher
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {teacherLinks.map((link) => (
+                  <a
+                    key={link.id}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-start gap-3 rounded-lg border p-3 transition-colors hover:bg-muted"
+                  >
+                    <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <div className="min-w-0">
+                      <p className="font-medium text-primary group-hover:underline">{link.title}</p>
+                      {link.description && <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{link.description}</p>}
+                      <Badge variant="secondary" className="mt-1 text-[10px]">{link.subject}</Badge>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Dialog open={showSettings} onOpenChange={setShowSettings}>
           <DialogContent>
             <DialogHeader>
