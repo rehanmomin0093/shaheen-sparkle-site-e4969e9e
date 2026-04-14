@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Image, Settings, Users, UserPlus, Briefcase, GraduationCap, Megaphone } from "lucide-react";
+import { FileText, Image, Settings, Users, UserPlus, Briefcase, GraduationCap, Megaphone, ClipboardList } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
 const COLORS = ["hsl(var(--primary))", "hsl(var(--accent))", "hsl(var(--secondary))", "hsl(210 60% 50%)", "hsl(30 80% 55%)", "hsl(150 50% 45%)"];
@@ -71,6 +71,14 @@ const AdminDashboard = () => {
     },
   });
 
+  const { data: admissionCount } = useQuery({
+    queryKey: ["admin-admission-count"],
+    queryFn: async () => {
+      const { count } = await supabase.from("admission_inquiries").select("*", { count: "exact", head: true });
+      return count ?? 0;
+    },
+  });
+
   const { data: classDist } = useQuery({
     queryKey: ["admin-class-distribution"],
     queryFn: async () => {
@@ -91,6 +99,7 @@ const AdminDashboard = () => {
     { label: "Gallery Images", count: galleryCount ?? 0, icon: Image, color: "text-cyan-500" },
     { label: "Content Items", count: contentCount ?? 0, icon: Settings, color: "text-muted-foreground" },
     { label: "Popup Banners", count: bannerCount ?? 0, icon: Megaphone, color: "text-orange-500" },
+    { label: "Admission Inquiries", count: admissionCount ?? 0, icon: ClipboardList, color: "text-pink-500" },
   ];
 
   const staffPieData = [
