@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, ExternalLink } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import SectionHeading from "@/components/shared/SectionHeading";
 
