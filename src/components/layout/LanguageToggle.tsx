@@ -18,7 +18,7 @@ const LanguageToggle = () => {
       variant="ghost"
       size="sm"
       onClick={toggle}
-      className="gap-1.5 text-xs font-semibold tracking-wide"
+      className="gap-1.5 text-xs font-semibold tracking-wide border border-primary-foreground/50 hover:border-primary-foreground"
       title={isUrdu ? "Switch to English" : "اردو میں تبدیل کریں"}
     >
       <Languages className="h-4 w-4" />
