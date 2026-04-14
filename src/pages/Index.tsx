@@ -197,20 +197,6 @@ const Index = () => {
 
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/40 to-foreground/10 z-[1]" />
 
-        <div className="container relative z-10 py-24 text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.6 }} className="flex flex-wrap items-center justify-center gap-4">
-            <Link to="/admissions">
-              <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 glow-on-hover animate-float text-base px-8">
-                Apply Now <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link to="/about">
-              <Button size="lg" variant="outline" className="border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 text-base px-8">
-                Explore
-              </Button>
-            </Link>
-          </motion.div>
-        </div>
 
         <button onClick={prevSlide} className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-background/30 p-2 text-primary-foreground backdrop-blur-sm transition-all duration-300 hover:bg-background/60 hover:scale-110">
           <ChevronLeft className="h-6 w-6" />
