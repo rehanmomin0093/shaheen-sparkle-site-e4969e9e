@@ -407,47 +407,6 @@ const Index = () => {
           </motion.div>
         </div>
       </section>
-
-      {/* Contact Preview */}
-      <section className="py-24">
-        <div className="container">
-          <SectionHeading label={t("home.contactLabel")} title={t("home.getInTouch")} description={t("home.getInTouchDesc")} />
-          <div className="grid gap-12 lg:grid-cols-2">
-            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-6">
-              {[
-                { icon: MapPin, title: t("home.address"), text: t("home.addressValue") },
-                { icon: Phone, title: t("home.phone"), text: t("home.phoneValue") },
-                { icon: Mail, title: t("home.email"), text: t("home.emailValue") },
-              ].map((item) => (
-                <div key={item.title} className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                    <item.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <h4 className="font-serif text-lg font-semibold">{item.title}</h4>
-                    <p className="mt-1 text-sm text-muted-foreground">{item.text}</p>
-                  </div>
-                </div>
-              ))}
-            </motion.div>
-            <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
-              <Card className="border-none shadow-lg">
-                <CardContent className="p-6 space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <Input placeholder={t("home.yourName")} className="bg-background" />
-                    <Input placeholder={t("home.yourEmail")} type="email" className="bg-background" />
-                  </div>
-                  <Input placeholder={t("home.subject")} className="bg-background" />
-                  <Textarea placeholder={t("home.yourMessage")} rows={4} className="bg-background" />
-                  <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 group">
-                    {t("home.sendMessage")} <Send className="ms-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-        </div>
-      </section>
     </>
   );
 };
