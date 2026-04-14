@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, ExternalLink } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import SectionHeading from "@/components/shared/SectionHeading";
 
@@ -50,8 +50,18 @@ const Contact = () => {
                   className="h-64 w-full"
                   loading="lazy"
                   allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
                 />
               </div>
+              <a
+                href="https://www.google.com/maps/place/Shaheen+School+And+High+School/@17.2881865,74.1811811,19z/data=!3m1!1e3!4m6!3m5!1s0x3bc18248f6eab781:0xa269e8a344181df1!8m2!3d17.2885036!4d74.1807828!16s%2Fg%2F11df1tpdw7"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+              >
+                <ExternalLink className="h-4 w-4" />
+                {t("contact.openInMaps", "Open in Google Maps")}
+              </a>
             </div>
           </div>
         </div>
