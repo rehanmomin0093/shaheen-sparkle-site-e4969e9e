@@ -11,6 +11,7 @@ import { CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import SectionHeading from "@/components/shared/SectionHeading";
+import { supabase } from "@/integrations/supabase/client";
 
 const steps = [
   { step: "01", title: "Fill Inquiry Form", desc: "Submit the online inquiry form with student & parent details." },
@@ -22,6 +23,7 @@ const steps = [
 const Admissions = () => {
   const location = useLocation();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (location.hash) {
@@ -31,10 +33,49 @@ const Admissions = () => {
     }
   }, [location]);
   const [submitted, setSubmitted] = useState(false);
+  const [classApplying, setClassApplying] = useState("");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: connect to backend
+    setIsSubmitting(true);
+    const form = e.currentTarget;
+    const studentName = (form.querySelector("#studentName") as HTMLInputElement).value.trim();
+    const parentName = (form.querySelector("#parentName") as HTMLInputElement).value.trim();
+    const phone = (form.querySelector("#phone") as HTMLInputElement).value.trim();
+    const email = (form.querySelector("#email") as HTMLInputElement).value.trim() || null;
+    const message = (form.querySelector("#message") as HTMLTextAreaElement).value.trim() || null;
+
+    if (!classApplying) {
+      toast({ title: "Error", description: "Please select a class.", variant: "destructive" });
+      setIsSubmitting(false);
+      return;
+    }
+
+    const { error } = await supabase.from("admission_inquiries").insert({
+      student_name: studentName,
+      parent_name: parentName,
+      phone,
+      email,
+      class_applying: classApplying,
+      message,
+    });
+
+    setIsSubmitting(false);
+
+    if (error) {
+      if (error.code === "23505") {
+        const msg = error.message.includes("unique_phone")
+          ? "This phone number has already been used for an admission inquiry."
+          : error.message.includes("unique_email")
+          ? "This email has already been used for an admission inquiry."
+          : "An inquiry with this phone or email already exists.";
+        toast({ title: "Duplicate Inquiry", description: msg, variant: "destructive" });
+      } else {
+        toast({ title: "Error", description: "Something went wrong. Please try again.", variant: "destructive" });
+      }
+      return;
+    }
+
     setSubmitted(true);
     toast({ title: "Inquiry Submitted!", description: "We'll contact you within 2 working days." });
   };
@@ -115,7 +156,7 @@ const Admissions = () => {
                     </div>
                     <div className="space-y-2">
                       <Label>Class Applying For *</Label>
-                      <Select required>
+                      <Select required value={classApplying} onValueChange={setClassApplying}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select class" />
                         </SelectTrigger>
@@ -131,8 +172,8 @@ const Admissions = () => {
                       <Label htmlFor="message">Additional Message</Label>
                       <Textarea id="message" placeholder="Any specific questions or requirements..." rows={4} />
                     </div>
-                    <Button type="submit" size="lg" className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90">
-                      Submit Inquiry
+                    <Button type="submit" size="lg" className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90" disabled={isSubmitting}>
+                      {isSubmitting ? "Submitting..." : "Submit Inquiry"}
                     </Button>
                   </form>
                 </CardContent>
