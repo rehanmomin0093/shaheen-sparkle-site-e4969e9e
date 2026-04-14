@@ -91,7 +91,7 @@ const Contact = () => {
                       <Label htmlFor="message">{t("contact.message")}</Label>
                       <Textarea id="message" required placeholder={t("contact.messagePlaceholder")} rows={5} />
                     </div>
-                    <Button type="submit" size="lg" className="w-full">{t("contact.send")}</Button>
+                    
                   </form>
                 </CardContent>
               </Card>
