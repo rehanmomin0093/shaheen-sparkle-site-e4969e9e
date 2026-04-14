@@ -1,15 +1,33 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import SectionHeading from "@/components/shared/SectionHeading";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 
-const categories = ["All", "Campus", "Labs", "Sports", "Classrooms", "Events"];
-
 const Gallery = () => {
   const [active, setActive] = useState("All");
+  const { t } = useTranslation();
+
+  const categories = [
+    { key: "All", label: t("gallery.all") },
+    { key: "Campus", label: t("gallery.campus") },
+    { key: "Labs", label: t("gallery.labs") },
+    { key: "Sports", label: t("gallery.sports") },
+    { key: "Classrooms", label: t("gallery.classrooms") },
+    { key: "Events", label: t("gallery.events") },
+  ];
+
+  const facilities = [
+    { title: t("gallery.smartClassrooms"), desc: t("gallery.smartClassroomsDesc") },
+    { title: t("gallery.scienceLabs"), desc: t("gallery.scienceLabsDesc") },
+    { title: t("gallery.computerCenter"), desc: t("gallery.computerCenterDesc") },
+    { title: t("gallery.sportsComplex"), desc: t("gallery.sportsComplexDesc") },
+    { title: t("gallery.libraryReading"), desc: t("gallery.libraryReadingDesc") },
+    { title: t("gallery.transport"), desc: t("gallery.transportDesc") },
+  ];
 
   const { data: images, isLoading } = useQuery({
     queryKey: ["public-gallery"],
@@ -27,9 +45,9 @@ const Gallery = () => {
       <section className="bg-primary py-24 text-primary-foreground">
         <div className="container">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="mb-2 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-secondary">Gallery</span>
-            <h1 className="font-serif text-4xl md:text-6xl">Campus & Infrastructure</h1>
-            <p className="mt-4 max-w-2xl opacity-80">Explore our world-class facilities, vibrant events, and campus life.</p>
+            <span className="mb-2 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-secondary">{t("gallery.label")}</span>
+            <h1 className="font-serif text-4xl md:text-6xl">{t("gallery.title")}</h1>
+            <p className="mt-4 max-w-2xl opacity-80">{t("gallery.subtitle")}</p>
           </motion.div>
         </div>
       </section>
@@ -39,14 +57,14 @@ const Gallery = () => {
           <div className="mb-10 flex flex-wrap justify-center gap-2">
             {categories.map((cat) => (
               <button
-                key={cat}
-                onClick={() => setActive(cat)}
+                key={cat.key}
+                onClick={() => setActive(cat.key)}
                 className={cn(
                   "rounded px-4 py-2 text-sm font-medium transition-colors",
-                  active === cat ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  active === cat.key ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
                 )}
               >
-                {cat}
+                {cat.label}
               </button>
             ))}
           </div>
@@ -82,16 +100,9 @@ const Gallery = () => {
 
       <section className="bg-muted py-24">
         <div className="container">
-          <SectionHeading label="Infrastructure" title="Our Facilities" description="Purpose-built spaces designed for modern education." />
+          <SectionHeading label={t("gallery.infrastructure")} title={t("gallery.ourFacilities")} description={t("gallery.facilitiesDesc")} />
           <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
-            {[
-              { title: "Smart Classrooms", desc: "Interactive whiteboards and projectors in every classroom." },
-              { title: "Science Laboratories", desc: "Fully equipped Physics, Chemistry, and Biology labs." },
-              { title: "Computer Center", desc: "100+ workstations with high-speed internet." },
-              { title: "Sports Complex", desc: "Cricket ground, basketball court, indoor games, and gym." },
-              { title: "Library & Reading Room", desc: "10,000+ books with a quiet, air-conditioned reading area." },
-              { title: "Transport", desc: "Fleet of school buses covering all major routes in the city." },
-            ].map((f, i) => (
+            {facilities.map((f, i) => (
               <motion.div
                 key={f.title}
                 initial={{ opacity: 0, y: 20 }}

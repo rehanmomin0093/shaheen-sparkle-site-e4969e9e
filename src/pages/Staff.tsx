@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -28,8 +29,8 @@ const fadeUp = {
 
 const Staff = () => {
   const location = useLocation();
+  const { t } = useTranslation();
 
-  // Fetch teachers with their class assignments
   const { data: teachersData, isLoading: loadingTeachers } = useQuery({
     queryKey: ["public-teachers-with-classes"],
     queryFn: async () => {
@@ -43,7 +44,6 @@ const Staff = () => {
     },
   });
 
-  // Fetch non-teaching staff
   const { data: nonTeachingStaff, isLoading: loadingStaff } = useQuery({
     queryKey: ["public-non-teaching-staff"],
     queryFn: async () => {
@@ -53,7 +53,6 @@ const Staff = () => {
     },
   });
 
-  // Smooth scroll to hash on load
   useEffect(() => {
     if (location.hash) {
       const timer = setTimeout(() => {
@@ -66,7 +65,6 @@ const Staff = () => {
 
   const isLoading = loadingTeachers || loadingStaff;
 
-  // Group teachers by class
   const teachersByClass = CLASS_LABELS.map((cls) => ({
     ...cls,
     teachers: (teachersData ?? []).filter((t: any) => t.assigned_classes.includes(cls.value)),
@@ -74,42 +72,36 @@ const Staff = () => {
 
   return (
     <>
-      {/* Hero */}
       <section className="bg-primary py-24 text-primary-foreground">
         <div className="container">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="mb-2 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-secondary">Our Team</span>
-            <h1 className="font-serif text-4xl md:text-6xl">Staff Directory</h1>
-            <p className="mt-4 max-w-2xl opacity-80">Meet our dedicated teaching and non-teaching staff who make Shaheen a great place to learn.</p>
+            <span className="mb-2 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-secondary">{t("staff.label")}</span>
+            <h1 className="font-serif text-4xl md:text-6xl">{t("staff.title")}</h1>
+            <p className="mt-4 max-w-2xl opacity-80">{t("staff.subtitle")}</p>
           </motion.div>
         </div>
       </section>
 
       {isLoading ? (
-        <div className="flex justify-center py-24">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
+        <div className="flex justify-center py-24"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
       ) : (
         <>
-          {/* Teaching Staff by Class */}
           <section className="py-16">
             <div className="container">
-              <SectionHeading title="Teaching Staff" description="Organized by class" />
-
+              <SectionHeading title={t("staff.teachingStaff")} description={t("staff.organizedByClass")} />
               {teachersByClass.map((cls) => (
                 <div key={cls.value} id={cls.id} className="mb-16 scroll-mt-32">
                   <h3 className="mb-6 flex items-center gap-2 font-serif text-2xl text-foreground">
                     <GraduationCap className="h-6 w-6 text-primary" />
                     {cls.label}
                   </h3>
-
                   {cls.teachers.length === 0 ? (
-                    <p className="text-sm text-muted-foreground italic">No teachers assigned to this class yet.</p>
+                    <p className="text-sm text-muted-foreground italic">{t("staff.noTeachers")}</p>
                   ) : (
                     <div className="grid gap-6 md:grid-cols-2">
-                      {cls.teachers.map((t: any, i: number) => (
-                        <motion.div key={t.id} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                          <TeacherCard teacher={t} />
+                      {cls.teachers.map((teacher: any, i: number) => (
+                        <motion.div key={teacher.id} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+                          <TeacherCard teacher={teacher} t={t} />
                         </motion.div>
                       ))}
                     </div>
@@ -119,11 +111,10 @@ const Staff = () => {
             </div>
           </section>
 
-          {/* Non-Teaching Staff */}
           {(nonTeachingStaff ?? []).length > 0 && (
             <section className="bg-muted/30 py-16" id="non-teaching">
               <div className="container">
-                <SectionHeading title="Non-Teaching Staff" description="Support & administration" />
+                <SectionHeading title={t("staff.nonTeachingStaff")} description={t("staff.supportAdmin")} />
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {(nonTeachingStaff ?? []).map((s: any, i: number) => (
                     <motion.div key={s.id} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
@@ -139,7 +130,7 @@ const Staff = () => {
                           <h3 className="font-serif text-lg">{s.name}</h3>
                           <p className="text-sm text-muted-foreground">{s.designation}</p>
                           {s.qualification && <p className="mt-1 text-xs text-muted-foreground">{s.qualification}</p>}
-                          <Badge variant="secondary" className="mt-3 capitalize">Non-Teaching</Badge>
+                          <Badge variant="secondary" className="mt-3 capitalize">{t("staff.nonTeaching")}</Badge>
                         </CardContent>
                       </Card>
                     </motion.div>
@@ -154,69 +145,45 @@ const Staff = () => {
   );
 };
 
-/* ── Teacher Card (horizontal layout) ── */
-const TeacherCard = ({ teacher: t }: { teacher: any }) => (
+const TeacherCard = ({ teacher: tch, t }: { teacher: any; t: any }) => (
   <Card className="relative overflow-hidden border shadow-md transition-all duration-300 hover:shadow-xl">
     <CardContent className="flex gap-5 p-5">
-      {/* Photo */}
       <div className="flex-shrink-0">
-        {t.photo_url ? (
-          <img src={t.photo_url} alt={t.name} className="h-28 w-28 rounded-lg object-cover ring-2 ring-primary/20" />
+        {tch.photo_url ? (
+          <img src={tch.photo_url} alt={tch.name} className="h-28 w-28 rounded-lg object-cover ring-2 ring-primary/20" />
         ) : (
           <div className="flex h-28 w-28 items-center justify-center rounded-lg bg-primary/10">
             <User className="h-12 w-12 text-primary/40" />
           </div>
         )}
       </div>
-
-      {/* Details */}
       <div className="flex-1 min-w-0 space-y-1">
-        {t.id_number && (
-          <p className="text-xs font-medium text-muted-foreground">ID: {t.id_number}</p>
+        {tch.id_number && <p className="text-xs font-medium text-muted-foreground">ID: {tch.id_number}</p>}
+        <h4 className="font-serif text-lg font-bold text-foreground truncate">{tch.name}</h4>
+        {tch.designation && <p className="text-sm text-muted-foreground">{tch.designation}</p>}
+        {tch.qualification && (
+          <p className="text-xs text-muted-foreground"><span className="font-medium">{t("staff.qualification")}:</span> {tch.qualification}</p>
         )}
-        <h4 className="font-serif text-lg font-bold text-foreground truncate">{t.name}</h4>
-        {t.designation && <p className="text-sm text-muted-foreground">{t.designation}</p>}
-        {t.qualification && (
-          <p className="text-xs text-muted-foreground">
-            <span className="font-medium">Qualification:</span> {t.qualification}
-          </p>
+        {tch.subject && (
+          <p className="text-xs text-muted-foreground"><span className="font-medium">{t("staff.subjects")}:</span> {tch.subject}</p>
         )}
-        {t.subject && (
-          <p className="text-xs text-muted-foreground">
-            <span className="font-medium">Subjects:</span> {t.subject}
-          </p>
+        {tch.area_of_expertise && (
+          <p className="text-xs text-secondary"><span className="font-medium text-muted-foreground">{t("staff.expertise")}:</span> {tch.area_of_expertise}</p>
         )}
-        {t.area_of_expertise && (
-          <p className="text-xs text-secondary">
-            <span className="font-medium text-muted-foreground">Expertise:</span> {t.area_of_expertise}
-          </p>
-        )}
-        {t.experience && (
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Briefcase className="h-3 w-3" /> {t.experience}
-          </div>
+        {tch.experience && (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground"><Briefcase className="h-3 w-3" /> {tch.experience}</div>
         )}
         <div className="flex flex-wrap gap-3 pt-1">
-          {t.phone && (
-            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Phone className="h-3 w-3" /> {t.phone}
-            </span>
-          )}
-          {t.email && (
-            <a href={`mailto:${t.email}`} className="flex items-center gap-1 text-xs text-primary hover:underline">
-              <Mail className="h-3 w-3" /> {t.email}
-            </a>
-          )}
+          {tch.phone && <span className="flex items-center gap-1 text-xs text-muted-foreground"><Phone className="h-3 w-3" /> {tch.phone}</span>}
+          {tch.email && <a href={`mailto:${tch.email}`} className="flex items-center gap-1 text-xs text-primary hover:underline"><Mail className="h-3 w-3" /> {tch.email}</a>}
         </div>
-        {t.resume_url && (
-          <a href={t.resume_url} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
-            <FileText className="h-3 w-3" /> Download Resume
+        {tch.resume_url && (
+          <a href={tch.resume_url} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+            <FileText className="h-3 w-3" /> {t("staff.downloadResume")}
           </a>
         )}
       </div>
-
-      {/* Decorative icon */}
-      <GraduationCap className="absolute bottom-3 right-3 h-8 w-8 text-primary/10" />
+      <GraduationCap className="absolute bottom-3 end-3 h-8 w-8 text-primary/10" />
     </CardContent>
   </Card>
 );
