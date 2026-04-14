@@ -53,15 +53,6 @@ const Contact = () => {
                   referrerPolicy="no-referrer-when-downgrade"
                 />
               </div>
-              <a
-                href="https://www.google.com/maps/search/?api=1&query=Shaheen+School+And+High+School&query_place_id=ChIJgbfq9kgCGDsR8R0YRKPoaaI"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
-              >
-                <ExternalLink className="h-4 w-4" />
-                {t("contact.openInMaps", "Open in Google Maps")}
-              </a>
             </div>
           </div>
         </div>
