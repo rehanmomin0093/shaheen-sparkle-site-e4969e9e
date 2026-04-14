@@ -346,22 +346,32 @@ const Index = () => {
           <div className="mx-auto max-w-xl">
             <Card className="border-none shadow-lg">
               <CardContent className="p-6 space-y-4">
-                <Input placeholder="Student Name" className="bg-background" />
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Input placeholder="Email Address" type="email" className="bg-background" />
-                  <Input placeholder="Phone Number" type="tel" className="bg-background" />
-                </div>
-                <Select>
-                  <SelectTrigger className="bg-background"><SelectValue placeholder="Class Applying For" /></SelectTrigger>
-                  <SelectContent>
-                    {["Nursery", "LKG", "UKG", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th"].map((cls) => (
-                      <SelectItem key={cls} value={cls}>{cls}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 group">
-                  Submit Application <Send className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                </Button>
+                {indexAdmissionSubmitted ? (
+                  <div className="text-center py-6">
+                    <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-primary" />
+                    <h3 className="font-serif text-xl">Thank You!</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">Your inquiry has been submitted. We'll contact you soon.</p>
+                  </div>
+                ) : (
+                  <form onSubmit={handleIndexAdmission} className="space-y-4">
+                    <Input placeholder="Student Name" name="studentName" required className="bg-background" />
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <Input placeholder="Email Address" type="email" name="email" className="bg-background" />
+                      <Input placeholder="Phone Number" type="tel" name="phone" required className="bg-background" />
+                    </div>
+                    <Select value={indexClassApplying} onValueChange={setIndexClassApplying}>
+                      <SelectTrigger className="bg-background"><SelectValue placeholder="Class Applying For" /></SelectTrigger>
+                      <SelectContent>
+                        {["Nursery", "LKG", "UKG", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th"].map((cls) => (
+                          <SelectItem key={cls} value={cls}>{cls}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button type="submit" className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 group" disabled={indexSubmitting}>
+                      {indexSubmitting ? "Submitting..." : "Submit Application"} {!indexSubmitting && <Send className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />}
+                    </Button>
+                  </form>
+                )}
               </CardContent>
             </Card>
           </div>
