@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admission_inquiries: {
+        Row: {
+          class_applying: string
+          created_at: string
+          email: string | null
+          id: string
+          message: string | null
+          parent_name: string | null
+          phone: string
+          student_name: string
+        }
+        Insert: {
+          class_applying: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          message?: string | null
+          parent_name?: string | null
+          phone: string
+          student_name: string
+        }
+        Update: {
+          class_applying?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          message?: string | null
+          parent_name?: string | null
+          phone?: string
+          student_name?: string
+        }
+        Relationships: []
+      }
       attendance: {
         Row: {
           created_at: string
