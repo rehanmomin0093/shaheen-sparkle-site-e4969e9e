@@ -36,6 +36,7 @@ interface TeacherForm {
   assigned_classes: string[];
   assigned_section: string;
   class_teacher_classes: string[];
+  class_subjects: Record<string, string[]>; // per-class subject assignments
 }
 
 const emptyForm: TeacherForm = {
