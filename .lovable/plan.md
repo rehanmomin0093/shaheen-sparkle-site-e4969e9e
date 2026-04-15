@@ -1,23 +1,35 @@
 
 
-## Problem
-Admission form submissions are saved to the database (`admission_inquiries` table), but there is no admin page to view, manage, or track them.
+# Plan: Add "Class Teacher" Flag & Restrict Attendance to Class Teachers
 
-## Plan
+## Summary
+Add an `is_class_teacher` boolean to `teacher_class_assignments` so admins can mark one teacher per class/section as the "Class Teacher." Only class teachers can fill attendance.
 
-### 1. Create Admin Admissions Page (`src/pages/admin/AdminAdmissions.tsx`)
-- Fetch all rows from `admission_inquiries` table
-- Display in a table with columns: Student Name, Parent Name, Phone, Email, Class, Message, Date
-- Add delete functionality for individual inquiries
-- Add Excel/CSV export (using `xlsx` library already installed)
-- Add maximize/minimize dialog for viewing full inquiry details
+## Database Changes
 
-### 2. Add Sidebar Link in `src/pages/admin/AdminLayout.tsx`
-- Add "Admissions" link with `ClipboardList` icon to the sidebar navigation
+1. **Add column** to `teacher_class_assignments`:
+   ```sql
+   ALTER TABLE public.teacher_class_assignments 
+     ADD COLUMN is_class_teacher BOOLEAN NOT NULL DEFAULT false;
+   ```
 
-### 3. Add Route in `src/App.tsx`
-- Add `/admin/admissions` route pointing to the new page
+2. **Update attendance RLS policies** — modify the INSERT and UPDATE policies for teachers to additionally require `tca.is_class_teacher = true`.
 
-### 4. Update Admin Dashboard (`src/pages/admin/AdminDashboard.tsx`)
-- Add admission inquiry count card to the dashboard stats
+## Admin UI Changes (AdminTeachers.tsx)
+
+3. In the teacher edit/add dialog, add a **"Class Teacher"** checkbox next to each assigned class (or a single toggle if only one class). When saving, store `is_class_teacher` per assignment row.
+
+4. In the teachers table list, show a badge/indicator for class teacher assignments.
+
+## Teacher Dashboard Changes (AttendanceTab.tsx)
+
+5. Update `useTeacherAssignment` to also fetch `is_class_teacher` from `teacher_class_assignments`.
+
+6. In the Attendance tab, check `is_class_teacher` — if false, show a message like "Only class teachers can mark attendance" and hide the attendance form.
+
+## Technical Details
+
+- The `is_class_teacher` flag lives on `teacher_class_assignments`, so a teacher can be class teacher for Class 4-A but not for Class 9-A.
+- RLS ensures server-side enforcement — even if UI is bypassed, non-class-teachers cannot insert/update attendance.
+- Existing assignment rows default to `false`, so no attendance disruption until admin explicitly sets class teachers.
 
