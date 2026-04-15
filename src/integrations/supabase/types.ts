@@ -487,6 +487,7 @@ export type Database = {
           class_name: string
           created_at: string
           id: string
+          is_class_teacher: boolean
           section: string | null
           teacher_id: string
         }
@@ -494,6 +495,7 @@ export type Database = {
           class_name: string
           created_at?: string
           id?: string
+          is_class_teacher?: boolean
           section?: string | null
           teacher_id: string
         }
@@ -501,6 +503,7 @@ export type Database = {
           class_name?: string
           created_at?: string
           id?: string
+          is_class_teacher?: boolean
           section?: string | null
           teacher_id?: string
         }
