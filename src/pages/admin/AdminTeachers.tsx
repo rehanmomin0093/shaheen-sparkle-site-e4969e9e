@@ -496,11 +496,14 @@ const AdminTeachers = () => {
                   <TableCell>
                     {t.assigned_classes?.length > 0 ? (
                       <div className="flex flex-wrap gap-1">
-                        {t.assigned_classes.map((c: string) => (
-                          <span key={c} className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs ${t.class_teacher_classes?.includes(c) ? 'bg-primary/10 text-primary font-semibold' : ''}`}>
-                            {c}{t.class_teacher_classes?.includes(c) ? " (CT)" : ""}
-                          </span>
-                        ))}
+                        {t.assigned_classes.map((c: string) => {
+                          const subjs = t.class_subjects?.[c] || [];
+                          return (
+                            <span key={c} className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs ${t.class_teacher_classes?.includes(c) ? 'bg-primary/10 text-primary font-semibold' : ''}`}>
+                              {c}{t.class_teacher_classes?.includes(c) ? " (CT)" : ""}{subjs.length > 0 ? `: ${subjs.join(", ")}` : ""}
+                            </span>
+                          );
+                        })}
                       </div>
                     ) : "-"}
                   </TableCell>
