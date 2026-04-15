@@ -179,6 +179,7 @@ const AdminTeachers = () => {
       assigned_classes: teacher.assigned_classes || [],
       assigned_section: teacher.assigned_section || "",
       class_teacher_classes: teacher.class_teacher_classes || [],
+      class_subjects: teacher.class_subjects || {},
     });
     setDialogOpen(true);
   };
