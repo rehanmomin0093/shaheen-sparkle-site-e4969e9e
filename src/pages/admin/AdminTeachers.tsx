@@ -93,7 +93,7 @@ const AdminTeachers = () => {
 
   const saveMutation = useMutation({
     mutationFn: async (values: TeacherForm) => {
-      const { assigned_classes, assigned_section, class_teacher_classes, ...teacherValues } = values;
+      const { assigned_classes, assigned_section, class_teacher_classes, class_subjects, ...teacherValues } = values;
       let teacherId = editId;
       if (editId) {
         const { error } = await supabase.from("teachers").update(teacherValues).eq("id", editId);
@@ -111,6 +111,7 @@ const AdminTeachers = () => {
             class_name: cls,
             section: assigned_section || null,
             is_class_teacher: class_teacher_classes.includes(cls),
+            subjects: (class_subjects[cls] || []).join(", "),
           }));
           await supabase.from("teacher_class_assignments").insert(rows);
         }
