@@ -11,7 +11,7 @@ export const useTeacherAssignment = () => {
       if (!user?.email) return null;
       const { data: teacher } = await supabase
         .from("teachers")
-        .select("id")
+        .select("id, subject")
         .eq("email", user.email)
         .maybeSingle();
 
@@ -27,7 +27,7 @@ export const useTeacherAssignment = () => {
       // Return class teacher assignment first if exists, otherwise first assignment
       const assignment = assignments?.[0] ?? null;
 
-      return assignment;
+      return assignment ? { ...assignment, teacher_subjects: teacher.subject || "" } : null;
     },
     enabled: !!user?.email,
   });

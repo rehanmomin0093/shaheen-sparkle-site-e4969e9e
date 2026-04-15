@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import * as XLSX from "xlsx";
 
 const EXAM_TYPES = ["Unit Test 1", "Unit Test 2", "Half Yearly", "Annual"] as const;
-const SUBJECTS = ["English", "Hindi", "Marathi", "Math", "Science", "Social Studies"] as const;
+const ALL_SUBJECTS = ["English", "Hindi", "Urdu", "Marathi", "Math", "Science", "Social Studies"] as const;
 
 interface MarksEntry {
   [subject: string]: { marks: string; total: string };
