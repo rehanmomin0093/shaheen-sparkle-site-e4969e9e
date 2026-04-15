@@ -55,6 +55,7 @@ const emptyForm: TeacherForm = {
   assigned_classes: [],
   assigned_section: "",
   class_teacher_classes: [],
+  class_subjects: {},
 };
 
 const AdminTeachers = () => {
