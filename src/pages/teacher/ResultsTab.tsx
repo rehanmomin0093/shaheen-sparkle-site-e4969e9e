@@ -27,8 +27,20 @@ const ResultsTab = () => {
   const [examType, setExamType] = useState<string>(EXAM_TYPES[0]);
   const [academicYear, setAcademicYear] = useState("2025-26");
   const [marks, setMarks] = useState<Record<string, MarksEntry>>({});
+
+  const { data: assignment, isLoading: loadingAssignment } = useTeacherAssignment();
+
+  // Filter subjects to only those assigned by admin
+  const SUBJECTS = (() => {
+    const teacherSubjects = (assignment as any)?.teacher_subjects || "";
+    if (!teacherSubjects) return [...ALL_SUBJECTS];
+    const assigned = teacherSubjects.split(",").map((s: string) => s.trim()).filter(Boolean);
+    const filtered = ALL_SUBJECTS.filter((s) => assigned.includes(s));
+    return filtered.length > 0 ? filtered : [...ALL_SUBJECTS];
+  })();
+
   const [totalMarks, setTotalMarks] = useState<Record<string, string>>(
-    Object.fromEntries(SUBJECTS.map((s) => [s, "100"]))
+    Object.fromEntries(ALL_SUBJECTS.map((s) => [s, "100"]))
   );
   const totalMarksRef = useRef(totalMarks);
   const [showActions, setShowActions] = useState(false);
