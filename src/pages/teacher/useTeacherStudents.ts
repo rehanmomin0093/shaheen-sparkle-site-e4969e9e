@@ -9,7 +9,6 @@ export const useTeacherAssignment = () => {
     queryKey: ["teacher-assignment", user?.email],
     queryFn: async () => {
       if (!user?.email) return null;
-      // Find teacher record by email, then get assignment
       const { data: teacher } = await supabase
         .from("teachers")
         .select("id")
@@ -25,6 +24,33 @@ export const useTeacherAssignment = () => {
         .maybeSingle();
 
       return assignment;
+    },
+    enabled: !!user?.email,
+  });
+};
+
+export const useTeacherAssignments = () => {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ["teacher-assignments-all", user?.email],
+    queryFn: async () => {
+      if (!user?.email) return [];
+      const { data: teacher } = await supabase
+        .from("teachers")
+        .select("id")
+        .eq("email", user.email)
+        .maybeSingle();
+
+      if (!teacher) return [];
+
+      const { data: assignments } = await supabase
+        .from("teacher_class_assignments")
+        .select("*")
+        .eq("teacher_id", teacher.id)
+        .order("class_name");
+
+      return assignments ?? [];
     },
     enabled: !!user?.email,
   });
