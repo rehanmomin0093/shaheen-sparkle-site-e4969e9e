@@ -489,6 +489,7 @@ export type Database = {
           id: string
           is_class_teacher: boolean
           section: string | null
+          subjects: string | null
           teacher_id: string
         }
         Insert: {
@@ -497,6 +498,7 @@ export type Database = {
           id?: string
           is_class_teacher?: boolean
           section?: string | null
+          subjects?: string | null
           teacher_id: string
         }
         Update: {
@@ -505,6 +507,7 @@ export type Database = {
           id?: string
           is_class_teacher?: boolean
           section?: string | null
+          subjects?: string | null
           teacher_id?: string
         }
         Relationships: [
