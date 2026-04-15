@@ -357,6 +357,45 @@ const AdminTeachers = () => {
                     </div>
                   </div>
                 )}
+                {form.assigned_classes.length > 0 && (
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label>Subjects per Class</Label>
+                    <div className="space-y-3 border rounded-md p-3">
+                      {form.assigned_classes.map((c) => {
+                        const classSubjs = form.class_subjects[c] || [];
+                        return (
+                          <div key={c}>
+                            <p className="text-sm font-medium mb-1">Class {c}</p>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button variant="outline" size="sm" className="w-full justify-between font-normal">
+                                  {classSubjs.length > 0 ? classSubjs.join(", ") : "Select subjects"}
+                                  <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-64 p-3" align="start">
+                                <div className="space-y-2 max-h-48 overflow-y-auto">
+                                  {SUBJECTS.filter(s => s !== "All Subjects").map((s) => (
+                                    <label key={s} className="flex items-center gap-2 cursor-pointer text-sm hover:bg-muted rounded px-1 py-0.5">
+                                      <Checkbox
+                                        checked={classSubjs.includes(s)}
+                                        onCheckedChange={(checked) => {
+                                          const updated = checked ? [...classSubjs, s] : classSubjs.filter((x) => x !== s);
+                                          setForm({ ...form, class_subjects: { ...form.class_subjects, [c]: updated } });
+                                        }}
+                                      />
+                                      {s}
+                                    </label>
+                                  ))}
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label>Email</Label>
                   <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
