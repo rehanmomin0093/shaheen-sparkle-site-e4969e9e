@@ -17,11 +17,15 @@ export const useTeacherAssignment = () => {
 
       if (!teacher) return null;
 
-      const { data: assignment } = await supabase
+      // Prefer class teacher assignment for attendance access
+      const { data: assignments } = await supabase
         .from("teacher_class_assignments")
-        .select("*, is_class_teacher")
+        .select("*")
         .eq("teacher_id", teacher.id)
-        .maybeSingle();
+        .order("is_class_teacher", { ascending: false });
+
+      // Return class teacher assignment first if exists, otherwise first assignment
+      const assignment = assignments?.[0] ?? null;
 
       return assignment;
     },
