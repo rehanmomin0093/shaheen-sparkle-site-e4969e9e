@@ -36,6 +36,7 @@ interface TeacherForm {
   assigned_classes: string[];
   assigned_section: string;
   class_teacher_classes: string[];
+  class_subjects: Record<string, string[]>; // per-class subject assignments
 }
 
 const emptyForm: TeacherForm = {
@@ -54,6 +55,7 @@ const emptyForm: TeacherForm = {
   assigned_classes: [],
   assigned_section: "",
   class_teacher_classes: [],
+  class_subjects: {},
 };
 
 const AdminTeachers = () => {
@@ -74,11 +76,16 @@ const AdminTeachers = () => {
       const { data: assignments } = await supabase.from("teacher_class_assignments").select("*");
       return (data ?? []).map((t: any) => {
         const teacherAssignments = (assignments ?? []).filter((a: any) => a.teacher_id === t.id);
+        const classSubjects: Record<string, string[]> = {};
+        teacherAssignments.forEach((a: any) => {
+          classSubjects[a.class_name] = (a.subjects || "").split(",").map((s: string) => s.trim()).filter(Boolean);
+        });
         return {
           ...t,
           assigned_classes: teacherAssignments.map((a: any) => a.class_name),
           assigned_section: teacherAssignments[0]?.section || "",
           class_teacher_classes: teacherAssignments.filter((a: any) => a.is_class_teacher).map((a: any) => a.class_name),
+          class_subjects: classSubjects,
         };
       });
     },
@@ -86,7 +93,7 @@ const AdminTeachers = () => {
 
   const saveMutation = useMutation({
     mutationFn: async (values: TeacherForm) => {
-      const { assigned_classes, assigned_section, class_teacher_classes, ...teacherValues } = values;
+      const { assigned_classes, assigned_section, class_teacher_classes, class_subjects, ...teacherValues } = values;
       let teacherId = editId;
       if (editId) {
         const { error } = await supabase.from("teachers").update(teacherValues).eq("id", editId);
@@ -104,6 +111,7 @@ const AdminTeachers = () => {
             class_name: cls,
             section: assigned_section || null,
             is_class_teacher: class_teacher_classes.includes(cls),
+            subjects: (class_subjects[cls] || []).join(", "),
           }));
           await supabase.from("teacher_class_assignments").insert(rows);
         }
@@ -171,6 +179,7 @@ const AdminTeachers = () => {
       assigned_classes: teacher.assigned_classes || [],
       assigned_section: teacher.assigned_section || "",
       class_teacher_classes: teacher.class_teacher_classes || [],
+      class_subjects: teacher.class_subjects || {},
     });
     setDialogOpen(true);
   };
@@ -348,6 +357,45 @@ const AdminTeachers = () => {
                     </div>
                   </div>
                 )}
+                {form.assigned_classes.length > 0 && (
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label>Subjects per Class</Label>
+                    <div className="space-y-3 border rounded-md p-3">
+                      {form.assigned_classes.map((c) => {
+                        const classSubjs = form.class_subjects[c] || [];
+                        return (
+                          <div key={c}>
+                            <p className="text-sm font-medium mb-1">Class {c}</p>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button variant="outline" size="sm" className="w-full justify-between font-normal">
+                                  {classSubjs.length > 0 ? classSubjs.join(", ") : "Select subjects"}
+                                  <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-64 p-3" align="start">
+                                <div className="space-y-2 max-h-48 overflow-y-auto">
+                                  {SUBJECTS.filter(s => s !== "All Subjects").map((s) => (
+                                    <label key={s} className="flex items-center gap-2 cursor-pointer text-sm hover:bg-muted rounded px-1 py-0.5">
+                                      <Checkbox
+                                        checked={classSubjs.includes(s)}
+                                        onCheckedChange={(checked) => {
+                                          const updated = checked ? [...classSubjs, s] : classSubjs.filter((x) => x !== s);
+                                          setForm({ ...form, class_subjects: { ...form.class_subjects, [c]: updated } });
+                                        }}
+                                      />
+                                      {s}
+                                    </label>
+                                  ))}
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label>Email</Label>
                   <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
@@ -448,11 +496,14 @@ const AdminTeachers = () => {
                   <TableCell>
                     {t.assigned_classes?.length > 0 ? (
                       <div className="flex flex-wrap gap-1">
-                        {t.assigned_classes.map((c: string) => (
-                          <span key={c} className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs ${t.class_teacher_classes?.includes(c) ? 'bg-primary/10 text-primary font-semibold' : ''}`}>
-                            {c}{t.class_teacher_classes?.includes(c) ? " (CT)" : ""}
-                          </span>
-                        ))}
+                        {t.assigned_classes.map((c: string) => {
+                          const subjs = t.class_subjects?.[c] || [];
+                          return (
+                            <span key={c} className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs ${t.class_teacher_classes?.includes(c) ? 'bg-primary/10 text-primary font-semibold' : ''}`}>
+                              {c}{t.class_teacher_classes?.includes(c) ? " (CT)" : ""}{subjs.length > 0 ? `: ${subjs.join(", ")}` : ""}
+                            </span>
+                          );
+                        })}
                       </div>
                     ) : "-"}
                   </TableCell>

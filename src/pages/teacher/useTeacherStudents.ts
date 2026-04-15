@@ -27,7 +27,7 @@ export const useTeacherAssignment = () => {
       // Return class teacher assignment first if exists, otherwise first assignment
       const assignment = assignments?.[0] ?? null;
 
-      return assignment ? { ...assignment, teacher_subjects: teacher.subject || "" } : null;
+      return assignment ? { ...assignment, teacher_subjects: (assignment as any).subjects || teacher.subject || "" } : null;
     },
     enabled: !!user?.email,
   });
