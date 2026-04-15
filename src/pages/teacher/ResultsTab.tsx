@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import * as XLSX from "xlsx";
 
 const EXAM_TYPES = ["Unit Test 1", "Unit Test 2", "Half Yearly", "Annual"] as const;
-const SUBJECTS = ["English", "Hindi", "Marathi", "Math", "Science", "Social Studies"] as const;
+const ALL_SUBJECTS = ["English", "Hindi", "Urdu", "Marathi", "Math", "Science", "Social Studies"] as const;
 
 interface MarksEntry {
   [subject: string]: { marks: string; total: string };
@@ -27,14 +27,26 @@ const ResultsTab = () => {
   const [examType, setExamType] = useState<string>(EXAM_TYPES[0]);
   const [academicYear, setAcademicYear] = useState("2025-26");
   const [marks, setMarks] = useState<Record<string, MarksEntry>>({});
+
+  const { data: assignment, isLoading: loadingAssignment } = useTeacherAssignment();
+
+  // Filter subjects to only those assigned by admin
+  const SUBJECTS = (() => {
+    const teacherSubjects = (assignment as any)?.teacher_subjects || "";
+    if (!teacherSubjects) return [...ALL_SUBJECTS];
+    const assigned = teacherSubjects.split(",").map((s: string) => s.trim()).filter(Boolean);
+    const filtered = ALL_SUBJECTS.filter((s) => assigned.includes(s));
+    return filtered.length > 0 ? filtered : [...ALL_SUBJECTS];
+  })();
+
   const [totalMarks, setTotalMarks] = useState<Record<string, string>>(
-    Object.fromEntries(SUBJECTS.map((s) => [s, "100"]))
+    Object.fromEntries(ALL_SUBJECTS.map((s) => [s, "100"]))
   );
   const totalMarksRef = useRef(totalMarks);
   const [showActions, setShowActions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: assignment, isLoading: loadingAssignment } = useTeacherAssignment();
+  
   const { data: students, isLoading: loadingStudents } = useTeacherStudents(
     assignment?.class_name,
     assignment?.section
