@@ -35,6 +35,7 @@ interface TeacherForm {
   joining_date: string;
   assigned_classes: string[];
   assigned_section: string;
+  class_teacher_classes: string[];
 }
 
 const emptyForm: TeacherForm = {
@@ -52,6 +53,7 @@ const emptyForm: TeacherForm = {
   joining_date: new Date().toISOString().split("T")[0],
   assigned_classes: [],
   assigned_section: "",
+  class_teacher_classes: [],
 };
 
 const AdminTeachers = () => {
@@ -76,6 +78,7 @@ const AdminTeachers = () => {
           ...t,
           assigned_classes: teacherAssignments.map((a: any) => a.class_name),
           assigned_section: teacherAssignments[0]?.section || "",
+          class_teacher_classes: teacherAssignments.filter((a: any) => a.is_class_teacher).map((a: any) => a.class_name),
         };
       });
     },
@@ -83,7 +86,7 @@ const AdminTeachers = () => {
 
   const saveMutation = useMutation({
     mutationFn: async (values: TeacherForm) => {
-      const { assigned_classes, assigned_section, ...teacherValues } = values;
+      const { assigned_classes, assigned_section, class_teacher_classes, ...teacherValues } = values;
       let teacherId = editId;
       if (editId) {
         const { error } = await supabase.from("teachers").update(teacherValues).eq("id", editId);
@@ -93,7 +96,6 @@ const AdminTeachers = () => {
         if (error) throw error;
         teacherId = data.id;
       }
-      // Upsert class assignments (multiple)
       if (teacherId) {
         await supabase.from("teacher_class_assignments").delete().eq("teacher_id", teacherId);
         if (assigned_classes.length > 0) {
@@ -101,6 +103,7 @@ const AdminTeachers = () => {
             teacher_id: teacherId!,
             class_name: cls,
             section: assigned_section || null,
+            is_class_teacher: class_teacher_classes.includes(cls),
           }));
           await supabase.from("teacher_class_assignments").insert(rows);
         }
@@ -167,6 +170,7 @@ const AdminTeachers = () => {
       joining_date: teacher.joining_date || "",
       assigned_classes: teacher.assigned_classes || [],
       assigned_section: teacher.assigned_section || "",
+      class_teacher_classes: teacher.class_teacher_classes || [],
     });
     setDialogOpen(true);
   };
@@ -323,6 +327,27 @@ const AdminTeachers = () => {
                   <Label>Section</Label>
                   <Input value={form.assigned_section} onChange={(e) => setForm({ ...form, assigned_section: e.target.value })} placeholder="e.g. A" />
                 </div>
+                {form.assigned_classes.length > 0 && (
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label>Class Teacher for</Label>
+                    <div className="space-y-2 border rounded-md p-3">
+                      {form.assigned_classes.map((c) => (
+                        <label key={c} className="flex items-center gap-2 cursor-pointer text-sm hover:bg-muted rounded px-1 py-0.5">
+                          <Checkbox
+                            checked={form.class_teacher_classes.includes(c)}
+                            onCheckedChange={(checked) => {
+                              const updated = checked
+                                ? [...form.class_teacher_classes, c]
+                                : form.class_teacher_classes.filter((x) => x !== c);
+                              setForm({ ...form, class_teacher_classes: updated });
+                            }}
+                          />
+                          Class {c}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label>Email</Label>
                   <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
@@ -420,7 +445,17 @@ const AdminTeachers = () => {
                   <TableCell className="font-medium">{t.name}</TableCell>
                   <TableCell>{t.designation || "-"}</TableCell>
                   <TableCell>{t.subject || "-"}</TableCell>
-                  <TableCell>{t.assigned_classes?.length > 0 ? t.assigned_classes.join(", ") : "-"}</TableCell>
+                  <TableCell>
+                    {t.assigned_classes?.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {t.assigned_classes.map((c: string) => (
+                          <span key={c} className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs ${t.class_teacher_classes?.includes(c) ? 'bg-primary/10 text-primary font-semibold' : ''}`}>
+                            {c}{t.class_teacher_classes?.includes(c) ? " (CT)" : ""}
+                          </span>
+                        ))}
+                      </div>
+                    ) : "-"}
+                  </TableCell>
                   <TableCell>{t.phone || "-"}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" onClick={() => openEdit(t)}><Edit2 className="h-4 w-4" /></Button>
