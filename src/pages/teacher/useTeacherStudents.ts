@@ -19,7 +19,7 @@ export const useTeacherAssignment = () => {
 
       const { data: assignment } = await supabase
         .from("teacher_class_assignments")
-        .select("*")
+        .select("*, is_class_teacher")
         .eq("teacher_id", teacher.id)
         .maybeSingle();
 

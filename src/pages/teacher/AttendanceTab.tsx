@@ -97,6 +97,8 @@ const AttendanceTab = () => {
     );
   }
 
+  const isClassTeacher = !!(assignment as any).is_class_teacher;
+
   const presentCount = Object.values(statuses).filter((s) => s === "present").length;
   const absentCount = Object.values(statuses).filter((s) => s === "absent").length;
   const unmarkedCount = Object.values(statuses).filter((s) => s === "unmarked").length;
@@ -119,6 +121,13 @@ const AttendanceTab = () => {
       </div>
 
       {view === "daily" ? (
+        !isClassTeacher ? (
+          <Card>
+            <CardContent className="py-12 text-center text-muted-foreground">
+              Only class teachers can mark attendance. Please contact the admin if you believe this is an error.
+            </CardContent>
+          </Card>
+        ) :
         <Card>
           <CardHeader>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -216,9 +225,9 @@ const AttendanceTab = () => {
             </Table>
           </CardContent>
         </Card>
-      ) : (
+      ) : view === "report" ? (
         <AttendanceReportSection />
-      )}
+      ) : null}
     </>
   );
 };
