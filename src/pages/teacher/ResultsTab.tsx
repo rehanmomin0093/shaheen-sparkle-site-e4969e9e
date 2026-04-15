@@ -46,7 +46,7 @@ const ResultsTab = () => {
   const [showActions, setShowActions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: assignment, isLoading: loadingAssignment } = useTeacherAssignment();
+  
   const { data: students, isLoading: loadingStudents } = useTeacherStudents(
     assignment?.class_name,
     assignment?.section
