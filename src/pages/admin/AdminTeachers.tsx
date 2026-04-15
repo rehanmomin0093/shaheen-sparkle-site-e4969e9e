@@ -76,11 +76,16 @@ const AdminTeachers = () => {
       const { data: assignments } = await supabase.from("teacher_class_assignments").select("*");
       return (data ?? []).map((t: any) => {
         const teacherAssignments = (assignments ?? []).filter((a: any) => a.teacher_id === t.id);
+        const classSubjects: Record<string, string[]> = {};
+        teacherAssignments.forEach((a: any) => {
+          classSubjects[a.class_name] = (a.subjects || "").split(",").map((s: string) => s.trim()).filter(Boolean);
+        });
         return {
           ...t,
           assigned_classes: teacherAssignments.map((a: any) => a.class_name),
           assigned_section: teacherAssignments[0]?.section || "",
           class_teacher_classes: teacherAssignments.filter((a: any) => a.is_class_teacher).map((a: any) => a.class_name),
+          class_subjects: classSubjects,
         };
       });
     },
