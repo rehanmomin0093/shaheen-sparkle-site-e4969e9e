@@ -1,35 +1,30 @@
 
+The user wants a UML use case diagram showing actors and their interactions with the school management system. Mermaid doesn't have native UML use case syntax, but I can produce a clean approximation using a flowchart with actors on the sides and use cases as ellipses (using `(...)` node shape) inside a system boundary subgraph.
 
-# Plan: Add "Class Teacher" Flag & Restrict Attendance to Class Teachers
+Actors to include:
+- Visitor (public)
+- Applicant (admission inquiry)
+- Student
+- Teacher (with sub-cases gated by class teacher / subject assignment)
+- Class Teacher (specialization of Teacher)
+- Admin (whitelisted)
+- System / Email Queue (secondary actor)
 
-## Summary
-Add an `is_class_teacher` boolean to `teacher_class_assignments` so admins can mark one teacher per class/section as the "Class Teacher." Only class teachers can fill attendance.
+Key use cases grouped:
+- Public: Browse pages, View notices, View gallery, View faculty, Submit admission inquiry
+- Student: Login (roll no), View attendance, View results, Take MCQ test
+- Teacher: Login (email), Mark attendance «class teacher only», Enter results «assigned subjects only», Create tests, Manage links, Update physical data
+- Admin: Manage content, Manage gallery, Manage notices, Manage banners, Manage teachers, Assign classes & subjects, Mark class teacher, Manage students, Bulk import, Review admissions, Invite users
+- System: Send emails, Process email queue
 
-## Database Changes
+I'll use «include» / «extend» style labels on edges where relevant (e.g., attendance "extends" with class-teacher constraint).
 
-1. **Add column** to `teacher_class_assignments`:
-   ```sql
-   ALTER TABLE public.teacher_class_assignments 
-     ADD COLUMN is_class_teacher BOOLEAN NOT NULL DEFAULT false;
-   ```
+## Plan
 
-2. **Update attendance RLS policies** — modify the INSERT and UPDATE policies for teachers to additionally require `tca.is_class_teacher = true`.
+Create a single Mermaid use case-style diagram saved to `/mnt/documents/Use_Case_Diagram.mmd` and emit it as an artifact. Pure documentation — no code changes.
 
-## Admin UI Changes (AdminTeachers.tsx)
-
-3. In the teacher edit/add dialog, add a **"Class Teacher"** checkbox next to each assigned class (or a single toggle if only one class). When saving, store `is_class_teacher` per assignment row.
-
-4. In the teachers table list, show a badge/indicator for class teacher assignments.
-
-## Teacher Dashboard Changes (AttendanceTab.tsx)
-
-5. Update `useTeacherAssignment` to also fetch `is_class_teacher` from `teacher_class_assignments`.
-
-6. In the Attendance tab, check `is_class_teacher` — if false, show a message like "Only class teachers can mark attendance" and hide the attendance form.
-
-## Technical Details
-
-- The `is_class_teacher` flag lives on `teacher_class_assignments`, so a teacher can be class teacher for Class 4-A but not for Class 9-A.
-- RLS ensures server-side enforcement — even if UI is bypassed, non-class-teachers cannot insert/update attendance.
-- Existing assignment rows default to `false`, so no attendance disruption until admin explicitly sets class teachers.
-
+Structure:
+- Left column: Visitor, Applicant, Student, Teacher, Class Teacher
+- Right column: Admin, Email System
+- Center subgraph "Shaheen School System" containing all use case ellipses
+- Constraint notes on restricted use cases (class teacher, assigned subjects, whitelisted admin)
