@@ -115,13 +115,15 @@ const Navbar = () => {
       {/* Main navbar */}
       <header
         className={cn(
-          "relative z-40 border-b border-border/50 backdrop-blur-xl transition-all duration-300",
-          isScrolled ? "bg-card/95 shadow-lg" : "bg-[hsl(142_40%_85%/0.95)]"
+          "relative z-40 border-b transition-all duration-300",
+          isScrolled
+            ? "bg-background/80 backdrop-blur-xl border-border/60 shadow-soft"
+            : "bg-[hsl(142_40%_85%/0.92)] backdrop-blur-md border-border/40"
         )}
       >
         <div className="container flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2 transition-transform duration-300 hover:scale-105">
-            <div className="flex h-10 w-10 items-center justify-center rounded bg-primary">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-primary shadow-soft">
               <GraduationCap className="h-6 w-6 text-primary-foreground" />
             </div>
             <div className="leading-tight">
@@ -137,8 +139,7 @@ const Navbar = () => {
                 <Link
                   to={l.to}
                   className={cn(
-                    "animated-underline flex items-center gap-1 rounded px-3 py-2 text-sm font-medium transition-all duration-200 hover:text-primary",
-                    "hover:shadow-[0_0_12px_hsl(var(--secondary)/0.3)]",
+                    "animated-underline flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 hover:text-primary hover:bg-foreground/[0.03]",
                     location.pathname === l.to ? "text-primary after:!scale-x-100 after:!origin-bottom-left" : "text-foreground/70"
                   )}
                 >
@@ -147,14 +148,14 @@ const Navbar = () => {
                 </Link>
 
                 {l.dropdown && (
-                  <div className="invisible absolute start-0 top-full z-[60] min-w-[200px] pt-1 opacity-0 translate-y-2 transition-all duration-200 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0">
-                    <div className="rounded-md border border-border bg-card shadow-xl">
-                      <div className="py-1">
+                  <div className="invisible absolute start-0 top-full z-[60] min-w-[220px] pt-2 opacity-0 translate-y-1 transition-all duration-200 ease-out group-hover:visible group-hover:opacity-100 group-hover:translate-y-0">
+                    <div className="overflow-hidden rounded-xl border border-border/60 bg-card/95 backdrop-blur-xl shadow-elevated">
+                      <div className="py-1.5">
                         {l.dropdown.map((sub) => (
                           <Link
                             key={sub.to}
                             to={sub.to}
-                            className="block px-4 py-2.5 text-sm text-foreground/80 transition-colors duration-150 hover:bg-primary/10 hover:text-primary"
+                            className="block px-4 py-2.5 text-sm text-foreground/80 transition-all duration-150 hover:bg-primary/[0.06] hover:text-primary hover:translate-x-0.5 rtl:hover:-translate-x-0.5"
                           >
                             {sub.label}
                           </Link>
@@ -166,12 +167,12 @@ const Navbar = () => {
               </div>
             ))}
             <Link to="/student-portal">
-              <Button size="sm" className="ms-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-transform duration-200 hover:scale-105">
+              <Button size="sm" variant="accent" className="ms-2 hover:scale-105">
                 {t("nav.studentPortal")}
               </Button>
             </Link>
             <Link to="/staff-portal">
-              <Button size="sm" className="ms-1 bg-primary text-primary-foreground hover:bg-primary/90 transition-transform duration-200 hover:scale-105">
+              <Button size="sm" variant="premium" className="ms-1 hover:scale-105">
                 {t("nav.teacherPortal")}
               </Button>
             </Link>
