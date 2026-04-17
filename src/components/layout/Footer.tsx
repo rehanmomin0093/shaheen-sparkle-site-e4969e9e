@@ -16,13 +16,15 @@ const Footer = () => {
   });
 
   return (
-    <footer className="border-t border-border bg-primary text-primary-foreground">
+    <footer className="relative bg-primary text-primary-foreground">
+      {/* Premium gradient top border */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-secondary/60 to-transparent" />
       <div className="container py-16">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
           {/* Brand */}
           <div className="lg:col-span-2">
             <div className="mb-4 flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded bg-secondary">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-warm shadow-soft">
                 <GraduationCap className="h-6 w-6 text-secondary-foreground" />
               </div>
               <div className="leading-tight">
@@ -31,9 +33,9 @@ const Footer = () => {
               </div>
             </div>
             <p className="text-sm leading-relaxed opacity-80">{t("footer.tagline")}</p>
-            <div className="mt-4 flex items-center gap-3">
+            <div className="mt-5 flex items-center gap-2.5">
               {[Facebook, Instagram, Twitter, Youtube].map((Icon, i) => (
-                <a key={i} href="#" aria-label={Icon.displayName} className="rounded-full bg-primary-foreground/10 p-2 transition-colors duration-200 hover:bg-secondary hover:text-secondary-foreground">
+                <a key={i} href="#" aria-label={Icon.displayName} className="rounded-full bg-primary-foreground/10 p-2.5 transition-all duration-200 hover:bg-secondary hover:text-secondary-foreground hover:-translate-y-0.5 hover:shadow-md">
                   <Icon className="h-4 w-4" />
                 </a>
               ))}

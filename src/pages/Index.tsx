@@ -197,7 +197,7 @@ const Index = () => {
             transition={{ duration: 0.6, ease: "easeInOut" }}
           />
         </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/40 to-foreground/10 z-[1]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/85 via-foreground/55 to-foreground/20 z-[1]" />
         <button onClick={prevSlide} className="absolute start-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-background/30 p-2 text-primary-foreground backdrop-blur-sm transition-all duration-300 hover:bg-background/60 hover:scale-110">
           <ChevronLeft className="h-6 w-6" />
         </button>
@@ -383,7 +383,7 @@ const Index = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                    <Button type="submit" className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 group" disabled={indexSubmitting}>
+                    <Button type="submit" variant="accent" className="w-full group" disabled={indexSubmitting}>
                       {indexSubmitting ? t("home.submitting") : t("home.submitApplication")} {!indexSubmitting && <Send className="ms-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />}
                     </Button>
                   </form>
@@ -403,7 +403,7 @@ const Index = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
             <h2 className="font-serif text-3xl md:text-5xl">{t("home.admissionsOpen")}</h2>
             <p className="mx-auto mt-4 max-w-xl opacity-80">{t("home.admissionsOpenDesc")}</p>
-            <Link to="/admissions"><Button size="lg" className="mt-8 animate-float bg-secondary text-secondary-foreground hover:bg-secondary/90 glow-on-hover">{t("home.startApplication")}</Button></Link>
+            <Link to="/admissions"><Button size="xl" variant="accent" className="mt-8 animate-float">{t("home.startApplication")}</Button></Link>
           </motion.div>
         </div>
       </section>

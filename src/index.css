@@ -51,6 +51,10 @@ html {
 
     --emerald-glow: 162 85% 24%;
     --gold-soft: 38 80% 70%;
+
+    /* Hybrid accent tokens (modern indigo + cyan for CTAs / micro-accents) */
+    --accent-indigo: 239 84% 60%;
+    --accent-cyan: 188 91% 43%;
   }
 
   .dark {
@@ -93,6 +97,9 @@ html {
 
     --emerald-glow: 162 85% 30%;
     --gold-soft: 38 80% 60%;
+
+    --accent-indigo: 239 84% 67%;
+    --accent-cyan: 188 91% 50%;
   }
 }
 
@@ -102,11 +109,21 @@ html {
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "cv11", "ss01", "ss02";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4 {
     font-family: 'Instrument Serif', serif;
+    letter-spacing: -0.01em;
+  }
+
+  /* Modern selection colour */
+  ::selection {
+    background: hsl(var(--accent-indigo) / 0.18);
+    color: hsl(var(--foreground));
   }
 }
 
@@ -136,6 +153,47 @@ html {
   }
   .animated-underline:hover::after {
     @apply origin-bottom-left scale-x-100;
+  }
+
+  /* Premium card — soft elevation that lifts on hover */
+  .card-premium {
+    @apply rounded-xl border border-border/60 bg-card transition-all duration-300 ease-out;
+    box-shadow: 0 1px 2px hsl(var(--foreground) / 0.04), 0 4px 16px hsl(var(--foreground) / 0.06);
+  }
+  .card-premium:hover {
+    @apply -translate-y-1.5 border-border;
+    box-shadow: 0 4px 12px hsl(var(--foreground) / 0.06), 0 16px 48px hsl(var(--foreground) / 0.10);
+  }
+
+  /* Glass surface (blurred background card) */
+  .glass-surface {
+    background: hsl(var(--background) / 0.65);
+    backdrop-filter: saturate(180%) blur(18px);
+    -webkit-backdrop-filter: saturate(180%) blur(18px);
+    border: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  /* Indigo gradient text for premium headings/CTAs */
+  .text-gradient-accent {
+    background: linear-gradient(135deg, hsl(var(--accent-indigo)), hsl(var(--accent-cyan)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Button micro-press */
+  .press {
+    @apply transition-transform duration-150 active:scale-[0.97];
+  }
+
+  /* Scroll-driven reveal helpers (use with framer-motion for richer cases) */
+  .reveal-up {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  @keyframes fade-up {
+    to { opacity: 1; transform: translateY(0); }
   }
 }
 
