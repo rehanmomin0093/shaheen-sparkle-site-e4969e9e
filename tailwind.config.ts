@@ -15,7 +15,18 @@ export default {
     extend: {
       fontFamily: {
         serif: ["Instrument Serif", "Georgia", "serif"],
-        sans: ["Geist", "system-ui", "sans-serif"],
+        sans: ["Inter", "Geist", "system-ui", "sans-serif"],
+      },
+      boxShadow: {
+        soft: "0 1px 2px hsl(var(--foreground) / 0.04), 0 4px 16px hsl(var(--foreground) / 0.06)",
+        elevated: "0 4px 12px hsl(var(--foreground) / 0.06), 0 16px 48px hsl(var(--foreground) / 0.10)",
+        premium: "0 10px 40px -12px hsl(var(--primary) / 0.35)",
+        glow: "0 0 0 1px hsl(var(--accent-indigo) / 0.2), 0 8px 32px -8px hsl(var(--accent-indigo) / 0.35)",
+      },
+      backgroundImage: {
+        "gradient-primary": "linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--emerald-glow)) 100%)",
+        "gradient-accent": "linear-gradient(135deg, hsl(var(--accent-indigo)) 0%, hsl(var(--accent-cyan)) 100%)",
+        "gradient-warm": "linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--gold-soft)) 100%)",
       },
       colors: {
         border: "hsl(var(--border))",
@@ -67,6 +78,8 @@ export default {
         gold: {
           soft: "hsl(var(--gold-soft))",
         },
+        "accent-indigo": "hsl(var(--accent-indigo))",
+        "accent-cyan": "hsl(var(--accent-cyan))",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -98,11 +111,26 @@ export default {
           from: { opacity: "0", transform: "translateX(-20px)" },
           to: { opacity: "1", transform: "translateX(0)" },
         },
+        "fade-in": {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
+        "scale-in": {
+          from: { opacity: "0", transform: "scale(0.96)" },
+          to: { opacity: "1", transform: "scale(1)" },
+        },
+        "dropdown-in": {
+          from: { opacity: "0", transform: "translateY(-6px) scale(0.98)" },
+          to: { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-up": "fade-up 0.6s ease-out forwards",
+        "fade-in": "fade-in 0.4s ease-out forwards",
+        "scale-in": "scale-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards",
+        "dropdown-in": "dropdown-in 0.18s cubic-bezier(0.22, 1, 0.36, 1) forwards",
         "float": "float 3s ease-in-out infinite",
         "shimmer": "shimmer 2s linear infinite",
         "slide-in-left": "slide-in-left 0.4s ease-out forwards",
