@@ -52,7 +52,7 @@ const Layout = () => {
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         className={cn(
-          "fixed bottom-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-all duration-300 hover:bg-primary/90 hover:scale-110",
+          "fixed bottom-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-accent text-white shadow-glow transition-all duration-300 hover:scale-110 active:scale-95",
           i18n.language === "ur" ? "left-6" : "right-6",
           showBackToTop ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
         )}
