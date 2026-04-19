@@ -410,7 +410,7 @@ const Index = () => {
       <section className="py-24">
         <div className="container">
           <SectionHeading label={t("home.programs")} title={t("home.programsWeOffer")} description={t("home.programsDesc")} />
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
             {programs.map((p, i) => (
               <motion.div key={p.title} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                 <Card className="group h-full border-none border-t-4 border-t-transparent shadow-md transition-all duration-300 hover:shadow-xl hover:border-t-secondary hover:-translate-y-1">
