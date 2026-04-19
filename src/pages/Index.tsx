@@ -276,16 +276,19 @@ const Index = () => {
         </div>
       </section>
 
-      {/* From the Desk of Leadership */}
+      {/* Our Desk */}
       {leaders.length > 0 && (
-        <section id="leadership" className="py-24">
+        <section id="leadership" className="bg-secondary/5 py-24">
           <div className="container">
-            <SectionHeading
-              label="Leadership"
-              title="From the Desk of"
-              description="A message from our school leadership."
-            />
-            <div className={cn("grid gap-8", leaders.length > 1 ? "md:grid-cols-2" : "max-w-xl mx-auto")}>
+            <SectionHeading label="Leadership" title="Our Desk" />
+            <div
+              className={cn(
+                "grid gap-8 justify-center",
+                leaders.length === 1 && "max-w-xs mx-auto",
+                leaders.length === 2 && "sm:grid-cols-2 max-w-2xl mx-auto",
+                leaders.length >= 3 && "sm:grid-cols-2 lg:grid-cols-4",
+              )}
+            >
               {leaders.map((leader, i) => (
                 <motion.div
                   key={leader.id}
@@ -295,29 +298,35 @@ const Index = () => {
                   whileInView="visible"
                   viewport={{ once: true }}
                 >
-                  <Card className="group h-full border-none shadow-lg hover-lift">
-                    <CardContent className="flex flex-col items-center p-8 text-center">
-                      <div className="relative mb-4 h-32 w-32 overflow-hidden rounded-full border-4 border-secondary/30">
-                        {leader.photo_url ? (
-                          <img
-                            src={leader.photo_url}
-                            alt={leader.name}
-                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-muted">
-                            <Users className="h-12 w-12 text-muted-foreground" />
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-secondary">
-                        {leader.role}
-                      </p>
-                      <h3 className="mt-2 font-serif text-xl">{leader.name}</h3>
-                      {leader.qualification && (
-                        <p className="mt-1 text-xs text-muted-foreground">{leader.qualification}</p>
+                  <Card className="group h-full overflow-hidden border-none bg-card shadow-md hover-lift">
+                    <div className="relative aspect-[3/4] overflow-hidden bg-muted">
+                      {leader.photo_url ? (
+                        <img
+                          src={leader.photo_url}
+                          alt={leader.name}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center">
+                          <Users className="h-16 w-16 text-muted-foreground" />
+                        </div>
                       )}
+                      <div className="absolute inset-x-0 bottom-0 flex justify-center">
+                        <span className="translate-y-1/2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-lg">
+                          {leader.name}
+                        </span>
+                      </div>
+                    </div>
+                    <CardContent className="px-4 pb-5 pt-10 text-center">
+                      <h3 className="font-serif text-lg text-foreground">{leader.role}</h3>
+                      <div className="mt-2 h-px w-10 mx-auto bg-secondary" />
+                      <Link
+                        to="/faculty"
+                        className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-secondary hover:text-primary transition-colors"
+                      >
+                        Read More <ArrowRight className="h-3.5 w-3.5" />
+                      </Link>
                     </CardContent>
                   </Card>
                 </motion.div>
