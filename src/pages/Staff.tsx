@@ -13,10 +13,10 @@ const HIGH_SCHOOL_CLASSES = ["8", "9", "10"];
 const PRIMARY_CLASSES = ["1", "2", "3", "4", "5", "6", "7"];
 
 const isPrincipal = (t: any) =>
-  /principal/i.test(t?.designation ?? "") && !/vice|school/i.test(t?.designation ?? "");
+  /high school principal/i.test(t?.designation ?? "");
 
 const isSchoolPrincipal = (t: any) =>
-  /school principal|vice principal/i.test(t?.designation ?? "");
+  /school principal/i.test(t?.designation ?? "") && !/high school/i.test(t?.designation ?? "");
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
