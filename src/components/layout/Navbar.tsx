@@ -153,15 +153,8 @@ const Navbar = () => {
         )}
       >
         <div className="container flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 transition-transform duration-300 hover:scale-105">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-primary shadow-soft">
-              <GraduationCap className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <div className="leading-tight">
-              <span className="block font-serif text-lg font-bold text-foreground">{t("common.schoolName")}</span>
-              <span className="block text-[10px] uppercase tracking-widest text-muted-foreground">{t("common.schoolSubtitle")}</span>
-            </div>
-          </Link>
+          <div />
+
 
           {/* Desktop nav */}
           <nav className="hidden items-center gap-0.5 lg:flex">
