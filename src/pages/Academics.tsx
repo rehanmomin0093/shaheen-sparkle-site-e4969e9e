@@ -22,13 +22,8 @@ const Academics = () => {
       highlight: t("academics.primaryHighlight"),
     },
     {
-      title: t("academics.secondary"),
-      subjects: ["English", "Hindi/Urdu", "Mathematics", "Science", "Social Studies", "Computer Science", "Sanskrit/Arabic"],
-      highlight: t("academics.secondaryHighlight"),
-    },
-    {
       title: t("academics.highSchool"),
-      subjects: ["Science (PCM/PCB)", "Commerce (with Maths/without)", "Arts / Humanities"],
+      subjects: ["English", "Hindi/Urdu", "Mathematics", "Science", "Social Studies", "Computer Science", "Sanskrit/Arabic"],
       highlight: t("academics.highSchoolHighlight"),
     },
   ];
