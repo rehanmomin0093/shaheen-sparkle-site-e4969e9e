@@ -132,9 +132,21 @@ const Index = () => {
     setIndexAdmissionSubmitted(true);
   };
 
-  const heroImages = [
-    content?.hero_image_1, content?.hero_image_2, content?.hero_image_3, content?.hero_image_4,
-  ].map((url, i) => url || defaultHeroImages[i]);
+  const { data: heroImageRows } = useQuery({
+    queryKey: ["public-hero-images"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("hero_images")
+        .select("image_url, sort_order, is_active")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      return data ?? [];
+    },
+  });
+
+  const heroImages = (heroImageRows && heroImageRows.length > 0)
+    ? heroImageRows.map((r) => r.image_url)
+    : defaultHeroImages;
 
   const nextSlide = useCallback(() => { setDirection(1); setCurrentSlide((prev) => (prev + 1) % heroImages.length); }, []);
   const prevSlide = useCallback(() => { setDirection(-1); setCurrentSlide((prev) => (prev - 1 + heroImages.length) % heroImages.length); }, []);
