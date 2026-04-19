@@ -137,7 +137,7 @@ const Navbar = () => {
           <img
             src={schoolLogo}
             alt="Shaheen Education Society Logo"
-            className="h-12 w-12 shrink-0 rounded-full object-cover sm:h-16 sm:w-16 md:h-20 md:w-20"
+            className="h-16 w-16 shrink-0 rounded-full object-cover ring-2 ring-primary/20 sm:h-24 sm:w-24 md:h-28 md:w-28 lg:h-32 lg:w-32"
           />
         </div>
       </div>
