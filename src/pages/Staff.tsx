@@ -9,8 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, User, GraduationCap, Phone, Mail, FileText, Briefcase } from "lucide-react";
 import SectionHeading from "@/components/shared/SectionHeading";
 
-const HIGH_SCHOOL_CLASSES = ["6", "7", "8", "9", "10"];
-const PRIMARY_CLASSES = ["1", "2", "3", "4", "5"];
+const HIGH_SCHOOL_CLASSES = ["8", "9", "10"];
+const PRIMARY_CLASSES = ["1", "2", "3", "4", "5", "6", "7"];
 
 const isPrincipal = (t: any) =>
   /principal/i.test(t?.designation ?? "") && !/vice|school/i.test(t?.designation ?? "");
@@ -138,11 +138,11 @@ const Staff = () => {
 
               {principal && renderLeader(principal, principal.designation || "Principal")}
 
-              {renderTeacherGroup(highSchoolTeachers, "High School Faculty (Classes 6–10)", "high-school")}
+              {renderTeacherGroup(highSchoolTeachers, "High School Faculty (Classes 8–10)", "high-school")}
 
               {schoolPrincipal && renderLeader(schoolPrincipal, schoolPrincipal.designation || "School Principal")}
 
-              {renderTeacherGroup(primaryTeachers, "Primary School Faculty (Classes 1–5)", "primary-school")}
+              {renderTeacherGroup(primaryTeachers, "School Faculty (Classes 1–7)", "primary-school")}
             </div>
           </section>
 
