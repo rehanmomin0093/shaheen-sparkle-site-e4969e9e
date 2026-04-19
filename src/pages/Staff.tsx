@@ -142,7 +142,7 @@ const Staff = () => {
 
               {schoolPrincipal && renderLeader(schoolPrincipal, schoolPrincipal.designation || "School Principal")}
 
-              {renderTeacherGroup(primaryTeachers, "School Faculty (Classes 1–7)", "primary-school")}
+              {renderTeacherGroup(primaryTeachers, "Primary School Faculty (Classes 1–7)", "primary-school")}
             </div>
           </section>
 
