@@ -144,9 +144,7 @@ const Index = () => {
     },
   });
 
-  const heroImages = (heroImageRows && heroImageRows.length > 0)
-    ? heroImageRows.map((r) => r.image_url)
-    : defaultHeroImages;
+  const heroImages = (heroImageRows ?? []).map((r) => r.image_url);
 
   const nextSlide = useCallback(() => { setDirection(1); setCurrentSlide((prev) => (prev + 1) % heroImages.length); }, [heroImages.length]);
   const prevSlide = useCallback(() => { setDirection(-1); setCurrentSlide((prev) => (prev - 1 + heroImages.length) % heroImages.length); }, [heroImages.length]);
