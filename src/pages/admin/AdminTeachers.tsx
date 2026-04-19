@@ -12,8 +12,24 @@ import { Label } from "@/components/ui/label";
 import ImageCropDialog from "@/components/shared/ImageCropDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const CLASSES = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+const DESIGNATIONS = [
+  "Principal",
+  "Vice Principal",
+  "School Principal",
+  "Head of Department",
+  "Senior Teacher",
+  "Teacher",
+  "Assistant Teacher",
+  "Trainee Teacher",
+  "Peon",
+  "Clerk",
+  "Librarian",
+  "Lab Assistant",
+  "Custom",
+];
 const SUBJECTS = [
   "All Subjects", "English", "Hindi", "Urdu", "Marathi",
   "Math", "Science", "Social Studies", "Computer Science",
