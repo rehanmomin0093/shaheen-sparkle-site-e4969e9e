@@ -333,7 +333,7 @@ const Index = () => {
                       <h3 className="font-serif text-lg text-foreground">{leader.role}</h3>
                       <div className="mt-2 h-px w-10 mx-auto bg-secondary" />
                       <Link
-                        to="/faculty"
+                        to={`/leader/${leader.role.toLowerCase().replace(/\s+/g, "-")}`}
                         className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-secondary hover:text-primary transition-colors"
                       >
                         Read More <ArrowRight className="h-3.5 w-3.5" />

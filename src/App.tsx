@@ -18,6 +18,7 @@ import Admissions from "./pages/Admissions";
 import Contact from "./pages/Contact";
 import StudentPortal from "./pages/StudentPortal";
 import StaffPortal from "./pages/StaffPortal";
+import LeaderMessage from "./pages/LeaderMessage";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import NotFound from "./pages/NotFound";
@@ -58,6 +59,7 @@ const App = () => (
               <Route path="/staff" element={<Staff />} />
               <Route path="/faculty" element={<Staff />} />
               <Route path="/staff-portal" element={<StaffPortal />} />
+              <Route path="/leader/:role" element={<LeaderMessage />} />
             </Route>
             <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
             <Route path="/student-dashboard" element={<StudentDashboard />} />
