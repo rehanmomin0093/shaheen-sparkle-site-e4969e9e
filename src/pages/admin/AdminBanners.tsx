@@ -5,14 +5,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Trash2, Upload } from "lucide-react";
+
+const SIZE_OPTIONS = [
+  { value: "small", label: "Small" },
+  { value: "medium", label: "Medium" },
+  { value: "large", label: "Large" },
+  { value: "xlarge", label: "Extra Large" },
+  { value: "full", label: "Full Screen" },
+];
 
 const AdminBanners = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
+  const [size, setSize] = useState("large");
   const [uploading, setUploading] = useState(false);
 
   const { data: banners, isLoading } = useQuery({
