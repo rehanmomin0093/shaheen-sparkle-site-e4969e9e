@@ -144,15 +144,13 @@ const Index = () => {
     },
   });
 
-  const heroImages = (heroImageRows && heroImageRows.length > 0)
-    ? heroImageRows.map((r) => r.image_url)
-    : defaultHeroImages;
+  const heroImages = (heroImageRows ?? []).map((r) => r.image_url);
 
-  const nextSlide = useCallback(() => { setDirection(1); setCurrentSlide((prev) => (prev + 1) % heroImages.length); }, [heroImages.length]);
-  const prevSlide = useCallback(() => { setDirection(-1); setCurrentSlide((prev) => (prev - 1 + heroImages.length) % heroImages.length); }, [heroImages.length]);
+  const nextSlide = useCallback(() => { if (heroImages.length === 0) return; setDirection(1); setCurrentSlide((prev) => (prev + 1) % heroImages.length); }, [heroImages.length]);
+  const prevSlide = useCallback(() => { if (heroImages.length === 0) return; setDirection(-1); setCurrentSlide((prev) => (prev - 1 + heroImages.length) % heroImages.length); }, [heroImages.length]);
 
-  useEffect(() => { if (currentSlide >= heroImages.length) setCurrentSlide(0); }, [heroImages.length, currentSlide]);
-  useEffect(() => { const timer = setInterval(nextSlide, 5000); return () => clearInterval(timer); }, [nextSlide]);
+  useEffect(() => { if (heroImages.length > 0 && currentSlide >= heroImages.length) setCurrentSlide(0); }, [heroImages.length, currentSlide]);
+  useEffect(() => { if (heroImages.length === 0) return; const timer = setInterval(nextSlide, 5000); return () => clearInterval(timer); }, [nextSlide, heroImages.length]);
 
   const DESK_ROLES = [
     "Founder",
@@ -231,7 +229,8 @@ const Index = () => {
     <>
       <PopupBanner />
 
-      {/* Hero */}
+      {/* Hero — only renders when admin has uploaded slides */}
+      {heroImages.length > 0 && (
       <section className="relative flex aspect-[16/9] max-h-[85vh] w-full items-center overflow-hidden bg-foreground/5">
         <AnimatePresence initial={false} mode="popLayout" custom={direction}>
           <motion.div
@@ -268,6 +267,7 @@ const Index = () => {
           ))}
         </div>
       </section>
+      )}
 
       {/* Stats */}
       <section className="relative z-10 -mt-12">
