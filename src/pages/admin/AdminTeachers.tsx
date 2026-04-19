@@ -274,7 +274,22 @@ const AdminTeachers = () => {
                 </div>
                 <div className="space-y-2">
                   <Label>Designation</Label>
-                  <Input value={form.designation} onChange={(e) => setForm({ ...form, designation: e.target.value })} placeholder="e.g. Senior Teacher" />
+                  <Select
+                    value={DESIGNATIONS.includes(form.designation) ? form.designation : (form.designation ? "Custom" : "")}
+                    onValueChange={(val) => setForm({ ...form, designation: val === "Custom" ? "" : val })}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Select designation" /></SelectTrigger>
+                    <SelectContent>
+                      {DESIGNATIONS.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  {(!DESIGNATIONS.includes(form.designation) || form.designation === "") && (
+                    <Input
+                      value={form.designation}
+                      onChange={(e) => setForm({ ...form, designation: e.target.value })}
+                      placeholder="e.g. Senior Teacher"
+                    />
+                  )}
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label>Subjects (select multiple)</Label>
