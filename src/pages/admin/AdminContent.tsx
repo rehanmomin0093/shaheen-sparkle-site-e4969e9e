@@ -75,9 +75,13 @@ const AdminContent = () => {
     return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
-  // Group by section
+  // Sections hidden from the generic Site Content editor (managed elsewhere in admin).
+  const HIDDEN_SECTIONS = new Set(["Leadership Messages"]);
+
+  // Group by section, skipping hidden ones.
   const sections: Record<string, typeof content> = {};
   content?.forEach((item) => {
+    if (HIDDEN_SECTIONS.has(item.section)) return;
     if (!sections[item.section]) sections[item.section] = [];
     sections[item.section]!.push(item);
   });
