@@ -232,7 +232,7 @@ const Index = () => {
             transition={{ duration: 0.6, ease: "easeInOut" }}
           />
         </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/85 via-foreground/55 to-foreground/20 z-[1]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/30 via-transparent to-transparent z-[1] pointer-events-none" />
         <button onClick={prevSlide} className="absolute start-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-background/30 p-2 text-primary-foreground backdrop-blur-sm transition-all duration-300 hover:bg-background/60 hover:scale-110">
           <ChevronLeft className="h-6 w-6" />
         </button>
