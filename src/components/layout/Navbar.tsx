@@ -121,7 +121,7 @@ const Navbar = () => {
             className="h-16 w-16 shrink-0 rounded-full object-cover ring-2 ring-primary/20 sm:h-24 sm:w-24 md:h-28 md:w-28 lg:h-32 lg:w-32"
           />
           <div className="flex-1 leading-tight text-center px-1">
-            <p className="font-serif text-[11px] font-semibold text-primary sm:text-sm md:text-base">
+            <p className="font-serif text-sm font-semibold text-primary sm:text-lg md:text-xl lg:text-2xl">
               Shaheen Education Society's
             </p>
             <h1 className="font-serif text-[13px] font-bold text-primary sm:text-lg md:text-2xl lg:text-3xl leading-snug">
