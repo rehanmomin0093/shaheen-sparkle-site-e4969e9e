@@ -80,6 +80,7 @@ const AdminBanners = () => {
       title,
       image_url: urlData.publicUrl,
       link_url: linkUrl || "",
+      size,
       is_active: true,
     });
 
@@ -91,9 +92,22 @@ const AdminBanners = () => {
       toast({ title: "Banner added!" });
       setTitle("");
       setLinkUrl("");
+      setSize("large");
     }
     setUploading(false);
   };
+
+  const sizeMutation = useMutation({
+    mutationFn: async ({ id, size }: { id: string; size: string }) => {
+      const { error } = await supabase.from("popup_banners").update({ size }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-banners"] });
+      queryClient.invalidateQueries({ queryKey: ["active-popup-banner"] });
+    },
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
 
   if (isLoading) {
     return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
