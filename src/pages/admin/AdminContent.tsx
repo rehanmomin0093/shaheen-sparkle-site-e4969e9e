@@ -75,9 +75,10 @@ const AdminContent = () => {
     return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
-  // Group by section
+  // Group by section, hiding legacy hero_image_* keys (now managed in Hero Images page)
   const sections: Record<string, typeof content> = {};
   content?.forEach((item) => {
+    if (item.key.startsWith("hero_image")) return;
     if (!sections[item.section]) sections[item.section] = [];
     sections[item.section]!.push(item);
   });
