@@ -365,8 +365,8 @@ const Index = () => {
                           <Users className="h-16 w-16 text-muted-foreground" />
                         </div>
                       )}
-                      <div className="absolute inset-x-0 bottom-0 flex justify-center">
-                        <span className="translate-y-1/2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-lg">
+                      <div className="absolute inset-x-0 bottom-0 flex justify-center px-3">
+                        <span className="max-w-[95%] translate-y-1/2 rounded-full bg-primary px-4 py-1.5 text-center text-xs sm:text-sm font-semibold text-primary-foreground shadow-lg whitespace-nowrap overflow-hidden text-ellipsis">
                           {leader.name}
                         </span>
                       </div>
