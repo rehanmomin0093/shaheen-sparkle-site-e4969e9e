@@ -229,11 +229,9 @@ const Index = () => {
   ];
 
   const academicHighlights = [
-    { title: t("home.departments"), desc: t("home.departmentsDesc"), icon: Building2 },
     { title: t("home.smartClassrooms"), desc: t("home.smartClassroomsDesc"), icon: Monitor },
     { title: t("home.scienceLabs"), desc: t("home.scienceLabsDesc"), icon: FlaskConical },
     { title: t("home.library"), desc: t("home.libraryDesc"), icon: Library },
-    { title: t("home.sportsComplex"), desc: t("home.sportsComplexDesc"), icon: Dumbbell },
   ];
 
   const galleryFilterLabels: Record<string, string> = {
