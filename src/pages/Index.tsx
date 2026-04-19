@@ -141,6 +141,30 @@ const Index = () => {
 
   useEffect(() => { const timer = setInterval(nextSlide, 5000); return () => clearInterval(timer); }, [nextSlide]);
 
+  const { data: leadership } = useQuery({
+    queryKey: ["public-leadership"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("teachers")
+        .select("id, name, designation, qualification, photo_url, subject")
+        .or("designation.ilike.%school principal%,designation.ilike.%high school principal%");
+      return data ?? [];
+    },
+  });
+
+  const highSchoolPrincipal = (leadership ?? []).find((t) =>
+    /high school principal/i.test(t.designation ?? ""),
+  );
+  const schoolPrincipal = (leadership ?? []).find(
+    (t) =>
+      /school principal/i.test(t.designation ?? "") &&
+      !/high school/i.test(t.designation ?? ""),
+  );
+  const leaders = [
+    schoolPrincipal && { ...schoolPrincipal, role: "School Principal" },
+    highSchoolPrincipal && { ...highSchoolPrincipal, role: "High School Principal" },
+  ].filter(Boolean) as Array<{ id: string; name: string; designation: string | null; qualification: string | null; photo_url: string | null; subject: string; role: string }>;
+
   const { data: notices } = useQuery({
     queryKey: ["public-notices"],
     queryFn: async () => { const { data } = await supabase.from("notices").select("*").order("date", { ascending: false }).limit(5); return data ?? []; },
