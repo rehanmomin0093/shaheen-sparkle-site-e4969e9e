@@ -8,7 +8,7 @@ import SectionHeading from "@/components/shared/SectionHeading";
 import { GraduationCap, Users, Award, BookOpen, Calendar, ArrowRight, ChevronLeft, ChevronRight, MapPin, Phone, Mail, Send, Monitor, FlaskConical, Library, Dumbbell, Building2, CheckCircle2 } from "lucide-react";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import PopupBanner from "@/components/shared/PopupBanner";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
