@@ -16,10 +16,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 const CLASSES = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
 const DESIGNATIONS = [
-  "Principal",
-  "Vice Principal",
+  "High School Principal",
   "School Principal",
-  "Head of Department",
   "Senior Teacher",
   "Teacher",
   "Assistant Teacher",
