@@ -29,6 +29,7 @@ import AdminContent from "./pages/admin/AdminContent";
 import AdminGallery from "./pages/admin/AdminGallery";
 import AdminNotices from "./pages/admin/AdminNotices";
 import AdminTeachers from "./pages/admin/AdminTeachers";
+import AdminManagement from "./pages/admin/AdminManagement";
 import AdminStudents from "./pages/admin/AdminStudents";
 import AdminBanners from "./pages/admin/AdminBanners";
 import AdminStaff from "./pages/admin/AdminStaff";
@@ -70,6 +71,7 @@ const App = () => (
               <Route path="gallery" element={<AdminGallery />} />
               <Route path="notices" element={<AdminNotices />} />
               <Route path="teachers" element={<AdminTeachers />} />
+              <Route path="management" element={<AdminManagement />} />
               <Route path="students" element={<AdminStudents />} />
               <Route path="banners" element={<AdminBanners />} />
               <Route path="staff" element={<AdminStaff />} />
