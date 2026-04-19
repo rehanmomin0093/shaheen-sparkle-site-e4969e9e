@@ -76,17 +76,12 @@ const AdminContent = () => {
   }
 
   // Sections hidden from the generic Site Content editor (managed elsewhere in admin).
-  const HIDDEN_SECTIONS = new Set(["Leadership Messages", "Hero"]);
-
-  // Keys hidden from the generic editor (managed in dedicated admin pages).
-  const HIDDEN_KEYS = new Set<string>();
-  const isHiddenKey = (key: string) => HIDDEN_KEYS.has(key) || /^hero_image_\d+$/i.test(key) || key === "hero_subtitle";
+  const HIDDEN_SECTIONS = new Set(["Leadership Messages"]);
 
   // Group by section, skipping hidden ones.
   const sections: Record<string, typeof content> = {};
   content?.forEach((item) => {
     if (HIDDEN_SECTIONS.has(item.section)) return;
-    if (isHiddenKey(item.key)) return;
     if (!sections[item.section]) sections[item.section] = [];
     sections[item.section]!.push(item);
   });
