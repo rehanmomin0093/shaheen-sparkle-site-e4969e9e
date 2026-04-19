@@ -223,7 +223,7 @@ const Navbar = () => {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="overflow-hidden border-t border-border bg-[hsl(142_40%_85%)] lg:hidden"
+              className="overflow-hidden border-t border-border bg-background lg:hidden"
             >
               <div className="flex flex-col gap-1 p-4">
                 {topBarLinks.map((l) => (
