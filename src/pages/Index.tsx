@@ -141,29 +141,40 @@ const Index = () => {
 
   useEffect(() => { const timer = setInterval(nextSlide, 5000); return () => clearInterval(timer); }, [nextSlide]);
 
+  const DESK_ROLES = [
+    "Founder",
+    "Secretary",
+    "Joint Secretary",
+    "Director",
+    "School Principal",
+    "High School Principal",
+  ] as const;
+
   const { data: leadership } = useQuery({
     queryKey: ["public-leadership"],
     queryFn: async () => {
+      const orFilter = DESK_ROLES.map((r) => `designation.ilike.%${r}%`).join(",");
       const { data } = await supabase
         .from("teachers")
         .select("id, name, designation, qualification, photo_url, subject")
-        .or("designation.ilike.%school principal%,designation.ilike.%high school principal%");
+        .or(orFilter);
       return data ?? [];
     },
   });
 
-  const highSchoolPrincipal = (leadership ?? []).find((t) =>
-    /high school principal/i.test(t.designation ?? ""),
-  );
-  const schoolPrincipal = (leadership ?? []).find(
-    (t) =>
-      /school principal/i.test(t.designation ?? "") &&
-      !/high school/i.test(t.designation ?? ""),
-  );
-  const leaders = [
-    schoolPrincipal && { ...schoolPrincipal, role: "School Principal" },
-    highSchoolPrincipal && { ...highSchoolPrincipal, role: "High School Principal" },
-  ].filter(Boolean) as Array<{ id: string; name: string; designation: string | null; qualification: string | null; photo_url: string | null; subject: string; role: string }>;
+  const matchRole = (designation: string | null, role: string) => {
+    if (!designation) return false;
+    const d = designation.toLowerCase();
+    const r = role.toLowerCase();
+    if (r === "school principal") return d.includes("school principal") && !d.includes("high school");
+    if (r === "secretary") return d.includes("secretary") && !d.includes("joint");
+    return d.includes(r);
+  };
+
+  const leaders = DESK_ROLES.flatMap((role) => {
+    const match = (leadership ?? []).find((t) => matchRole(t.designation, role));
+    return match ? [{ ...match, role }] : [];
+  }) as Array<{ id: string; name: string; designation: string | null; qualification: string | null; photo_url: string | null; subject: string; role: string }>;
 
   const { data: notices } = useQuery({
     queryKey: ["public-notices"],
