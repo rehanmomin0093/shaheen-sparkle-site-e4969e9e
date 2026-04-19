@@ -61,10 +61,60 @@ const Staff = () => {
 
   const isLoading = loadingTeachers || loadingStaff;
 
-  const teachersByClass = CLASS_LABELS.map((cls) => ({
-    ...cls,
-    teachers: (teachersData ?? []).filter((t: any) => t.assigned_classes.includes(cls.value)),
-  }));
+  const allTeachers = teachersData ?? [];
+
+  const principal = allTeachers.find(isPrincipal);
+  const schoolPrincipal = allTeachers.find(isSchoolPrincipal);
+
+  const principalIds = new Set([principal?.id, schoolPrincipal?.id].filter(Boolean));
+
+  const teachesAnyOf = (tch: any, classes: string[]) =>
+    (tch.assigned_classes ?? []).some((c: string) => classes.includes(c));
+
+  const highSchoolTeachers = allTeachers.filter(
+    (tch: any) => !principalIds.has(tch.id) && teachesAnyOf(tch, HIGH_SCHOOL_CLASSES)
+  );
+
+  const primaryTeachers = allTeachers.filter(
+    (tch: any) =>
+      !principalIds.has(tch.id) &&
+      !teachesAnyOf(tch, HIGH_SCHOOL_CLASSES) &&
+      teachesAnyOf(tch, PRIMARY_CLASSES)
+  );
+
+  const renderLeader = (person: any, label: string) => (
+    <div className="mb-12">
+      <h3 className="mb-6 flex items-center gap-2 font-serif text-2xl text-foreground">
+        <GraduationCap className="h-6 w-6 text-primary" />
+        {label}
+      </h3>
+      <div className="grid gap-6 md:grid-cols-2">
+        <motion.div custom={0} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+          <TeacherCard teacher={person} t={t} />
+        </motion.div>
+      </div>
+    </div>
+  );
+
+  const renderTeacherGroup = (list: any[], label: string, anchor: string) => (
+    <div id={anchor} className="mb-16 scroll-mt-32">
+      <h3 className="mb-6 flex items-center gap-2 font-serif text-2xl text-foreground">
+        <GraduationCap className="h-6 w-6 text-primary" />
+        {label}
+      </h3>
+      {list.length === 0 ? (
+        <p className="text-sm italic text-muted-foreground">{t("staff.noTeachers")}</p>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2">
+          {list.map((teacher: any, i: number) => (
+            <motion.div key={teacher.id} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              <TeacherCard teacher={teacher} t={t} />
+            </motion.div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <>
@@ -84,26 +134,15 @@ const Staff = () => {
         <>
           <section className="py-16">
             <div className="container">
-              <SectionHeading title={t("staff.teachingStaff")} description={t("staff.organizedByClass")} />
-              {teachersByClass.map((cls) => (
-                <div key={cls.value} id={cls.id} className="mb-16 scroll-mt-32">
-                  <h3 className="mb-6 flex items-center gap-2 font-serif text-2xl text-foreground">
-                    <GraduationCap className="h-6 w-6 text-primary" />
-                    {cls.label}
-                  </h3>
-                  {cls.teachers.length === 0 ? (
-                    <p className="text-sm text-muted-foreground italic">{t("staff.noTeachers")}</p>
-                  ) : (
-                    <div className="grid gap-6 md:grid-cols-2">
-                      {cls.teachers.map((teacher: any, i: number) => (
-                        <motion.div key={teacher.id} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                          <TeacherCard teacher={teacher} t={t} />
-                        </motion.div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
+              <SectionHeading title={t("staff.teachingStaff")} description={t("staff.subtitle")} />
+
+              {principal && renderLeader(principal, principal.designation || "Principal")}
+
+              {renderTeacherGroup(highSchoolTeachers, "High School Faculty (Classes 6–10)", "high-school")}
+
+              {schoolPrincipal && renderLeader(schoolPrincipal, schoolPrincipal.designation || "School Principal")}
+
+              {renderTeacherGroup(primaryTeachers, "Primary School Faculty (Classes 1–5)", "primary-school")}
             </div>
           </section>
 
