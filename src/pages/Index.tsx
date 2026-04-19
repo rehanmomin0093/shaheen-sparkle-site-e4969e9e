@@ -229,7 +229,8 @@ const Index = () => {
     <>
       <PopupBanner />
 
-      {/* Hero */}
+      {/* Hero — only renders when admin has uploaded slides */}
+      {heroImages.length > 0 && (
       <section className="relative flex aspect-[16/9] max-h-[85vh] w-full items-center overflow-hidden bg-foreground/5">
         <AnimatePresence initial={false} mode="popLayout" custom={direction}>
           <motion.div
@@ -266,6 +267,7 @@ const Index = () => {
           ))}
         </div>
       </section>
+      )}
 
       {/* Stats */}
       <section className="relative z-10 -mt-12">
