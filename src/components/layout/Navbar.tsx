@@ -152,7 +152,7 @@ const Navbar = () => {
             : "bg-[hsl(142_40%_85%/0.92)] backdrop-blur-md border-border/40"
         )}
       >
-        <div className="container flex h-16 items-center justify-between">
+        <div className="container flex h-10 items-center justify-between">
           {/* Desktop nav */}
           <nav className="hidden items-center gap-0.5 lg:flex">
             {navLinks.map((l) => (
