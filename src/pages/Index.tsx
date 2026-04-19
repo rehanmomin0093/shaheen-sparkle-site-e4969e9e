@@ -232,20 +232,30 @@ const Index = () => {
       <PopupBanner />
 
       {/* Hero */}
-      <section className="relative flex min-h-[85vh] items-center overflow-hidden">
+      <section className="relative flex min-h-[85vh] items-center overflow-hidden bg-foreground/5">
         <AnimatePresence initial={false} mode="popLayout" custom={direction}>
           <motion.div
             key={currentSlide}
             custom={direction}
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url('${heroImages[currentSlide]}')` }}
+            className="absolute inset-0"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6, ease: "easeInOut" }}
-          />
+          >
+            {/* Blurred backdrop fills the empty space */}
+            <div
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-110 blur-2xl opacity-60"
+              style={{ backgroundImage: `url('${heroImages[currentSlide]}')` }}
+            />
+            {/* Full poster — no cropping */}
+            <div
+              className="absolute inset-0 bg-contain bg-center bg-no-repeat"
+              style={{ backgroundImage: `url('${heroImages[currentSlide]}')` }}
+            />
+          </motion.div>
         </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/30 via-transparent to-transparent z-[1] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/20 via-transparent to-transparent z-[1] pointer-events-none" />
         <button onClick={prevSlide} className="absolute start-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-background/30 p-2 text-primary-foreground backdrop-blur-sm transition-all duration-300 hover:bg-background/60 hover:scale-110">
           <ChevronLeft className="h-6 w-6" />
         </button>
