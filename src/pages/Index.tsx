@@ -224,11 +224,11 @@ const Index = () => {
           <motion.div
             key={currentSlide}
             custom={direction}
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat parallax-bg"
+            className="absolute inset-0 bg-contain bg-center bg-no-repeat bg-background"
             style={{ backgroundImage: `url('${heroImages[currentSlide]}')` }}
-            initial={{ x: direction > 0 ? "100%" : "-100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: direction > 0 ? "-100%" : "100%" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.6, ease: "easeInOut" }}
           />
         </AnimatePresence>
