@@ -7,6 +7,7 @@ import NewsTicker from "./NewsTicker";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import schoolLogo from "@/assets/school-logo-only.png";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
