@@ -132,6 +132,7 @@ const Index = () => {
     setIndexAdmissionSubmitted(true);
   };
 
+  const queryClient = useQueryClient();
   const { data: heroImageRows } = useQuery({
     queryKey: ["public-hero-images"],
     queryFn: async () => {
@@ -142,7 +143,25 @@ const Index = () => {
         .order("sort_order", { ascending: true });
       return data ?? [];
     },
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
+
+  // Live updates: refetch whenever hero_images changes in the database
+  useEffect(() => {
+    const channel = supabase
+      .channel("hero-images-public")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "hero_images" },
+        () => queryClient.invalidateQueries({ queryKey: ["public-hero-images"] })
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const heroImages = (heroImageRows ?? []).map((r) => r.image_url);
 
