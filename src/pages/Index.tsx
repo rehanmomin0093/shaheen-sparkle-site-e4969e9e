@@ -148,9 +148,10 @@ const Index = () => {
     ? heroImageRows.map((r) => r.image_url)
     : defaultHeroImages;
 
-  const nextSlide = useCallback(() => { setDirection(1); setCurrentSlide((prev) => (prev + 1) % heroImages.length); }, []);
-  const prevSlide = useCallback(() => { setDirection(-1); setCurrentSlide((prev) => (prev - 1 + heroImages.length) % heroImages.length); }, []);
+  const nextSlide = useCallback(() => { setDirection(1); setCurrentSlide((prev) => (prev + 1) % heroImages.length); }, [heroImages.length]);
+  const prevSlide = useCallback(() => { setDirection(-1); setCurrentSlide((prev) => (prev - 1 + heroImages.length) % heroImages.length); }, [heroImages.length]);
 
+  useEffect(() => { if (currentSlide >= heroImages.length) setCurrentSlide(0); }, [heroImages.length, currentSlide]);
   useEffect(() => { const timer = setInterval(nextSlide, 5000); return () => clearInterval(timer); }, [nextSlide]);
 
   const DESK_ROLES = [
