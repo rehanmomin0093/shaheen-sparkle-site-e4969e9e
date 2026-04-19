@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { X } from "lucide-react";
 
 const PopupBanner = () => {
@@ -23,7 +21,7 @@ const PopupBanner = () => {
     },
   });
 
-  if (!banner) return null;
+  if (!open || !banner) return null;
 
   const sizeClass: Record<string, string> = {
     small: "max-w-[90vw] sm:max-w-md",
@@ -34,40 +32,40 @@ const PopupBanner = () => {
   };
   const widthClass = sizeClass[(banner as any).size || "large"] || sizeClass.large;
 
+  const image = (
+    <img
+      src={banner.image_url}
+      alt={banner.title || "Announcement"}
+      className="max-h-[70vh] w-full rounded-lg object-contain"
+    />
+  );
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className={`${widthClass} border-none bg-transparent p-0 shadow-none [&>button]:hidden`} aria-describedby={undefined}>
-        <VisuallyHidden><DialogTitle>Announcement Banner</DialogTitle></VisuallyHidden>
-        <div className="relative overflow-hidden rounded-lg">
-          <button
-            onClick={() => setOpen(false)}
-            className="absolute right-2 top-2 z-10 rounded-full bg-background/80 p-1.5 text-foreground backdrop-blur-sm transition-colors hover:bg-background"
-          >
-            <X className="h-4 w-4" />
-          </button>
-          {banner.link_url ? (
-            <a href={banner.link_url} target="_blank" rel="noopener noreferrer">
-              <img
-                src={banner.image_url}
-                alt={banner.title || "Announcement"}
-                className="w-full rounded-lg object-contain"
-              />
-            </a>
-          ) : (
-            <img
-              src={banner.image_url}
-              alt={banner.title || "Announcement"}
-              className="w-full rounded-lg object-contain"
-            />
-          )}
-          {banner.title && (
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-8">
-              <p className="text-center font-serif text-lg font-semibold text-white">{banner.title}</p>
-            </div>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
+    <div className="pointer-events-none fixed inset-x-0 top-[10.5rem] z-30 flex justify-center px-3 sm:top-[11.5rem] sm:px-4 lg:top-[12.5rem]">
+      <div className={`pointer-events-auto relative ${widthClass} overflow-hidden rounded-lg bg-transparent shadow-none`}>
+        <button
+          onClick={() => setOpen(false)}
+          className="absolute right-2 top-2 z-10 rounded-full bg-background/80 p-1.5 text-foreground backdrop-blur-sm transition-colors hover:bg-background"
+          aria-label="Close announcement banner"
+        >
+          <X className="h-4 w-4" />
+        </button>
+
+        {banner.link_url ? (
+          <a href={banner.link_url} target="_blank" rel="noopener noreferrer" className="block">
+            {image}
+          </a>
+        ) : (
+          image
+        )}
+
+        {banner.title && (
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-8">
+            <p className="text-center font-serif text-lg font-semibold text-white">{banner.title}</p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
