@@ -1,12 +1,13 @@
 import { Navigate, Outlet, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, LayoutDashboard, FileText, Image, Settings, LogOut, Loader2, Users, UserPlus, Megaphone, Briefcase, ClipboardList, Crown } from "lucide-react";
+import { GraduationCap, LayoutDashboard, FileText, Image, Settings, LogOut, Loader2, Users, UserPlus, Megaphone, Briefcase, ClipboardList, Crown, Images } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const sidebarLinks = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { to: "/admin/content", label: "Site Content", icon: Settings },
+  { to: "/admin/hero-images", label: "Hero Images", icon: Images },
   { to: "/admin/gallery", label: "Gallery", icon: Image },
   { to: "/admin/notices", label: "Notices", icon: FileText },
   { to: "/admin/management", label: "Management", icon: Crown },
