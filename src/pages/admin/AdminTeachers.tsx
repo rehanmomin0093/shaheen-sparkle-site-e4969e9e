@@ -12,8 +12,24 @@ import { Label } from "@/components/ui/label";
 import ImageCropDialog from "@/components/shared/ImageCropDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const CLASSES = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+const DESIGNATIONS = [
+  "Principal",
+  "Vice Principal",
+  "School Principal",
+  "Head of Department",
+  "Senior Teacher",
+  "Teacher",
+  "Assistant Teacher",
+  "Trainee Teacher",
+  "Peon",
+  "Clerk",
+  "Librarian",
+  "Lab Assistant",
+  "Custom",
+];
 const SUBJECTS = [
   "All Subjects", "English", "Hindi", "Urdu", "Marathi",
   "Math", "Science", "Social Studies", "Computer Science",
@@ -258,7 +274,22 @@ const AdminTeachers = () => {
                 </div>
                 <div className="space-y-2">
                   <Label>Designation</Label>
-                  <Input value={form.designation} onChange={(e) => setForm({ ...form, designation: e.target.value })} placeholder="e.g. Senior Teacher" />
+                  <Select
+                    value={DESIGNATIONS.includes(form.designation) ? form.designation : (form.designation ? "Custom" : "")}
+                    onValueChange={(val) => setForm({ ...form, designation: val === "Custom" ? "" : val })}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Select designation" /></SelectTrigger>
+                    <SelectContent>
+                      {DESIGNATIONS.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  {(!DESIGNATIONS.includes(form.designation) || form.designation === "") && (
+                    <Input
+                      value={form.designation}
+                      onChange={(e) => setForm({ ...form, designation: e.target.value })}
+                      placeholder="e.g. Senior Teacher"
+                    />
+                  )}
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label>Subjects (select multiple)</Label>
