@@ -153,9 +153,6 @@ const Navbar = () => {
         )}
       >
         <div className="container flex h-16 items-center justify-between">
-          <div />
-
-
           {/* Desktop nav */}
           <nav className="hidden items-center gap-0.5 lg:flex">
             {navLinks.map((l) => (
