@@ -232,7 +232,7 @@ const Index = () => {
       <PopupBanner />
 
       {/* Hero */}
-      <section className="relative flex min-h-[85vh] items-center overflow-hidden bg-foreground/5">
+      <section className="relative flex aspect-[16/9] max-h-[85vh] w-full items-center overflow-hidden bg-foreground/5">
         <AnimatePresence initial={false} mode="popLayout" custom={direction}>
           <motion.div
             key={currentSlide}
