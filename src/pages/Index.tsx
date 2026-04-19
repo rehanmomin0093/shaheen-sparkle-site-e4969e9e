@@ -224,7 +224,7 @@ const Index = () => {
           <motion.div
             key={currentSlide}
             custom={direction}
-            className="absolute inset-0 bg-contain bg-center bg-no-repeat bg-background"
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{ backgroundImage: `url('${heroImages[currentSlide]}')` }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
