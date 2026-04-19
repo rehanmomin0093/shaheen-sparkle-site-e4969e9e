@@ -27,7 +27,7 @@ const PopupBanner = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-lg border-none bg-transparent p-0 shadow-none [&>button]:hidden" aria-describedby={undefined}>
+      <DialogContent className="max-w-[95vw] sm:max-w-3xl lg:max-w-4xl xl:max-w-5xl border-none bg-transparent p-0 shadow-none [&>button]:hidden" aria-describedby={undefined}>
         <VisuallyHidden><DialogTitle>Announcement Banner</DialogTitle></VisuallyHidden>
         <div className="relative overflow-hidden rounded-lg">
           <button
