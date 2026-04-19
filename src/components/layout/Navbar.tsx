@@ -149,7 +149,7 @@ const Navbar = () => {
           "relative z-40 border-b transition-all duration-300",
           isScrolled
             ? "bg-background/80 backdrop-blur-xl border-border/60 shadow-soft"
-            : "bg-background border-border/40"
+            : "bg-[hsl(142_40%_85%/0.92)] backdrop-blur-md border-border/40"
         )}
       >
         <div className="container flex h-16 items-center justify-between">
@@ -223,7 +223,7 @@ const Navbar = () => {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="overflow-hidden border-t border-border bg-background lg:hidden"
+              className="overflow-hidden border-t border-border bg-[hsl(142_40%_85%)] lg:hidden"
             >
               <div className="flex flex-col gap-1 p-4">
                 {topBarLinks.map((l) => (
