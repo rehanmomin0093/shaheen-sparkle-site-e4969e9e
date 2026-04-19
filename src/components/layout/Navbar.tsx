@@ -124,7 +124,7 @@ const Navbar = () => {
             <p className="font-serif text-[11px] font-semibold text-primary sm:text-sm md:text-base">
               Shaheen Education Society's
             </p>
-            <h1 className="font-serif text-[13px] font-bold text-accent sm:text-lg md:text-2xl lg:text-3xl leading-snug">
+            <h1 className="font-serif text-[13px] font-bold text-primary sm:text-lg md:text-2xl lg:text-3xl leading-snug">
               Shaheen Montessori, Shaheen School &amp; Shaheen High School Karad.
             </h1>
             <p className="font-sans text-[10px] font-semibold text-foreground sm:text-xs md:text-sm">
