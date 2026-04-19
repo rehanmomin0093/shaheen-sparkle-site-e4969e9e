@@ -114,30 +114,30 @@ const Navbar = () => {
 
       {/* School identity bar */}
       <div className="relative z-40 border-b border-border/40 bg-background">
-        <div className="container flex items-center gap-3 py-3 sm:gap-6 sm:py-4">
+        <div className="container flex items-center gap-2 py-2 sm:gap-4 sm:py-3">
           <img
             src={schoolLogo}
             alt="Shaheen Education Society Logo"
-            className="h-14 w-14 shrink-0 object-contain sm:h-20 sm:w-20"
+            className="h-12 w-12 shrink-0 rounded-full object-cover sm:h-16 sm:w-16 md:h-20 md:w-20"
           />
-          <div className="flex-1 leading-tight text-center">
-            <p className="font-serif text-xs font-semibold text-primary sm:text-sm md:text-base">
+          <div className="flex-1 leading-tight text-center px-1">
+            <p className="font-serif text-[11px] font-semibold text-primary sm:text-sm md:text-base">
               Shaheen Education Society's
             </p>
-            <h1 className="font-serif text-sm font-bold text-accent sm:text-xl md:text-2xl lg:text-3xl">
+            <h1 className="font-serif text-[13px] font-bold text-accent sm:text-lg md:text-2xl lg:text-3xl leading-snug">
               Shaheen Montessori, Shaheen School &amp; Shaheen High School Karad.
             </h1>
-            <p className="font-sans text-[11px] font-semibold text-foreground/80 sm:text-xs md:text-sm">
+            <p className="font-sans text-[10px] font-semibold text-foreground/80 sm:text-xs md:text-sm">
               Affiliated to Maharashtra State Board · Recognized &amp; 100% Aided by Govt. of Maharashtra
             </p>
-            <p className="font-sans text-[11px] text-foreground/70 sm:text-xs md:text-sm">
+            <p className="font-sans text-[10px] text-foreground/70 sm:text-xs md:text-sm">
               Shaheen High School, Karad — Nurturing Excellence Since Inception
             </p>
           </div>
           <img
             src={schoolLogo}
             alt="Shaheen Education Society Logo"
-            className="h-14 w-14 shrink-0 object-contain sm:h-20 sm:w-20"
+            className="h-12 w-12 shrink-0 rounded-full object-cover sm:h-16 sm:w-16 md:h-20 md:w-20"
           />
         </div>
       </div>
