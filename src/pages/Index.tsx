@@ -141,6 +141,30 @@ const Index = () => {
 
   useEffect(() => { const timer = setInterval(nextSlide, 5000); return () => clearInterval(timer); }, [nextSlide]);
 
+  const { data: leadership } = useQuery({
+    queryKey: ["public-leadership"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("teachers")
+        .select("id, name, designation, qualification, photo_url, subject")
+        .or("designation.ilike.%school principal%,designation.ilike.%high school principal%");
+      return data ?? [];
+    },
+  });
+
+  const highSchoolPrincipal = (leadership ?? []).find((t) =>
+    /high school principal/i.test(t.designation ?? ""),
+  );
+  const schoolPrincipal = (leadership ?? []).find(
+    (t) =>
+      /school principal/i.test(t.designation ?? "") &&
+      !/high school/i.test(t.designation ?? ""),
+  );
+  const leaders = [
+    schoolPrincipal && { ...schoolPrincipal, role: "School Principal" },
+    highSchoolPrincipal && { ...highSchoolPrincipal, role: "High School Principal" },
+  ].filter(Boolean) as Array<{ id: string; name: string; designation: string | null; qualification: string | null; photo_url: string | null; subject: string; role: string }>;
+
   const { data: notices } = useQuery({
     queryKey: ["public-notices"],
     queryFn: async () => { const { data } = await supabase.from("notices").select("*").order("date", { ascending: false }).limit(5); return data ?? []; },
@@ -251,6 +275,57 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* From the Desk of Leadership */}
+      {leaders.length > 0 && (
+        <section id="leadership" className="py-24">
+          <div className="container">
+            <SectionHeading
+              label="Leadership"
+              title="From the Desk of"
+              description="A message from our school leadership."
+            />
+            <div className={cn("grid gap-8", leaders.length > 1 ? "md:grid-cols-2" : "max-w-xl mx-auto")}>
+              {leaders.map((leader, i) => (
+                <motion.div
+                  key={leader.id}
+                  custom={i}
+                  variants={fadeUp}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                >
+                  <Card className="group h-full border-none shadow-lg hover-lift">
+                    <CardContent className="flex flex-col items-center p-8 text-center">
+                      <div className="relative mb-4 h-32 w-32 overflow-hidden rounded-full border-4 border-secondary/30">
+                        {leader.photo_url ? (
+                          <img
+                            src={leader.photo_url}
+                            alt={leader.name}
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-muted">
+                            <Users className="h-12 w-12 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-secondary">
+                        {leader.role}
+                      </p>
+                      <h3 className="mt-2 font-serif text-xl">{leader.name}</h3>
+                      {leader.qualification && (
+                        <p className="mt-1 text-xs text-muted-foreground">{leader.qualification}</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Academic Highlights */}
       <section id="academics" className="bg-muted py-24">
