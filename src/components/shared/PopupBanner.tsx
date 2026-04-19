@@ -25,9 +25,18 @@ const PopupBanner = () => {
 
   if (!banner) return null;
 
+  const sizeClass: Record<string, string> = {
+    small: "max-w-[90vw] sm:max-w-md",
+    medium: "max-w-[92vw] sm:max-w-xl",
+    large: "max-w-[95vw] sm:max-w-3xl lg:max-w-4xl",
+    xlarge: "max-w-[95vw] sm:max-w-4xl lg:max-w-5xl xl:max-w-6xl",
+    full: "max-w-[98vw] sm:max-w-[95vw] lg:max-w-[90vw]",
+  };
+  const widthClass = sizeClass[(banner as any).size || "large"] || sizeClass.large;
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-[95vw] sm:max-w-3xl lg:max-w-4xl xl:max-w-5xl border-none bg-transparent p-0 shadow-none [&>button]:hidden" aria-describedby={undefined}>
+      <DialogContent className={`${widthClass} border-none bg-transparent p-0 shadow-none [&>button]:hidden`} aria-describedby={undefined}>
         <VisuallyHidden><DialogTitle>Announcement Banner</DialogTitle></VisuallyHidden>
         <div className="relative overflow-hidden rounded-lg">
           <button
