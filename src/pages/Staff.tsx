@@ -9,18 +9,14 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, User, GraduationCap, Phone, Mail, FileText, Briefcase } from "lucide-react";
 import SectionHeading from "@/components/shared/SectionHeading";
 
-const CLASS_LABELS = [
-  { value: "1", label: "1st Standard", id: "1st-standard" },
-  { value: "2", label: "2nd Standard", id: "2nd-standard" },
-  { value: "3", label: "3rd Standard", id: "3rd-standard" },
-  { value: "4", label: "4th Standard", id: "4th-standard" },
-  { value: "5", label: "5th Standard", id: "5th-standard" },
-  { value: "6", label: "6th Standard", id: "6th-standard" },
-  { value: "7", label: "7th Standard", id: "7th-standard" },
-  { value: "8", label: "8th Standard", id: "8th-standard" },
-  { value: "9", label: "9th Standard", id: "9th-standard" },
-  { value: "10", label: "10th Standard", id: "10th-standard" },
-];
+const HIGH_SCHOOL_CLASSES = ["6", "7", "8", "9", "10"];
+const PRIMARY_CLASSES = ["1", "2", "3", "4", "5"];
+
+const isPrincipal = (t: any) =>
+  /principal/i.test(t?.designation ?? "") && !/vice|school/i.test(t?.designation ?? "");
+
+const isSchoolPrincipal = (t: any) =>
+  /school principal|vice principal/i.test(t?.designation ?? "");
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -65,10 +61,60 @@ const Staff = () => {
 
   const isLoading = loadingTeachers || loadingStaff;
 
-  const teachersByClass = CLASS_LABELS.map((cls) => ({
-    ...cls,
-    teachers: (teachersData ?? []).filter((t: any) => t.assigned_classes.includes(cls.value)),
-  }));
+  const allTeachers = teachersData ?? [];
+
+  const principal = allTeachers.find(isPrincipal);
+  const schoolPrincipal = allTeachers.find(isSchoolPrincipal);
+
+  const principalIds = new Set([principal?.id, schoolPrincipal?.id].filter(Boolean));
+
+  const teachesAnyOf = (tch: any, classes: string[]) =>
+    (tch.assigned_classes ?? []).some((c: string) => classes.includes(c));
+
+  const highSchoolTeachers = allTeachers.filter(
+    (tch: any) => !principalIds.has(tch.id) && teachesAnyOf(tch, HIGH_SCHOOL_CLASSES)
+  );
+
+  const primaryTeachers = allTeachers.filter(
+    (tch: any) =>
+      !principalIds.has(tch.id) &&
+      !teachesAnyOf(tch, HIGH_SCHOOL_CLASSES) &&
+      teachesAnyOf(tch, PRIMARY_CLASSES)
+  );
+
+  const renderLeader = (person: any, label: string) => (
+    <div className="mb-12">
+      <h3 className="mb-6 flex items-center gap-2 font-serif text-2xl text-foreground">
+        <GraduationCap className="h-6 w-6 text-primary" />
+        {label}
+      </h3>
+      <div className="grid gap-6 md:grid-cols-2">
+        <motion.div custom={0} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+          <TeacherCard teacher={person} t={t} />
+        </motion.div>
+      </div>
+    </div>
+  );
+
+  const renderTeacherGroup = (list: any[], label: string, anchor: string) => (
+    <div id={anchor} className="mb-16 scroll-mt-32">
+      <h3 className="mb-6 flex items-center gap-2 font-serif text-2xl text-foreground">
+        <GraduationCap className="h-6 w-6 text-primary" />
+        {label}
+      </h3>
+      {list.length === 0 ? (
+        <p className="text-sm italic text-muted-foreground">{t("staff.noTeachers")}</p>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2">
+          {list.map((teacher: any, i: number) => (
+            <motion.div key={teacher.id} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              <TeacherCard teacher={teacher} t={t} />
+            </motion.div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <>
@@ -88,26 +134,15 @@ const Staff = () => {
         <>
           <section className="py-16">
             <div className="container">
-              <SectionHeading title={t("staff.teachingStaff")} description={t("staff.organizedByClass")} />
-              {teachersByClass.map((cls) => (
-                <div key={cls.value} id={cls.id} className="mb-16 scroll-mt-32">
-                  <h3 className="mb-6 flex items-center gap-2 font-serif text-2xl text-foreground">
-                    <GraduationCap className="h-6 w-6 text-primary" />
-                    {cls.label}
-                  </h3>
-                  {cls.teachers.length === 0 ? (
-                    <p className="text-sm text-muted-foreground italic">{t("staff.noTeachers")}</p>
-                  ) : (
-                    <div className="grid gap-6 md:grid-cols-2">
-                      {cls.teachers.map((teacher: any, i: number) => (
-                        <motion.div key={teacher.id} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                          <TeacherCard teacher={teacher} t={t} />
-                        </motion.div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
+              <SectionHeading title={t("staff.teachingStaff")} description={t("staff.subtitle")} />
+
+              {principal && renderLeader(principal, principal.designation || "Principal")}
+
+              {renderTeacherGroup(highSchoolTeachers, "High School Faculty (Classes 6–10)", "high-school")}
+
+              {schoolPrincipal && renderLeader(schoolPrincipal, schoolPrincipal.designation || "School Principal")}
+
+              {renderTeacherGroup(primaryTeachers, "Primary School Faculty (Classes 1–5)", "primary-school")}
             </div>
           </section>
 
