@@ -7,6 +7,7 @@ import NewsTicker from "./NewsTicker";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import schoolLogo from "@/assets/school-logo-only.png";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -110,6 +111,29 @@ const Navbar = () => {
           </div>
         </div>
       </div>
+
+      {/* School identity bar */}
+      <div className="relative z-40 border-b border-border/40 bg-gradient-to-r from-background via-secondary/20 to-background">
+        <div className="container flex items-center justify-center gap-4 py-3 sm:gap-6 sm:py-4">
+          <img
+            src={schoolLogo}
+            alt="Shaheen Education Society Logo"
+            className="h-16 w-16 shrink-0 rounded-full object-contain shadow-soft sm:h-20 sm:w-20"
+          />
+          <div className="text-center leading-tight">
+            <p className="font-serif text-xs font-medium tracking-wide text-muted-foreground sm:text-sm">
+              Shaheen Education Society's
+            </p>
+            <h1 className="font-serif text-lg font-bold text-primary sm:text-2xl md:text-3xl">
+              Shaheen Montessori · Shaheen School
+            </h1>
+            <p className="font-serif text-base font-semibold text-primary/90 sm:text-xl md:text-2xl">
+              Shaheen High School, Karad
+            </p>
+          </div>
+        </div>
+      </div>
+
 
       {/* Main navbar */}
       <header
