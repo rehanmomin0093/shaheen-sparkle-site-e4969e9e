@@ -229,11 +229,9 @@ const Index = () => {
   ];
 
   const academicHighlights = [
-    { title: t("home.departments"), desc: t("home.departmentsDesc"), icon: Building2 },
     { title: t("home.smartClassrooms"), desc: t("home.smartClassroomsDesc"), icon: Monitor },
     { title: t("home.scienceLabs"), desc: t("home.scienceLabsDesc"), icon: FlaskConical },
     { title: t("home.library"), desc: t("home.libraryDesc"), icon: Library },
-    { title: t("home.sportsComplex"), desc: t("home.sportsComplexDesc"), icon: Dumbbell },
   ];
 
   const galleryFilterLabels: Record<string, string> = {
@@ -393,7 +391,7 @@ const Index = () => {
       <section id="academics" className="bg-muted py-24">
         <div className="container">
           <SectionHeading label={t("home.academics")} title={t("home.academicHighlights")} description={t("home.academicHighlightsDesc")} />
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {academicHighlights.map((h, i) => (
               <motion.div key={h.title} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                 <Card className="group h-full border-none shadow-md hover-lift">
