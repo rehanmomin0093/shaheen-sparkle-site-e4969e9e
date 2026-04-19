@@ -168,6 +168,19 @@ const AdminBanners = () => {
                 <p className="text-xs text-muted-foreground">{new Date(banner.created_at).toLocaleDateString()}</p>
               </div>
               <div className="flex items-center gap-3">
+                <Select
+                  value={banner.size || "large"}
+                  onValueChange={(v) => sizeMutation.mutate({ id: banner.id, size: v })}
+                >
+                  <SelectTrigger className="w-36">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SIZE_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground">{banner.is_active ? "Active" : "Inactive"}</span>
                   <Switch
