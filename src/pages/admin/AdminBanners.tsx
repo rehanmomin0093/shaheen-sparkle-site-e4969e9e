@@ -124,6 +124,19 @@ const AdminBanners = () => {
         <CardContent className="space-y-4">
           <Input placeholder="Title (optional)" value={title} onChange={(e) => setTitle(e.target.value)} />
           <Input placeholder="Link URL (optional)" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} />
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Popup Size</label>
+            <Select value={size} onValueChange={setSize}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SIZE_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <label className="cursor-pointer">
             <input
               type="file"
