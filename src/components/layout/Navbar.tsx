@@ -112,24 +112,36 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* School identity bar */}
-      <div className="relative z-40 border-b border-border/40 bg-gradient-to-r from-background via-secondary/20 to-background">
-        <div className="container flex items-center justify-center gap-4 py-3 sm:gap-6 sm:py-4">
+      {/* School identity bar - ADCET style */}
+      <div className="relative z-40 border-b border-border/40 bg-background">
+        <div className="container flex items-center gap-4 py-3 sm:gap-6 sm:py-4">
           <img
             src={schoolLogo}
             alt="Shaheen Education Society Logo"
-            className="h-16 w-16 shrink-0 rounded-full object-contain shadow-soft sm:h-20 sm:w-20"
+            className="h-14 w-14 shrink-0 object-contain sm:h-20 sm:w-20"
           />
-          <div className="text-center leading-tight">
-            <p className="font-serif text-xs font-medium tracking-wide text-muted-foreground sm:text-sm">
+          <div className="flex-1 leading-tight text-start">
+            <p className="font-sans text-xs font-medium text-foreground/70 sm:text-sm">
               Shaheen Education Society's
             </p>
-            <h1 className="font-serif text-lg font-bold text-primary sm:text-2xl md:text-3xl">
+            <h1 className="font-serif text-base font-bold text-accent sm:text-2xl md:text-3xl">
               Shaheen Montessori · Shaheen School
             </h1>
-            <p className="font-serif text-base font-semibold text-primary/90 sm:text-xl md:text-2xl">
-              Shaheen High School, Karad
+            <p className="font-sans text-[11px] text-foreground/70 sm:text-xs md:text-sm">
+              Affiliated to Maharashtra State Board · Recognized by Govt. of Maharashtra
             </p>
+            <p className="font-sans text-[11px] italic text-foreground/60 sm:text-xs md:text-sm">
+              Shaheen High School, Karad — Nurturing Excellence Since Inception
+            </p>
+          </div>
+          <div className="hidden h-16 w-px bg-border sm:block" />
+          <div className="hidden shrink-0 sm:block">
+            <div className="font-serif text-2xl font-bold tracking-tight text-primary md:text-3xl">
+              SHAHEEN
+            </div>
+            <div className="text-center text-[10px] font-semibold uppercase tracking-widest text-accent">
+              School
+            </div>
           </div>
         </div>
       </div>
