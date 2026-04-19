@@ -4,7 +4,7 @@ import { Menu, X, GraduationCap, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import NewsTicker from "./NewsTicker";
-import LanguageToggle from "./LanguageToggle";
+
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -95,8 +95,7 @@ const Navbar = () => {
     <div className="sticky top-0 z-50">
       {/* Top utility bar */}
       <div className="relative z-40 bg-primary text-primary-foreground">
-        <div className="container flex h-9 items-center justify-between gap-0">
-          <LanguageToggle />
+        <div className="container flex h-9 items-center justify-end gap-0">
           <div className="flex items-center">
             {topBarLinks.map((l, i) => (
               <Link
