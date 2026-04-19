@@ -9,8 +9,22 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Trash2, Edit2, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import ImageCropDialog from "@/components/shared/ImageCropDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+// Maps a designation to the site_content key used by the public LeaderMessage page.
+const designationToContentKey = (designation: string): string | null => {
+  const d = designation.trim().toLowerCase();
+  if (!d) return null;
+  if (d.includes("high school principal")) return "leader_message_high_school_principal";
+  if (d.includes("school principal")) return "leader_message_school_principal";
+  if (d.includes("joint secretary")) return "leader_message_joint_secretary";
+  if (d.includes("secretary")) return "leader_message_secretary";
+  if (d.includes("founder")) return "leader_message_founder";
+  if (d.includes("director")) return "leader_message_director";
+  return null;
+};
 
 export const MANAGEMENT_DESIGNATIONS = [
   "Founder",
@@ -37,6 +51,7 @@ interface ManagementForm {
   email: string;
   photo_url: string;
   joining_date: string;
+  message: string;
 }
 
 const emptyForm: ManagementForm = {
@@ -49,6 +64,7 @@ const emptyForm: ManagementForm = {
   email: "",
   photo_url: "",
   joining_date: new Date().toISOString().split("T")[0],
+  message: "",
 };
 
 const AdminManagement = () => {
@@ -71,7 +87,8 @@ const AdminManagement = () => {
 
   const saveMutation = useMutation({
     mutationFn: async (values: ManagementForm) => {
-      const payload = { ...values, subject: "" };
+      const { message, ...teacherFields } = values;
+      const payload = { ...teacherFields, subject: "" };
       if (editId) {
         const { error } = await supabase.from("teachers").update(payload).eq("id", editId);
         if (error) throw error;
@@ -79,12 +96,35 @@ const AdminManagement = () => {
         const { error } = await supabase.from("teachers").insert(payload);
         if (error) throw error;
       }
+      // Persist the leader's long message into site_content (same source LeaderMessage page reads).
+      const contentKey = designationToContentKey(values.designation);
+      if (contentKey) {
+        const { data: existing } = await supabase
+          .from("site_content")
+          .select("id")
+          .eq("key", contentKey)
+          .maybeSingle();
+        if (existing?.id) {
+          await supabase
+            .from("site_content")
+            .update({ value: message ?? "", content_type: "longtext", section: "Leadership Messages" })
+            .eq("id", existing.id);
+        } else {
+          await supabase.from("site_content").insert({
+            key: contentKey,
+            value: message ?? "",
+            content_type: "longtext",
+            section: "Leadership Messages",
+          });
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-management"] });
       queryClient.invalidateQueries({ queryKey: ["admin-teachers"] });
       queryClient.invalidateQueries({ queryKey: ["public-leadership"] });
       queryClient.invalidateQueries({ queryKey: ["public-teachers-with-classes"] });
+      queryClient.invalidateQueries({ queryKey: ["site-content"] });
       toast({ title: editId ? "Member updated!" : "Member added!" });
       closeDialog();
     },
@@ -110,8 +150,19 @@ const AdminManagement = () => {
     setForm(emptyForm);
   };
 
-  const openEdit = (m: any) => {
+  const openEdit = async (m: any) => {
     setEditId(m.id);
+    // Load existing message from site_content (if any).
+    let existingMessage = "";
+    const contentKey = designationToContentKey(m.designation || "");
+    if (contentKey) {
+      const { data } = await supabase
+        .from("site_content")
+        .select("value")
+        .eq("key", contentKey)
+        .maybeSingle();
+      existingMessage = data?.value ?? "";
+    }
     setForm({
       name: m.name,
       designation: m.designation || "",
@@ -122,6 +173,7 @@ const AdminManagement = () => {
       email: m.email || "",
       photo_url: m.photo_url || "",
       joining_date: m.joining_date || "",
+      message: existingMessage,
     });
     setDialogOpen(true);
   };
@@ -238,9 +290,19 @@ const AdminManagement = () => {
                   </label>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Tip: Edit each member's long message under <strong>Site Content</strong> (Leadership Messages section).
-              </p>
+              <div className="space-y-2">
+                <Label>Message from {form.designation || "Leader"}</Label>
+                <Textarea
+                  value={form.message}
+                  onChange={(e) => setForm({ ...form, message: e.target.value })}
+                  placeholder={`Write the ${form.designation || "leader"}'s message here. This appears on the public "Message by ${form.designation || "Leader"}" page when visitors click Read More on the homepage.`}
+                  rows={8}
+                  className="resize-y"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Separate paragraphs with a blank line. Visible to the public on the leader's message page.
+                </p>
+              </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={closeDialog}>Cancel</Button>
                 <Button type="submit" disabled={saveMutation.isPending}>
