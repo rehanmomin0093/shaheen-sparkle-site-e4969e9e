@@ -351,8 +351,8 @@ const Index = () => {
                   whileInView="visible"
                   viewport={{ once: true }}
                 >
-                  <Card className="group h-full overflow-hidden border-none bg-card shadow-md hover-lift">
-                    <div className="relative aspect-[3/4] overflow-hidden bg-muted">
+                  <Card className="group h-full border-none bg-card shadow-md hover-lift">
+                    <div className="relative aspect-[3/4] overflow-hidden rounded-t-lg bg-muted">
                       {leader.photo_url ? (
                         <img
                           src={leader.photo_url}
@@ -365,13 +365,13 @@ const Index = () => {
                           <Users className="h-16 w-16 text-muted-foreground" />
                         </div>
                       )}
-                      <div className="absolute inset-x-0 bottom-0 flex justify-center px-3">
-                        <span className="max-w-[95%] translate-y-1/2 rounded-full bg-primary px-4 py-1.5 text-center text-xs sm:text-sm font-semibold text-primary-foreground shadow-lg whitespace-nowrap overflow-hidden text-ellipsis">
-                          {leader.name}
-                        </span>
-                      </div>
                     </div>
-                    <CardContent className="px-4 pb-5 pt-10 text-center">
+                    <div className="relative flex justify-center px-3">
+                      <span className="-translate-y-1/2 inline-block max-w-full rounded-full bg-primary px-5 py-2 text-center text-sm font-semibold text-primary-foreground shadow-lg whitespace-nowrap">
+                        {leader.name}
+                      </span>
+                    </div>
+                    <CardContent className="px-4 pb-5 pt-0 text-center">
                       <h3 className="font-serif text-lg text-foreground">{leader.role}</h3>
                       <div className="mt-2 h-px w-10 mx-auto bg-secondary" />
                       <Link
