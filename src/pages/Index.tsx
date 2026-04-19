@@ -8,7 +8,7 @@ import SectionHeading from "@/components/shared/SectionHeading";
 import { GraduationCap, Users, Award, BookOpen, Calendar, ArrowRight, ChevronLeft, ChevronRight, MapPin, Phone, Mail, Send, Monitor, FlaskConical, Library, Dumbbell, Building2, CheckCircle2 } from "lucide-react";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import PopupBanner from "@/components/shared/PopupBanner";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -132,6 +132,7 @@ const Index = () => {
     setIndexAdmissionSubmitted(true);
   };
 
+  const queryClient = useQueryClient();
   const { data: heroImageRows } = useQuery({
     queryKey: ["public-hero-images"],
     queryFn: async () => {
@@ -142,7 +143,25 @@ const Index = () => {
         .order("sort_order", { ascending: true });
       return data ?? [];
     },
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
+
+  // Live updates: refetch whenever hero_images changes in the database
+  useEffect(() => {
+    const channel = supabase
+      .channel("hero-images-public")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "hero_images" },
+        () => queryClient.invalidateQueries({ queryKey: ["public-hero-images"] })
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const heroImages = (heroImageRows ?? []).map((r) => r.image_url);
 
