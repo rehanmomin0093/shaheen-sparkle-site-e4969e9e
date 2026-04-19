@@ -1,0 +1,1 @@
+ALTER TABLE public.popup_banners ADD COLUMN IF NOT EXISTS size text NOT NULL DEFAULT 'large';
