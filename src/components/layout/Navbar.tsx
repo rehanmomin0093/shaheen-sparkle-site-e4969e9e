@@ -127,10 +127,10 @@ const Navbar = () => {
             <h1 className="font-serif text-[13px] font-bold text-accent sm:text-lg md:text-2xl lg:text-3xl leading-snug">
               Shaheen Montessori, Shaheen School &amp; Shaheen High School Karad.
             </h1>
-            <p className="font-sans text-[10px] font-semibold text-foreground/80 sm:text-xs md:text-sm">
+            <p className="font-sans text-[10px] font-semibold text-foreground sm:text-xs md:text-sm">
               Affiliated to Maharashtra State Board · Recognized &amp; 100% Aided by Govt. of Maharashtra
             </p>
-            <p className="font-sans text-[10px] text-foreground/70 sm:text-xs md:text-sm">
+            <p className="font-sans text-[10px] font-semibold text-foreground sm:text-xs md:text-sm">
               Shaheen High School, Karad — Nurturing Excellence Since Inception
             </p>
           </div>
