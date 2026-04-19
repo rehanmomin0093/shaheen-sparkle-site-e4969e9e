@@ -153,9 +153,6 @@ const Navbar = () => {
         )}
       >
         <div className="container flex h-16 items-center justify-between">
-          <div />
-
-
           {/* Desktop nav */}
           <nav className="hidden items-center gap-0.5 lg:flex">
             {navLinks.map((l) => (
@@ -190,17 +187,20 @@ const Navbar = () => {
                 )}
               </div>
             ))}
+          </nav>
+
+          <div className="hidden items-center gap-1 lg:flex">
             <Link to="/student-portal">
-              <Button size="sm" variant="accent" className="ms-2 hover:scale-105">
+              <Button size="sm" variant="accent" className="hover:scale-105">
                 {t("nav.studentPortal")}
               </Button>
             </Link>
             <Link to="/staff-portal">
-              <Button size="sm" variant="premium" className="ms-1 hover:scale-105">
+              <Button size="sm" variant="premium" className="hover:scale-105">
                 {t("nav.teacherPortal")}
               </Button>
             </Link>
-          </nav>
+          </div>
 
           {/* Mobile toggle */}
           <button className="lg:hidden" onClick={() => setOpen(!open)} aria-label="Toggle menu">
