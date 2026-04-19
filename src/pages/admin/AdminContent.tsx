@@ -76,7 +76,7 @@ const AdminContent = () => {
   }
 
   // Sections hidden from the generic Site Content editor (managed elsewhere in admin).
-  const HIDDEN_SECTIONS = new Set(["Leadership Messages"]);
+  const HIDDEN_SECTIONS = new Set(["Leadership Messages", "Hero", "hero"]);
 
   // Group by section, skipping hidden ones.
   const sections: Record<string, typeof content> = {};
