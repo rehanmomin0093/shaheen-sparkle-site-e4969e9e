@@ -224,7 +224,6 @@ const Index = () => {
 
   const programs = [
     { title: t("home.primarySchool"), grades: t("home.primaryGrades"), desc: t("home.primaryDesc"), icon: BookOpen },
-    { title: t("home.secondarySchool"), grades: t("home.secondaryGrades"), desc: t("home.secondaryDesc"), icon: GraduationCap },
     { title: t("home.highSchool"), grades: t("home.highGrades"), desc: t("home.highDesc"), icon: Award },
   ];
 
