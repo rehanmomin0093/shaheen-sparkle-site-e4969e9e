@@ -13,15 +13,10 @@ import ImageCropDialog from "@/components/shared/ImageCropDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MANAGEMENT_DESIGNATIONS } from "./AdminManagement";
 
 const CLASSES = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
 const DESIGNATIONS = [
-  "Founder",
-  "Secretary",
-  "Joint Secretary",
-  "Director",
-  "High School Principal",
-  "School Principal",
   "Senior Teacher",
   "Teacher",
   "Assistant Teacher",
@@ -32,6 +27,12 @@ const DESIGNATIONS = [
   "Lab Assistant",
   "Custom",
 ];
+
+const isManagementDesignation = (designation: string | null | undefined) => {
+  if (!designation) return false;
+  const d = designation.toLowerCase();
+  return MANAGEMENT_DESIGNATIONS.some((role) => d.includes(role.toLowerCase()));
+};
 const SUBJECTS = [
   "All Subjects", "English", "Hindi", "Urdu", "Marathi",
   "Math", "Science", "Social Studies", "Computer Science",
@@ -92,7 +93,8 @@ const AdminTeachers = () => {
       const { data, error } = await supabase.from("teachers").select("*").order("name");
       if (error) throw error;
       const { data: assignments } = await supabase.from("teacher_class_assignments").select("*");
-      return (data ?? []).map((t: any) => {
+      // Hide management members (Founder/Secretary/Director/Principals) — they live in Admin → Management.
+      return (data ?? []).filter((t: any) => !isManagementDesignation(t.designation)).map((t: any) => {
         const teacherAssignments = (assignments ?? []).filter((a: any) => a.teacher_id === t.id);
         const classSubjects: Record<string, string[]> = {};
         teacherAssignments.forEach((a: any) => {
