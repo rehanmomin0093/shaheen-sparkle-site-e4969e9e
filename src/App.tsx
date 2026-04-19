@@ -35,6 +35,7 @@ import AdminStudents from "./pages/admin/AdminStudents";
 import AdminBanners from "./pages/admin/AdminBanners";
 import AdminStaff from "./pages/admin/AdminStaff";
 import AdminAdmissions from "./pages/admin/AdminAdmissions";
+import AdminFooter from "./pages/admin/AdminFooter";
 
 const queryClient = new QueryClient();
 
