@@ -9,18 +9,14 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, User, GraduationCap, Phone, Mail, FileText, Briefcase } from "lucide-react";
 import SectionHeading from "@/components/shared/SectionHeading";
 
-const CLASS_LABELS = [
-  { value: "1", label: "1st Standard", id: "1st-standard" },
-  { value: "2", label: "2nd Standard", id: "2nd-standard" },
-  { value: "3", label: "3rd Standard", id: "3rd-standard" },
-  { value: "4", label: "4th Standard", id: "4th-standard" },
-  { value: "5", label: "5th Standard", id: "5th-standard" },
-  { value: "6", label: "6th Standard", id: "6th-standard" },
-  { value: "7", label: "7th Standard", id: "7th-standard" },
-  { value: "8", label: "8th Standard", id: "8th-standard" },
-  { value: "9", label: "9th Standard", id: "9th-standard" },
-  { value: "10", label: "10th Standard", id: "10th-standard" },
-];
+const HIGH_SCHOOL_CLASSES = ["6", "7", "8", "9", "10"];
+const PRIMARY_CLASSES = ["1", "2", "3", "4", "5"];
+
+const isPrincipal = (t: any) =>
+  /principal/i.test(t?.designation ?? "") && !/vice|school/i.test(t?.designation ?? "");
+
+const isSchoolPrincipal = (t: any) =>
+  /school principal|vice principal/i.test(t?.designation ?? "");
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
