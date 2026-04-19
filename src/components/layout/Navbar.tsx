@@ -114,17 +114,17 @@ const Navbar = () => {
 
       {/* School identity bar */}
       <div className="relative z-40 border-b border-border/40 bg-background">
-        <div className="container flex items-center gap-2 py-2 sm:gap-4 sm:py-3">
+        <div className="container flex items-center gap-3 py-2 sm:gap-6 sm:py-3 md:gap-8 lg:gap-10">
           <img
             src={schoolLogo}
             alt="Shaheen Education Society Logo"
-            className="h-16 w-16 shrink-0 rounded-full object-cover ring-2 ring-primary/20 sm:h-24 sm:w-24 md:h-28 md:w-28 lg:h-32 lg:w-32"
+            className="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-primary/20 sm:h-20 sm:w-20 md:h-24 md:w-24 lg:h-28 lg:w-28"
           />
-          <div className="flex-1 leading-tight text-center px-1">
-            <p className="font-serif text-sm font-semibold text-primary sm:text-lg md:text-xl lg:text-2xl">
+          <div className="min-w-0 flex-1 leading-tight text-center px-1">
+            <p className="font-serif text-sm font-semibold text-primary sm:text-base md:text-lg lg:text-xl">
               Shaheen Education Society's
             </p>
-            <h1 className="font-serif text-[13px] font-bold text-primary sm:text-lg md:text-2xl lg:text-3xl leading-snug">
+            <h1 className="font-serif text-[13px] font-bold text-primary sm:text-base md:text-xl lg:text-2xl leading-snug break-words">
               Shaheen Montessori, Shaheen School &amp; Shaheen High School Karad.
             </h1>
             <p className="font-sans text-[10px] font-semibold text-foreground sm:text-xs md:text-sm">
@@ -137,7 +137,7 @@ const Navbar = () => {
           <img
             src={schoolLogo}
             alt="Shaheen Education Society Logo"
-            className="h-16 w-16 shrink-0 rounded-full object-cover ring-2 ring-primary/20 sm:h-24 sm:w-24 md:h-28 md:w-28 lg:h-32 lg:w-32"
+            className="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-primary/20 sm:h-20 sm:w-20 md:h-24 md:w-24 lg:h-28 lg:w-28"
           />
         </div>
       </div>
