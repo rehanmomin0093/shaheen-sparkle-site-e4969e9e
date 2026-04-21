@@ -82,6 +82,125 @@ export type Database = {
           },
         ]
       }
+      cce_results: {
+        Row: {
+          academic_year: string
+          created_at: string
+          entered_by: string | null
+          form_oral: number | null
+          form_written: number | null
+          id: string
+          published: boolean
+          semester: string
+          student_id: string
+          subject: string
+          sum_assignment: number | null
+          sum_oral: number | null
+          sum_other: number | null
+          sum_practical: number | null
+          sum_project: number | null
+          sum_unit_test: number | null
+          updated_at: string
+        }
+        Insert: {
+          academic_year?: string
+          created_at?: string
+          entered_by?: string | null
+          form_oral?: number | null
+          form_written?: number | null
+          id?: string
+          published?: boolean
+          semester: string
+          student_id: string
+          subject: string
+          sum_assignment?: number | null
+          sum_oral?: number | null
+          sum_other?: number | null
+          sum_practical?: number | null
+          sum_project?: number | null
+          sum_unit_test?: number | null
+          updated_at?: string
+        }
+        Update: {
+          academic_year?: string
+          created_at?: string
+          entered_by?: string | null
+          form_oral?: number | null
+          form_written?: number | null
+          id?: string
+          published?: boolean
+          semester?: string
+          student_id?: string
+          subject?: string
+          sum_assignment?: number | null
+          sum_oral?: number | null
+          sum_other?: number | null
+          sum_practical?: number | null
+          sum_project?: number | null
+          sum_unit_test?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cce_results_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cce_subject_config: {
+        Row: {
+          class_name: string
+          created_at: string
+          id: string
+          max_form_oral: number | null
+          max_form_written: number | null
+          max_sum_assignment: number | null
+          max_sum_oral: number | null
+          max_sum_other: number | null
+          max_sum_practical: number | null
+          max_sum_project: number | null
+          max_sum_unit_test: number | null
+          semester: string
+          sort_order: number
+          subject: string
+        }
+        Insert: {
+          class_name: string
+          created_at?: string
+          id?: string
+          max_form_oral?: number | null
+          max_form_written?: number | null
+          max_sum_assignment?: number | null
+          max_sum_oral?: number | null
+          max_sum_other?: number | null
+          max_sum_practical?: number | null
+          max_sum_project?: number | null
+          max_sum_unit_test?: number | null
+          semester: string
+          sort_order?: number
+          subject: string
+        }
+        Update: {
+          class_name?: string
+          created_at?: string
+          id?: string
+          max_form_oral?: number | null
+          max_form_written?: number | null
+          max_sum_assignment?: number | null
+          max_sum_oral?: number | null
+          max_sum_other?: number | null
+          max_sum_practical?: number | null
+          max_sum_project?: number | null
+          max_sum_unit_test?: number | null
+          semester?: string
+          sort_order?: number
+          subject?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string

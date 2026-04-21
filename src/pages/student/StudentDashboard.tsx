@@ -12,7 +12,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { LogOut, ClipboardList, FileText, TrendingUp, BookOpen, Loader2, User, Settings, Lock, ExternalLink, Link as LinkIcon } from "lucide-react";
+import { LogOut, ClipboardList, FileText, TrendingUp, BookOpen, Loader2, User, Settings, Lock, ExternalLink, Link as LinkIcon, GraduationCap } from "lucide-react";
+import CCEResultsView from "@/components/student/CCEResultsView";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart } from "recharts";
 import { useToast } from "@/hooks/use-toast";
 
@@ -257,10 +258,11 @@ const StudentDashboard = () => {
         </Dialog>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid lg:grid-cols-5">
             <TabsTrigger value="progress" className="gap-2"><TrendingUp className="h-4 w-4" /> Progress</TabsTrigger>
             <TabsTrigger value="attendance" className="gap-2"><ClipboardList className="h-4 w-4" /> Attendance</TabsTrigger>
             <TabsTrigger value="results" className="gap-2"><FileText className="h-4 w-4" /> Results</TabsTrigger>
+            <TabsTrigger value="report-card" className="gap-2"><GraduationCap className="h-4 w-4" /> Report Card</TabsTrigger>
             <TabsTrigger value="tests" className="gap-2"><BookOpen className="h-4 w-4" /> Tests</TabsTrigger>
           </TabsList>
 
@@ -427,6 +429,11 @@ const StudentDashboard = () => {
                 ))
               )}
             </div>
+          </TabsContent>
+
+          {/* Report Card (CCE) Tab */}
+          <TabsContent value="report-card">
+            <CCEResultsView student={student} />
           </TabsContent>
 
           {/* Tests Tab */}
