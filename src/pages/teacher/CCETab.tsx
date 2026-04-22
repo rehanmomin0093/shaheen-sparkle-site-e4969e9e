@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useTeacherAssignment, useTeacherStudents } from "./useTeacherStudents";
+import { useTeacherAssignments, useTeacherStudents } from "./useTeacherStudents";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,14 +28,35 @@ import {
 
 type Marks = Record<string, Record<string, string>>; // studentId -> componentKey -> value
 
+const assignmentLabel = (a: any) =>
+  `Class ${a.class_name}${a.section ? ` - ${a.section}` : ""}${a.is_class_teacher ? " (Class Teacher)" : ""}`;
+
 const CCETab = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { data: assignment, isLoading: loadingAssignment } = useTeacherAssignment();
+  const { data: assignments, isLoading: loadingAssignments } = useTeacherAssignments();
+
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
+
+  // Auto-select first assignment (prefer class teacher) when loaded
+  useEffect(() => {
+    if (!selectedAssignmentId && assignments?.length) {
+      const sorted = [...assignments].sort(
+        (a: any, b: any) => Number(b.is_class_teacher) - Number(a.is_class_teacher),
+      );
+      setSelectedAssignmentId(sorted[0].id);
+    }
+  }, [assignments, selectedAssignmentId]);
+
+  const assignment = useMemo(
+    () => assignments?.find((a: any) => a.id === selectedAssignmentId) ?? null,
+    [assignments, selectedAssignmentId],
+  );
+
   const { data: students, isLoading: loadingStudents } = useTeacherStudents(
-    assignment?.class_name,
-    assignment?.section,
+    (assignment as any)?.class_name,
+    (assignment as any)?.section,
   );
 
   const [semester, setSemester] = useState<"1" | "2">("1");
@@ -43,27 +64,31 @@ const CCETab = () => {
   const [subject, setSubject] = useState<string>("");
   const [marks, setMarks] = useState<Marks>({});
 
+  // Reset subject when class changes
+  useEffect(() => {
+    setSubject("");
+  }, [selectedAssignmentId]);
+
   const teacherSubjects: string[] = useMemo(() => {
-    const raw: string = (assignment as any)?.subjects || (assignment as any)?.teacher_subjects || "";
+    const raw: string = (assignment as any)?.subjects || "";
     if (!raw.trim()) return [];
     return raw.split(",").map((s) => s.trim()).filter(Boolean);
   }, [assignment]);
 
   const isClassTeacher = !!(assignment as any)?.is_class_teacher;
 
-  // Subjects this teacher can enter for: their assigned subjects, plus all subjects if class teacher
   const { data: configsForClass } = useQuery({
-    queryKey: ["cce-config", assignment?.class_name],
+    queryKey: ["cce-config", (assignment as any)?.class_name],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("cce_subject_config")
         .select("*")
-        .eq("class_name", assignment!.class_name)
+        .eq("class_name", (assignment as any)!.class_name)
         .order("sort_order");
       if (error) throw error;
       return (data ?? []) as CCEConfig[];
     },
-    enabled: !!assignment?.class_name,
+    enabled: !!(assignment as any)?.class_name,
   });
 
   const allSubjects = useMemo(
@@ -91,7 +116,7 @@ const CCETab = () => {
   );
 
   const { data: existing } = useQuery({
-    queryKey: ["cce-results", assignment?.class_name, subject, semester, academicYear, students?.length],
+    queryKey: ["cce-results", (assignment as any)?.class_name, subject, semester, academicYear, students?.length],
     queryFn: async () => {
       if (!students?.length || !subject) return [] as CCEResult[];
       const ids = students.map((s) => s.id);
@@ -170,7 +195,7 @@ const CCETab = () => {
       toast({ title: "Save failed", description: e.message, variant: "destructive" }),
   });
 
-  if (loadingAssignment || loadingStudents) {
+  if (loadingAssignments) {
     return (
       <div className="flex justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -178,22 +203,11 @@ const CCETab = () => {
     );
   }
 
-  if (!assignment) {
+  if (!assignments?.length) {
     return (
       <Card>
         <CardContent className="py-12 text-center text-muted-foreground">
           No class assigned. Please contact admin.
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!editableSubjects.length) {
-    return (
-      <Card>
-        <CardContent className="py-12 text-center text-muted-foreground">
-          No CCE subjects configured for class {assignment.class_name} that you can edit. Ask the
-          admin to set up subjects or assign subjects to your account.
         </CardContent>
       </Card>
     );
@@ -208,13 +222,23 @@ const CCETab = () => {
               <BookOpen className="h-5 w-5" /> CCE Result Entry
             </CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">
-              Class {assignment.class_name}
-              {assignment.section ? ` - ${assignment.section}` : ""} • Continuous Comprehensive
-              Evaluation
+              Continuous Comprehensive Evaluation
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Select value={subject} onValueChange={setSubject}>
+            <Select value={selectedAssignmentId} onValueChange={setSelectedAssignmentId}>
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Select Class" />
+              </SelectTrigger>
+              <SelectContent>
+                {assignments.map((a: any) => (
+                  <SelectItem key={a.id} value={a.id}>
+                    {assignmentLabel(a)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={subject} onValueChange={setSubject} disabled={!editableSubjects.length}>
               <SelectTrigger className="w-44">
                 <SelectValue placeholder="Subject" />
               </SelectTrigger>
@@ -244,7 +268,7 @@ const CCETab = () => {
             <Button
               variant="outline"
               onClick={() => saveMutation.mutate(false)}
-              disabled={saveMutation.isPending}
+              disabled={saveMutation.isPending || !subject}
             >
               {saveMutation.isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -253,7 +277,7 @@ const CCETab = () => {
             </Button>
             <Button
               onClick={() => saveMutation.mutate(true)}
-              disabled={saveMutation.isPending}
+              disabled={saveMutation.isPending || !subject}
               className="bg-green-600 text-white hover:bg-green-700"
             >
               <CheckCircle2 className="mr-2 h-4 w-4" />
@@ -261,6 +285,14 @@ const CCETab = () => {
             </Button>
           </div>
         </div>
+        {assignment && (
+          <p className="mt-2 text-sm text-muted-foreground">
+            Entering marks for <strong>{assignmentLabel(assignment)}</strong>
+            {teacherSubjects.length > 0 && !isClassTeacher
+              ? ` • Your subjects: ${teacherSubjects.join(", ")}`
+              : ""}
+          </p>
+        )}
         {config && (
           <div className="mt-3 flex flex-wrap gap-2 text-xs">
             <Badge variant="outline">Summative max: {maxSumOf(config)}</Badge>
@@ -270,7 +302,15 @@ const CCETab = () => {
         )}
       </CardHeader>
       <CardContent className="overflow-x-auto">
-        {!config ? (
+        {loadingStudents ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : !editableSubjects.length ? (
+          <p className="py-8 text-center text-muted-foreground">
+            No CCE subjects you can edit for this class. Ask the admin to assign subjects.
+          </p>
+        ) : !config ? (
           <p className="py-8 text-center text-muted-foreground">
             No CCE configuration for {subject} (Sem {semester}). Ask admin.
           </p>
