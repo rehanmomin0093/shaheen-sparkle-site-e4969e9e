@@ -185,20 +185,20 @@ const CCEResultsView = ({ student, academicYear = "2025-26" }: Props) => {
                     <TableCell className="text-center">{r1 ? `${formOf(r1)}/${maxFormOf(c1)}` : "-"}</TableCell>
                     <TableCell className="text-center font-semibold">{r1 ? `${t1}/${m1}` : "-"}</TableCell>
                     <TableCell className="text-center">
-                      {r1 ? <Badge variant="outline">{gradeFor(percentOf(t1, m1))}</Badge> : "-"}
+                      {r1 ? <Badge variant="outline">{gradeFor(percentOf(t1, m1), student.class)}</Badge> : "-"}
                     </TableCell>
                     <TableCell className="text-center">{r2 ? `${sumOf(r2)}/${maxSumOf(c2)}` : "-"}</TableCell>
                     <TableCell className="text-center">{r2 ? `${formOf(r2)}/${maxFormOf(c2)}` : "-"}</TableCell>
                     <TableCell className="text-center font-semibold">{r2 ? `${t2}/${m2}` : "-"}</TableCell>
                     <TableCell className="text-center">
-                      {r2 ? <Badge variant="outline">{gradeFor(percentOf(t2, m2))}</Badge> : "-"}
+                      {r2 ? <Badge variant="outline">{gradeFor(percentOf(t2, m2), student.class)}</Badge> : "-"}
                     </TableCell>
                     <TableCell className="text-center font-semibold">
                       {(r1 || r2) ? `${aT}/${aM}` : "-"}
                     </TableCell>
                     <TableCell className="text-center">{(r1 || r2) ? `${aP}%` : "-"}</TableCell>
                     <TableCell className="text-center font-bold text-primary">
-                      {(r1 || r2) ? gradeFor(aP) : "-"}
+                      {(r1 || r2) ? gradeFor(aP, student.class) : "-"}
                     </TableCell>
                   </TableRow>
                 );
@@ -209,7 +209,7 @@ const CCEResultsView = ({ student, academicYear = "2025-26" }: Props) => {
                   <TableCell className="text-center font-bold">{grandObtained}/{grandMax}</TableCell>
                   <TableCell className="text-center font-bold">{percentOf(grandObtained, grandMax)}%</TableCell>
                   <TableCell className="text-center font-bold text-primary">
-                    {grandMax > 0 ? gradeFor(percentOf(grandObtained, grandMax)) : "-"}
+                    {grandMax > 0 ? gradeFor(percentOf(grandObtained, grandMax), student.class) : "-"}
                   </TableCell>
                 </TableRow>
               )}
