@@ -259,6 +259,7 @@ const TestsTab = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Title</TableHead>
+                  <TableHead>Class</TableHead>
                   <TableHead>Subject</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Due Date</TableHead>
@@ -268,11 +269,12 @@ const TestsTab = () => {
               </TableHeader>
               <TableBody>
                 {tests?.length === 0 && (
-                  <TableRow><TableCell colSpan={6} className="py-8 text-center text-muted-foreground">No tests created yet</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={7} className="py-8 text-center text-muted-foreground">No tests created yet</TableCell></TableRow>
                 )}
                 {tests?.map((t) => (
                   <TableRow key={t.id}>
                     <TableCell className="font-medium">{t.title}</TableCell>
+                    <TableCell>{`${t.class_name}${t.section ? `-${t.section}` : ""}`}</TableCell>
                     <TableCell>{t.subject}</TableCell>
                     <TableCell><Badge variant="outline">{t.test_type.toUpperCase()}</Badge></TableCell>
                     <TableCell>{t.due_date ? new Date(t.due_date).toLocaleDateString() : "-"}</TableCell>
