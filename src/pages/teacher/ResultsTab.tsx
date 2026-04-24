@@ -9,7 +9,18 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, Upload, FileSpreadsheet, FileDown, ChevronDown, ChevronUp, CheckCircle2, CloudOff } from "lucide-react";
+import { Loader2, Save, Upload, FileSpreadsheet, FileDown, ChevronDown, ChevronUp, CheckCircle2, CloudOff, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import * as XLSX from "xlsx";
 
