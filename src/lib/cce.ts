@@ -43,6 +43,7 @@ export type CCEConfig = {
   max_sum_project: number;
   max_sum_assignment: number;
   max_sum_unit_test: number;
+  max_sum_classwork: number;
   max_sum_other: number;
   max_form_oral: number;
   max_form_written: number;
