@@ -16,7 +16,18 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Trash2, Eye, FileText, Pencil, Download, Maximize2, Minimize2 } from "lucide-react";
 import * as XLSX from "xlsx";
 
-const ALL_SUBJECTS = ["English", "Hindi", "Marathi", "Urdu", "Math", "Science", "Social Studies"];
+const ALL_SUBJECTS = [
+  "English",
+  "Hindi",
+  "Marathi",
+  "Urdu",
+  "Math",
+  "Science",
+  "Social Studies",
+  "ARTS",
+  "W.ESP",
+  "PHY.EDU",
+];
 
 interface QuestionForm {
   question_text: string;

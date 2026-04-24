@@ -15,7 +15,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Trash2, ExternalLink, Loader2 } from "lucide-react";
 
-const SUBJECTS = ["English", "Hindi", "Marathi", "Math", "Science", "Social Studies", "General", "Other"];
+const SUBJECTS = [
+  "English",
+  "Hindi",
+  "Marathi",
+  "Math",
+  "Science",
+  "Social Studies",
+  "ARTS",
+  "W.ESP",
+  "PHY.EDU",
+  "General",
+  "Other",
+];
 
 const LinksTab = () => {
   const { user } = useAuth();
