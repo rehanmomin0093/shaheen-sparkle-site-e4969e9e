@@ -37,7 +37,7 @@ const TestsTab = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { data: assignment } = useTeacherAssignment();
+  const { data: assignments, isLoading: assignmentsLoading } = useTeacherAssignments();
 
   const [createOpen, setCreateOpen] = useState(false);
   const [questionsOpen, setQuestionsOpen] = useState<string | null>(null);
@@ -45,11 +45,45 @@ const TestsTab = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [testType, setTestType] = useState("mcq");
-  const [subject, setSubject] = useState(SUBJECTS[0]);
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
+  const [subject, setSubject] = useState("");
   const [totalMarks, setTotalMarks] = useState("100");
   const [dueDate, setDueDate] = useState("");
   const [questions, setQuestions] = useState<QuestionForm[]>([{ ...emptyQuestion }]);
   const [submissionsFullScreen, setSubmissionsFullScreen] = useState(false);
+
+  const selectedAssignment = useMemo(
+    () => assignments?.find((a) => a.id === selectedAssignmentId) ?? null,
+    [assignments, selectedAssignmentId],
+  );
+
+  // Subjects available for the chosen class (filtered by admin assignment)
+  const SUBJECTS = useMemo(() => {
+    const raw = (selectedAssignment as any)?.subjects || "";
+    const assigned = raw.split(",").map((s: string) => s.trim()).filter(Boolean);
+    const filtered = ALL_SUBJECTS.filter((s) => assigned.includes(s));
+    return filtered.length > 0 ? filtered : [...ALL_SUBJECTS];
+  }, [selectedAssignment]);
+
+  // Auto-pick first assignment when dialog opens
+  useEffect(() => {
+    if (!createOpen || !assignments?.length || selectedAssignmentId) return;
+    const preferred = [...assignments].sort(
+      (a, b) => Number(b.is_class_teacher) - Number(a.is_class_teacher),
+    )[0];
+    setSelectedAssignmentId(preferred.id);
+  }, [createOpen, assignments, selectedAssignmentId]);
+
+  // Reset subject when class changes (so we don't carry a subject not assigned to the new class)
+  useEffect(() => {
+    if (!subject || SUBJECTS.includes(subject)) return;
+    setSubject(SUBJECTS[0] ?? "");
+  }, [SUBJECTS, subject]);
+
+  // Initialize subject once SUBJECTS is ready
+  useEffect(() => {
+    if (!subject && SUBJECTS.length > 0) setSubject(SUBJECTS[0]);
+  }, [SUBJECTS, subject]);
 
   const { data: tests, isLoading } = useQuery({
     queryKey: ["teacher-tests", user?.id],
