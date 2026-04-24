@@ -234,7 +234,11 @@ const TestsTab = () => {
     XLSX.writeFile(wb, fileName, { bookType: format === "csv" ? "csv" : "xlsx" });
   };
 
-  if (!assignment) {
+  if (assignmentsLoading) {
+    return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  }
+
+  if (!assignments?.length) {
     return <Card><CardContent className="py-12 text-center text-muted-foreground">No class assigned. Contact admin.</CardContent></Card>;
   }
 
