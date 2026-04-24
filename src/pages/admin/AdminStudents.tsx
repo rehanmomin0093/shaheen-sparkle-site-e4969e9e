@@ -115,6 +115,40 @@ const AdminStudents = () => {
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
+  const deleteClassMutation = useMutation({
+    mutationFn: async (className: string) => {
+      // Get all student ids in this class
+      const { data: ids, error: fetchErr } = await supabase
+        .from("students")
+        .select("id")
+        .eq("class", className);
+      if (fetchErr) throw fetchErr;
+      const studentIds = (ids || []).map((r) => r.id);
+      if (studentIds.length === 0) return;
+
+      // Delete related records first to avoid orphan data
+      await supabase.from("attendance").delete().in("student_id", studentIds);
+      await supabase.from("cce_results").delete().in("student_id", studentIds);
+      await supabase.from("student_results").delete().in("student_id", studentIds);
+      await supabase.from("student_physical_data").delete().in("student_id", studentIds);
+      await supabase.from("test_submissions").delete().in("student_id", studentIds);
+
+      const { error } = await supabase.from("students").delete().eq("class", className);
+      if (error) throw error;
+    },
+    onSuccess: (_d, className) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-students"] });
+      toast({ title: `Class ${className} deleted` });
+    },
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+
+  const handleDeleteClass = (className: string, count: number) => {
+    if (window.confirm(`Delete entire Class ${className}? This will permanently remove all ${count} students and their attendance, marks, and other related records. This cannot be undone.`)) {
+      deleteClassMutation.mutate(className);
+    }
+  };
+
   const closeDialog = () => {
     setDialogOpen(false);
     setEditId(null);
@@ -316,17 +350,31 @@ const AdminStudents = () => {
           <Accordion type="multiple" className="space-y-3">
             {sortedClasses.map((cls) => (
               <AccordionItem key={cls} value={cls} className="border rounded-lg overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/50">
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-sm">
-                      {cls}
-                    </span>
-                    <span className="font-serif text-lg font-semibold">Class {cls}</span>
-                    <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                      {grouped[cls]!.length} student{grouped[cls]!.length !== 1 ? "s" : ""}
-                    </span>
-                  </div>
-                </AccordionTrigger>
+                <div className="flex items-center justify-between gap-2 px-4 hover:bg-muted/50">
+                  <AccordionTrigger className="flex-1 py-3 hover:no-underline">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-sm">
+                        {cls}
+                      </span>
+                      <span className="font-serif text-lg font-semibold">Class {cls}</span>
+                      <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                        {grouped[cls]!.length} student{grouped[cls]!.length !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                  </AccordionTrigger>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteClass(cls, grouped[cls]!.length);
+                    }}
+                    disabled={deleteClassMutation.isPending}
+                  >
+                    <Trash2 className="mr-1 h-4 w-4" /> Delete Class
+                  </Button>
+                </div>
                 <AccordionContent className="p-0">
                   <Table>
                     <TableHeader>
