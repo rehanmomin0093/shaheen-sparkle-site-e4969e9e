@@ -528,6 +528,41 @@ const ResultsTab = () => {
                     <>
                       <TableCell className="text-center font-semibold">{hasAny ? obtained : "-"}</TableCell>
                       <TableCell className="text-center font-semibold">{hasAny ? `${Math.round((obtained / maxMarks) * 100)}%` : "-"}</TableCell>
+                      <TableCell className="text-center">
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              disabled={!hasAny || (deleteStudentMutation.isPending && deleteStudentMutation.variables === s.id)}
+                              title="Delete this student's result"
+                              className="text-destructive hover:text-destructive"
+                            >
+                              {deleteStudentMutation.isPending && deleteStudentMutation.variables === s.id
+                                ? <Loader2 className="h-4 w-4 animate-spin" />
+                                : <Trash2 className="h-4 w-4" />}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete result?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will permanently delete {s.name}'s {examType} ({academicYear}) marks for all subjects. This cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteStudentMutation.mutate(s.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
                     </>
                   );
                 })()}
