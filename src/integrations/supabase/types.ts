@@ -95,6 +95,7 @@ export type Database = {
           student_id: string
           subject: string
           sum_assignment: number | null
+          sum_classwork: number | null
           sum_oral: number | null
           sum_other: number | null
           sum_practical: number | null
@@ -114,6 +115,7 @@ export type Database = {
           student_id: string
           subject: string
           sum_assignment?: number | null
+          sum_classwork?: number | null
           sum_oral?: number | null
           sum_other?: number | null
           sum_practical?: number | null
@@ -133,6 +135,7 @@ export type Database = {
           student_id?: string
           subject?: string
           sum_assignment?: number | null
+          sum_classwork?: number | null
           sum_oral?: number | null
           sum_other?: number | null
           sum_practical?: number | null
@@ -158,6 +161,7 @@ export type Database = {
           max_form_oral: number | null
           max_form_written: number | null
           max_sum_assignment: number | null
+          max_sum_classwork: number | null
           max_sum_oral: number | null
           max_sum_other: number | null
           max_sum_practical: number | null
@@ -174,6 +178,7 @@ export type Database = {
           max_form_oral?: number | null
           max_form_written?: number | null
           max_sum_assignment?: number | null
+          max_sum_classwork?: number | null
           max_sum_oral?: number | null
           max_sum_other?: number | null
           max_sum_practical?: number | null
@@ -190,6 +195,7 @@ export type Database = {
           max_form_oral?: number | null
           max_form_written?: number | null
           max_sum_assignment?: number | null
+          max_sum_classwork?: number | null
           max_sum_oral?: number | null
           max_sum_other?: number | null
           max_sum_practical?: number | null
