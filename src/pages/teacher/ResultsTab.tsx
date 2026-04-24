@@ -234,7 +234,34 @@ const ResultsTab = () => {
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
-  const triggerAutoSave = useCallback((updatedMarks: Record<string, MarksEntry>) => {
+  // Delete a single student's results for the selected exam/year
+  const deleteStudentMutation = useMutation({
+    mutationFn: async (studentId: string) => {
+      const { error } = await supabase
+        .from("student_results")
+        .delete()
+        .eq("student_id", studentId)
+        .eq("exam_type", examType)
+        .eq("academic_year", academicYear);
+      if (error) throw error;
+    },
+    onSuccess: (_d, studentId) => {
+      setMarks((prev) => {
+        const updated = { ...prev };
+        if (updated[studentId]) {
+          const cleared: MarksEntry = {};
+          SUBJECTS.forEach((sub) => {
+            cleared[sub] = { marks: "", total: totalMarksRef.current[sub] || "100" };
+          });
+          updated[studentId] = cleared;
+        }
+        return updated;
+      });
+      queryClient.invalidateQueries({ queryKey: ["student-results"] });
+      toast({ title: "Result deleted for student." });
+    },
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     setAutoSaveStatus("saving");
     autoSaveTimerRef.current = setTimeout(() => {
