@@ -36,7 +36,7 @@ const isManagementDesignation = (designation: string | null | undefined) => {
 const SUBJECTS = [
   "All Subjects", "English", "Hindi", "Urdu", "Marathi",
   "Math", "Science", "Social Studies", "Computer Science",
-  "Physical Education", "Art", "Music",
+  "Physical Education", "Art", "Music", "ARTS", "W.ESP", "PHY.EDU",
 ];
 
 interface TeacherForm {

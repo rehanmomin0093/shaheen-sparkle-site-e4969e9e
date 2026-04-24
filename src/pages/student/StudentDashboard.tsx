@@ -17,7 +17,17 @@ import CCEResultsView from "@/components/student/CCEResultsView";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart } from "recharts";
 import { useToast } from "@/hooks/use-toast";
 
-const SUBJECTS = ["English", "Hindi", "Marathi", "Math", "Science", "Social Studies"];
+const SUBJECTS = [
+  "English",
+  "Hindi",
+  "Marathi",
+  "Math",
+  "Science",
+  "Social Studies",
+  "ARTS",
+  "W.ESP",
+  "PHY.EDU",
+];
 
 const StudentDashboard = () => {
   const { user, loading, signOut } = useAuth();
