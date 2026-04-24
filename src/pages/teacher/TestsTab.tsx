@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useTeacherAssignment } from "./useTeacherStudents";
+import { useTeacherAssignments } from "./useTeacherStudents";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Trash2, Eye, FileText, Pencil, Download, Maximize2, Minimize2 } from "lucide-react";
 import * as XLSX from "xlsx";
 
-const SUBJECTS = ["English", "Hindi", "Marathi", "Urdu", "Math", "Science", "Social Studies"];
+const ALL_SUBJECTS = ["English", "Hindi", "Marathi", "Urdu", "Math", "Science", "Social Studies"];
 
 interface QuestionForm {
   question_text: string;
