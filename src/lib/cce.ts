@@ -6,6 +6,7 @@ export const CCE_SUM_COMPONENTS = [
   { key: "sum_project", label: "Project", maxKey: "max_sum_project" },
   { key: "sum_assignment", label: "Assignment", maxKey: "max_sum_assignment" },
   { key: "sum_unit_test", label: "Unit Test", maxKey: "max_sum_unit_test" },
+  { key: "sum_classwork", label: "Classwork", maxKey: "max_sum_classwork" },
   { key: "sum_other", label: "Other", maxKey: "max_sum_other" },
 ] as const;
 
