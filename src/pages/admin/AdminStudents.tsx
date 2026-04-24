@@ -350,17 +350,31 @@ const AdminStudents = () => {
           <Accordion type="multiple" className="space-y-3">
             {sortedClasses.map((cls) => (
               <AccordionItem key={cls} value={cls} className="border rounded-lg overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/50">
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-sm">
-                      {cls}
-                    </span>
-                    <span className="font-serif text-lg font-semibold">Class {cls}</span>
-                    <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                      {grouped[cls]!.length} student{grouped[cls]!.length !== 1 ? "s" : ""}
-                    </span>
-                  </div>
-                </AccordionTrigger>
+                <div className="flex items-center justify-between gap-2 px-4 hover:bg-muted/50">
+                  <AccordionTrigger className="flex-1 py-3 hover:no-underline">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-sm">
+                        {cls}
+                      </span>
+                      <span className="font-serif text-lg font-semibold">Class {cls}</span>
+                      <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                        {grouped[cls]!.length} student{grouped[cls]!.length !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                  </AccordionTrigger>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteClass(cls, grouped[cls]!.length);
+                    }}
+                    disabled={deleteClassMutation.isPending}
+                  >
+                    <Trash2 className="mr-1 h-4 w-4" /> Delete Class
+                  </Button>
+                </div>
                 <AccordionContent className="p-0">
                   <Table>
                     <TableHeader>
