@@ -292,6 +292,18 @@ const AdminStudents = () => {
           if (!grouped[cls]) grouped[cls] = [];
           grouped[cls]!.push(s);
         });
+        // Sort each class group by section then roll number numerically
+        Object.keys(grouped).forEach((cls) => {
+          grouped[cls]!.sort((a: any, b: any) => {
+            const sa = (a.section || "").toString();
+            const sb = (b.section || "").toString();
+            if (sa !== sb) return sa.localeCompare(sb);
+            const ra = parseInt(a.roll_number, 10);
+            const rb = parseInt(b.roll_number, 10);
+            if (!isNaN(ra) && !isNaN(rb)) return ra - rb;
+            return (a.roll_number || "").toString().localeCompare((b.roll_number || "").toString());
+          });
+        });
         const sortedClasses = Object.keys(grouped).sort((a, b) => {
           const na = parseInt(a), nb = parseInt(b);
           if (!isNaN(na) && !isNaN(nb)) return na - nb;
