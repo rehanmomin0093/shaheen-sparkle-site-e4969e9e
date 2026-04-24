@@ -262,6 +262,8 @@ const ResultsTab = () => {
     },
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
+
+  const triggerAutoSave = useCallback((updatedMarks: Record<string, MarksEntry>) => {
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     setAutoSaveStatus("saving");
     autoSaveTimerRef.current = setTimeout(() => {
