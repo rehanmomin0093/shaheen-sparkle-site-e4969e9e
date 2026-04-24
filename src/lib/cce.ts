@@ -67,8 +67,30 @@ export const maxTotalOf = (cfg: Partial<CCEConfig> | undefined) =>
 
 export const totalOf = (r: Partial<CCEResult>) => sumOf(r) + formOf(r);
 
-// CBSE-style grade scale based on percentage
-export const gradeFor = (percent: number): string => {
+// Detect classes 1-8 (accepts "1", "Class 1", "1st", etc.)
+const isClass1to8 = (className?: string | null): boolean => {
+  if (!className) return false;
+  const m = String(className).match(/\d+/);
+  if (!m) return false;
+  const n = parseInt(m[0], 10);
+  return n >= 1 && n <= 8;
+};
+
+// Grade scale for classes 1-8 (per school policy)
+const gradeFor1to8 = (percent: number): string => {
+  if (percent >= 91) return "A1";
+  if (percent >= 81) return "A2";
+  if (percent >= 71) return "B1";
+  if (percent >= 61) return "B2";
+  if (percent >= 51) return "C1";
+  if (percent >= 41) return "C2";
+  if (percent >= 35) return "D";
+  return "E";
+};
+
+// CBSE-style grade scale based on percentage (default for classes 9+)
+export const gradeFor = (percent: number, className?: string | null): string => {
+  if (isClass1to8(className)) return gradeFor1to8(percent);
   if (percent >= 91) return "A1";
   if (percent >= 81) return "A2";
   if (percent >= 71) return "B1";
