@@ -26,6 +26,7 @@ export type CCEResult = {
   sum_project: number | null;
   sum_assignment: number | null;
   sum_unit_test: number | null;
+  sum_classwork: number | null;
   sum_other: number | null;
   form_oral: number | null;
   form_written: number | null;
