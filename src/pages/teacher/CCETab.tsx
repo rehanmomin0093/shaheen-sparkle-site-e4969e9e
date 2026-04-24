@@ -404,7 +404,7 @@ const CCETab = () => {
                     </TableCell>
                     <TableCell className="text-center">{pct}%</TableCell>
                     <TableCell className="text-center font-bold text-primary">
-                      {max > 0 ? gradeFor(pct) : "-"}
+                      {max > 0 ? gradeFor(pct, (assignment as any)?.class_name) : "-"}
                     </TableCell>
                   </TableRow>
                 );
