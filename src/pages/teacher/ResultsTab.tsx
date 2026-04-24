@@ -457,6 +457,7 @@ const ResultsTab = () => {
               {SUBJECTS.map((s) => <TableHead key={s} className="text-center min-w-[80px]">{s}</TableHead>)}
               <TableHead className="text-center min-w-[80px] font-bold">Total</TableHead>
               <TableHead className="text-center min-w-[80px] font-bold">%</TableHead>
+              <TableHead className="text-center min-w-[60px]">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
