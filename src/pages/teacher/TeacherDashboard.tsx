@@ -3,9 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { LogOut, ClipboardList, FileText, Ruler, BookOpen, Loader2, Link as LinkIcon, GraduationCap } from "lucide-react";
+import { LogOut, ClipboardList, Ruler, BookOpen, Loader2, Link as LinkIcon, GraduationCap } from "lucide-react";
 import AttendanceTab from "./AttendanceTab";
-import ResultsTab from "./ResultsTab";
 import PhysicalDataTab from "./PhysicalDataTab";
 import TestsTab from "./TestsTab";
 import LinksTab from "./LinksTab";
@@ -44,12 +43,9 @@ const TeacherDashboard = () => {
 
       <main className="container py-6">
         <Tabs defaultValue="attendance" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid lg:grid-cols-6">
+          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid lg:grid-cols-5">
             <TabsTrigger value="attendance" className="gap-2">
               <ClipboardList className="h-4 w-4" /> Attendance
-            </TabsTrigger>
-            <TabsTrigger value="results" className="gap-2">
-              <FileText className="h-4 w-4" /> Results
             </TabsTrigger>
             <TabsTrigger value="cce" className="gap-2">
               <GraduationCap className="h-4 w-4" /> CCE Report
@@ -66,7 +62,6 @@ const TeacherDashboard = () => {
           </TabsList>
 
           <TabsContent value="attendance"><AttendanceTab /></TabsContent>
-          <TabsContent value="results"><ResultsTab /></TabsContent>
           <TabsContent value="cce"><CCETab /></TabsContent>
           <TabsContent value="physical"><PhysicalDataTab /></TabsContent>
           <TabsContent value="tests"><TestsTab /></TabsContent>
