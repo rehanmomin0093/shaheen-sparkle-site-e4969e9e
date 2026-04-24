@@ -126,15 +126,16 @@ const TestsTab = () => {
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      if (!assignment) throw new Error("No class assigned");
+      if (!selectedAssignment) throw new Error("Please select a class");
+      if (!subject) throw new Error("Please select a subject");
 
       const insertData: any = {
         title,
         description,
         test_type: testType,
         subject,
-        class_name: assignment.class_name,
-        section: assignment.section,
+        class_name: selectedAssignment.class_name,
+        section: selectedAssignment.section,
         total_marks: parseFloat(totalMarks),
         due_date: dueDate ? new Date(dueDate).toISOString() : null,
         created_by: user!.id,
