@@ -9,7 +9,18 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, Upload, FileSpreadsheet, FileDown, ChevronDown, ChevronUp, CheckCircle2, CloudOff } from "lucide-react";
+import { Loader2, Save, Upload, FileSpreadsheet, FileDown, ChevronDown, ChevronUp, CheckCircle2, CloudOff, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import * as XLSX from "xlsx";
 
@@ -223,6 +234,35 @@ const ResultsTab = () => {
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
+  // Delete a single student's results for the selected exam/year
+  const deleteStudentMutation = useMutation({
+    mutationFn: async (studentId: string) => {
+      const { error } = await supabase
+        .from("student_results")
+        .delete()
+        .eq("student_id", studentId)
+        .eq("exam_type", examType)
+        .eq("academic_year", academicYear);
+      if (error) throw error;
+    },
+    onSuccess: (_d, studentId) => {
+      setMarks((prev) => {
+        const updated = { ...prev };
+        if (updated[studentId]) {
+          const cleared: MarksEntry = {};
+          SUBJECTS.forEach((sub) => {
+            cleared[sub] = { marks: "", total: totalMarksRef.current[sub] || "100" };
+          });
+          updated[studentId] = cleared;
+        }
+        return updated;
+      });
+      queryClient.invalidateQueries({ queryKey: ["student-results"] });
+      toast({ title: "Result deleted for student." });
+    },
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+
   const triggerAutoSave = useCallback((updatedMarks: Record<string, MarksEntry>) => {
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     setAutoSaveStatus("saving");
@@ -417,6 +457,7 @@ const ResultsTab = () => {
               {SUBJECTS.map((s) => <TableHead key={s} className="text-center min-w-[80px]">{s}</TableHead>)}
               <TableHead className="text-center min-w-[80px] font-bold">Total</TableHead>
               <TableHead className="text-center min-w-[80px] font-bold">%</TableHead>
+              <TableHead className="text-center min-w-[60px]">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -457,6 +498,7 @@ const ResultsTab = () => {
                 {SUBJECTS.reduce((s, sub) => s + (parseFloat(totalMarks[sub]) || 100), 0)}
               </TableCell>
               <TableCell className="text-center font-bold">-</TableCell>
+              <TableCell className="text-center">-</TableCell>
             </TableRow>
             {students?.map((s) => (
               <TableRow key={s.id}>
@@ -486,6 +528,41 @@ const ResultsTab = () => {
                     <>
                       <TableCell className="text-center font-semibold">{hasAny ? obtained : "-"}</TableCell>
                       <TableCell className="text-center font-semibold">{hasAny ? `${Math.round((obtained / maxMarks) * 100)}%` : "-"}</TableCell>
+                      <TableCell className="text-center">
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              disabled={!hasAny || (deleteStudentMutation.isPending && deleteStudentMutation.variables === s.id)}
+                              title="Delete this student's result"
+                              className="text-destructive hover:text-destructive"
+                            >
+                              {deleteStudentMutation.isPending && deleteStudentMutation.variables === s.id
+                                ? <Loader2 className="h-4 w-4 animate-spin" />
+                                : <Trash2 className="h-4 w-4" />}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete result?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will permanently delete {s.name}'s {examType} ({academicYear}) marks for all subjects. This cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteStudentMutation.mutate(s.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
                     </>
                   );
                 })()}
