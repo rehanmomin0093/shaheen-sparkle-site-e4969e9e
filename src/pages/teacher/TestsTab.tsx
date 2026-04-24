@@ -202,7 +202,7 @@ const TestsTab = () => {
     setTitle("");
     setDescription("");
     setTestType("mcq");
-    setSubject(SUBJECTS[0]);
+    setSubject("");
     setTotalMarks("100");
     setDueDate("");
     setQuestions([{ ...emptyQuestion }]);
