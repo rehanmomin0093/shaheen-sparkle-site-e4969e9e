@@ -115,6 +115,40 @@ const AdminStudents = () => {
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
+  const deleteClassMutation = useMutation({
+    mutationFn: async (className: string) => {
+      // Get all student ids in this class
+      const { data: ids, error: fetchErr } = await supabase
+        .from("students")
+        .select("id")
+        .eq("class", className);
+      if (fetchErr) throw fetchErr;
+      const studentIds = (ids || []).map((r) => r.id);
+      if (studentIds.length === 0) return;
+
+      // Delete related records first to avoid orphan data
+      await supabase.from("attendance").delete().in("student_id", studentIds);
+      await supabase.from("cce_results").delete().in("student_id", studentIds);
+      await supabase.from("student_results").delete().in("student_id", studentIds);
+      await supabase.from("student_physical_data").delete().in("student_id", studentIds);
+      await supabase.from("test_submissions").delete().in("student_id", studentIds);
+
+      const { error } = await supabase.from("students").delete().eq("class", className);
+      if (error) throw error;
+    },
+    onSuccess: (_d, className) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-students"] });
+      toast({ title: `Class ${className} deleted` });
+    },
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+
+  const handleDeleteClass = (className: string, count: number) => {
+    if (window.confirm(`Delete entire Class ${className}? This will permanently remove all ${count} students and their attendance, marks, and other related records. This cannot be undone.`)) {
+      deleteClassMutation.mutate(className);
+    }
+  };
+
   const closeDialog = () => {
     setDialogOpen(false);
     setEditId(null);
