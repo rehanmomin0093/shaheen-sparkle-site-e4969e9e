@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -66,6 +66,7 @@ type Row = {
 const AdminCCEConfig = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const tableRef = useRef<HTMLDivElement | null>(null);
 
   const [className, setClassName] = useState<string>("1");
   const [semester, setSemester] = useState<"1" | "2">("1");
@@ -111,6 +112,43 @@ const AdminCCEConfig = () => {
         r.subject === subject ? { ...r, values: { ...r.values, [key]: num } } : r,
       ),
     );
+  };
+
+  const handleCellArrowNavigation = (
+    event: KeyboardEvent<HTMLInputElement>,
+    rowIndex: number,
+    colIndex: number,
+  ) => {
+    const moves: Record<string, { row: number; col: number }> = {
+      ArrowUp: { row: -1, col: 0 },
+      ArrowDown: { row: 1, col: 0 },
+      ArrowLeft: { row: 0, col: -1 },
+      ArrowRight: { row: 0, col: 1 },
+    };
+
+    const move = moves[event.key];
+    if (!move) return;
+
+    event.preventDefault();
+
+    const nextRow = rowIndex + move.row;
+    const nextCol = colIndex + move.col;
+
+    if (
+      nextRow < 0 ||
+      nextRow >= rows.length ||
+      nextCol < 0 ||
+      nextCol >= CCE_SUM_COMPONENTS.length + CCE_FORM_COMPONENTS.length
+    ) {
+      return;
+    }
+
+    const nextInput = tableRef.current?.querySelector<HTMLInputElement>(
+      `[data-cce-cell="true"][data-row-index="${nextRow}"][data-col-index="${nextCol}"]`,
+    );
+
+    nextInput?.focus();
+    nextInput?.select();
   };
 
   const applyDefaults = () => {
@@ -243,7 +281,7 @@ const AdminCCEConfig = () => {
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div ref={tableRef} className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -293,14 +331,20 @@ const AdminCCEConfig = () => {
                         <TableCell className="border-r font-medium">
                           {r.subject}
                         </TableCell>
-                        {CCE_SUM_COMPONENTS.map((c) => (
+                        {CCE_SUM_COMPONENTS.map((c, sumIndex) => (
                           <TableCell key={c.key} className="p-1">
                             <Input
                               type="number"
                               min={0}
+                              data-cce-cell="true"
+                              data-row-index={i}
+                              data-col-index={sumIndex}
                               value={r.values[c.maxKey] ?? 0}
                               onChange={(e) =>
                                 updateValue(r.subject, c.maxKey, e.target.value)
+                              }
+                              onKeyDown={(e) =>
+                                handleCellArrowNavigation(e, i, sumIndex)
                               }
                               className="h-8 w-16 text-center"
                             />
@@ -309,14 +353,24 @@ const AdminCCEConfig = () => {
                         <TableCell className="border-r text-center font-semibold">
                           {t?.sumMax}
                         </TableCell>
-                        {CCE_FORM_COMPONENTS.map((c) => (
+                        {CCE_FORM_COMPONENTS.map((c, formIndex) => (
                           <TableCell key={c.key} className="p-1">
                             <Input
                               type="number"
                               min={0}
+                              data-cce-cell="true"
+                              data-row-index={i}
+                              data-col-index={CCE_SUM_COMPONENTS.length + formIndex}
                               value={r.values[c.maxKey] ?? 0}
                               onChange={(e) =>
                                 updateValue(r.subject, c.maxKey, e.target.value)
+                              }
+                              onKeyDown={(e) =>
+                                handleCellArrowNavigation(
+                                  e,
+                                  i,
+                                  CCE_SUM_COMPONENTS.length + formIndex,
+                                )
                               }
                               className="h-8 w-16 text-center"
                             />
