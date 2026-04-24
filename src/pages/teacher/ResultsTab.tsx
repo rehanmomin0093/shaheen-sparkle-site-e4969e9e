@@ -28,16 +28,30 @@ const ResultsTab = () => {
   const [academicYear, setAcademicYear] = useState("2025-26");
   const [marks, setMarks] = useState<Record<string, MarksEntry>>({});
 
-  const { data: assignment, isLoading: loadingAssignment } = useTeacherAssignment();
+  const { data: assignments, isLoading: loadingAssignments } = useTeacherAssignments();
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
 
-  // Filter subjects to only those assigned by admin
-  const SUBJECTS = (() => {
-    const teacherSubjects = (assignment as any)?.teacher_subjects || "";
-    if (!teacherSubjects) return [...ALL_SUBJECTS];
-    const assigned = teacherSubjects.split(",").map((s: string) => s.trim()).filter(Boolean);
+  // Auto-select first assignment (prefer class teacher) once assignments load
+  useEffect(() => {
+    if (!assignments?.length || selectedAssignmentId) return;
+    const preferred = [...assignments].sort(
+      (a, b) => Number(b.is_class_teacher) - Number(a.is_class_teacher),
+    )[0];
+    setSelectedAssignmentId(preferred.id);
+  }, [assignments, selectedAssignmentId]);
+
+  const assignment = useMemo(
+    () => assignments?.find((a) => a.id === selectedAssignmentId) ?? null,
+    [assignments, selectedAssignmentId],
+  );
+
+  // Filter subjects to only those assigned for THIS class
+  const SUBJECTS = useMemo(() => {
+    const raw = (assignment as any)?.subjects || "";
+    const assigned = raw.split(",").map((s: string) => s.trim()).filter(Boolean);
     const filtered = ALL_SUBJECTS.filter((s) => assigned.includes(s));
     return filtered.length > 0 ? filtered : [...ALL_SUBJECTS];
-  })();
+  }, [assignment]);
 
   const [totalMarks, setTotalMarks] = useState<Record<string, string>>(
     Object.fromEntries(ALL_SUBJECTS.map((s) => [s, "100"]))
