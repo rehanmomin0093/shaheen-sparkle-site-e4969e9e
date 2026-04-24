@@ -498,6 +498,7 @@ const ResultsTab = () => {
                 {SUBJECTS.reduce((s, sub) => s + (parseFloat(totalMarks[sub]) || 100), 0)}
               </TableCell>
               <TableCell className="text-center font-bold">-</TableCell>
+              <TableCell className="text-center">-</TableCell>
             </TableRow>
             {students?.map((s) => (
               <TableRow key={s.id}>
