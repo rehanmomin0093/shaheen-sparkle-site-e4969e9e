@@ -312,11 +312,11 @@ const ResultsTab = () => {
     XLSX.writeFile(wb, `Marks_Template_${assignment?.class_name}.xlsx`);
   };
 
-  if (loadingAssignment || loadingStudents) {
+  if (loadingAssignments || (assignment && loadingStudents)) {
     return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
-  if (!assignment) {
+  if (!assignments?.length) {
     return (
       <Card>
         <CardContent className="py-12 text-center text-muted-foreground">
@@ -333,10 +333,20 @@ const ResultsTab = () => {
           <div>
             <CardTitle>Student Results</CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">
-              Class {assignment.class_name}{assignment.section ? ` - ${assignment.section}` : ""}
+              {assignment ? `Class ${assignment.class_name}${assignment.section ? ` - ${assignment.section}` : ""}` : "Select a class"}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
+            <Select value={selectedAssignmentId} onValueChange={(v) => { setSelectedAssignmentId(v); setMarks({}); }}>
+              <SelectTrigger className="w-48"><SelectValue placeholder="Select class" /></SelectTrigger>
+              <SelectContent>
+                {assignments.map((a) => (
+                  <SelectItem key={a.id} value={a.id}>
+                    {`Class ${a.class_name}${a.section ? ` - ${a.section}` : ""}${a.is_class_teacher ? " (CT)" : ""}`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Select value={examType} onValueChange={setExamType}>
               <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
               <SelectContent>
