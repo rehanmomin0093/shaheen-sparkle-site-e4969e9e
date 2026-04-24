@@ -124,7 +124,7 @@ const AdminCCEConfig = () => {
 
       const { error } = await supabase
         .from("cce_subject_config")
-        .upsert(payload, { onConflict: "class_name,semester,subject" });
+        .upsert(payload, { onConflict: "class_name,subject,semester" });
       if (error) throw error;
     },
     onSuccess: () => {
