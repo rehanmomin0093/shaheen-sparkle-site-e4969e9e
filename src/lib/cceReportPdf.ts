@@ -97,18 +97,18 @@ export const generateCCEReportPDF = ({
     const s1Form = CCE_FORM_COMPONENTS.reduce((s, c) => s + (Number((r1 as any)[c.key]) || 0), 0);
     const s1Total = s1Sum + s1Form;
     const s1Max = maxTotalOf(c1);
-    const s1Grade = s1Max > 0 && Object.keys(r1).length > 0 ? gradeFor(percentOf(s1Total, s1Max)) : "-";
+    const s1Grade = s1Max > 0 && Object.keys(r1).length > 0 ? gradeFor(percentOf(s1Total, s1Max), student.class) : "-";
 
     const s2Sum = CCE_SUM_COMPONENTS.reduce((s, c) => s + (Number((r2 as any)[c.key]) || 0), 0);
     const s2Form = CCE_FORM_COMPONENTS.reduce((s, c) => s + (Number((r2 as any)[c.key]) || 0), 0);
     const s2Total = s2Sum + s2Form;
     const s2Max = maxTotalOf(c2);
-    const s2Grade = s2Max > 0 && Object.keys(r2).length > 0 ? gradeFor(percentOf(s2Total, s2Max)) : "-";
+    const s2Grade = s2Max > 0 && Object.keys(r2).length > 0 ? gradeFor(percentOf(s2Total, s2Max), student.class) : "-";
 
     const annualTotal = s1Total + s2Total;
     const annualMax = s1Max + s2Max;
     const annualPercent = percentOf(annualTotal, annualMax);
-    const annualGrade = annualMax > 0 ? gradeFor(annualPercent) : "-";
+    const annualGrade = annualMax > 0 ? gradeFor(annualPercent, student.class) : "-";
 
     grandObtained += annualTotal;
     grandMax += annualMax;
@@ -136,7 +136,7 @@ export const generateCCEReportPDF = ({
     "", "", "", "", "", "", "", "",
     { content: `${grandObtained} / ${grandMax}`, styles: { fontStyle: "bold" } },
     { content: `${grandPercent}%`, styles: { fontStyle: "bold" } },
-    { content: grandMax > 0 ? gradeFor(grandPercent) : "-", styles: { fontStyle: "bold" } },
+    { content: grandMax > 0 ? gradeFor(grandPercent, student.class) : "-", styles: { fontStyle: "bold" } },
   ]);
 
   autoTable(doc, {
