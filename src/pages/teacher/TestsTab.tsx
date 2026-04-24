@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useTeacherAssignment } from "./useTeacherStudents";
+import { useTeacherAssignments } from "./useTeacherStudents";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Trash2, Eye, FileText, Pencil, Download, Maximize2, Minimize2 } from "lucide-react";
 import * as XLSX from "xlsx";
 
-const SUBJECTS = ["English", "Hindi", "Marathi", "Urdu", "Math", "Science", "Social Studies"];
+const ALL_SUBJECTS = ["English", "Hindi", "Marathi", "Urdu", "Math", "Science", "Social Studies"];
 
 interface QuestionForm {
   question_text: string;
@@ -37,7 +37,7 @@ const TestsTab = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { data: assignment } = useTeacherAssignment();
+  const { data: assignments, isLoading: assignmentsLoading } = useTeacherAssignments();
 
   const [createOpen, setCreateOpen] = useState(false);
   const [questionsOpen, setQuestionsOpen] = useState<string | null>(null);
@@ -45,11 +45,45 @@ const TestsTab = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [testType, setTestType] = useState("mcq");
-  const [subject, setSubject] = useState(SUBJECTS[0]);
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
+  const [subject, setSubject] = useState("");
   const [totalMarks, setTotalMarks] = useState("100");
   const [dueDate, setDueDate] = useState("");
   const [questions, setQuestions] = useState<QuestionForm[]>([{ ...emptyQuestion }]);
   const [submissionsFullScreen, setSubmissionsFullScreen] = useState(false);
+
+  const selectedAssignment = useMemo(
+    () => assignments?.find((a) => a.id === selectedAssignmentId) ?? null,
+    [assignments, selectedAssignmentId],
+  );
+
+  // Subjects available for the chosen class (filtered by admin assignment)
+  const SUBJECTS = useMemo(() => {
+    const raw = (selectedAssignment as any)?.subjects || "";
+    const assigned = raw.split(",").map((s: string) => s.trim()).filter(Boolean);
+    const filtered = ALL_SUBJECTS.filter((s) => assigned.includes(s));
+    return filtered.length > 0 ? filtered : [...ALL_SUBJECTS];
+  }, [selectedAssignment]);
+
+  // Auto-pick first assignment when dialog opens
+  useEffect(() => {
+    if (!createOpen || !assignments?.length || selectedAssignmentId) return;
+    const preferred = [...assignments].sort(
+      (a, b) => Number(b.is_class_teacher) - Number(a.is_class_teacher),
+    )[0];
+    setSelectedAssignmentId(preferred.id);
+  }, [createOpen, assignments, selectedAssignmentId]);
+
+  // Reset subject when class changes (so we don't carry a subject not assigned to the new class)
+  useEffect(() => {
+    if (!subject || SUBJECTS.includes(subject)) return;
+    setSubject(SUBJECTS[0] ?? "");
+  }, [SUBJECTS, subject]);
+
+  // Initialize subject once SUBJECTS is ready
+  useEffect(() => {
+    if (!subject && SUBJECTS.length > 0) setSubject(SUBJECTS[0]);
+  }, [SUBJECTS, subject]);
 
   const { data: tests, isLoading } = useQuery({
     queryKey: ["teacher-tests", user?.id],
@@ -92,15 +126,16 @@ const TestsTab = () => {
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      if (!assignment) throw new Error("No class assigned");
+      if (!selectedAssignment) throw new Error("Please select a class");
+      if (!subject) throw new Error("Please select a subject");
 
       const insertData: any = {
         title,
         description,
         test_type: testType,
         subject,
-        class_name: assignment.class_name,
-        section: assignment.section,
+        class_name: selectedAssignment.class_name,
+        section: selectedAssignment.section,
         total_marks: parseFloat(totalMarks),
         due_date: dueDate ? new Date(dueDate).toISOString() : null,
         created_by: user!.id,
@@ -167,7 +202,7 @@ const TestsTab = () => {
     setTitle("");
     setDescription("");
     setTestType("mcq");
-    setSubject(SUBJECTS[0]);
+    setSubject("");
     setTotalMarks("100");
     setDueDate("");
     setQuestions([{ ...emptyQuestion }]);
@@ -199,7 +234,11 @@ const TestsTab = () => {
     XLSX.writeFile(wb, fileName, { bookType: format === "csv" ? "csv" : "xlsx" });
   };
 
-  if (!assignment) {
+  if (assignmentsLoading) {
+    return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  }
+
+  if (!assignments?.length) {
     return <Card><CardContent className="py-12 text-center text-muted-foreground">No class assigned. Contact admin.</CardContent></Card>;
   }
 
@@ -220,6 +259,7 @@ const TestsTab = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Title</TableHead>
+                  <TableHead>Class</TableHead>
                   <TableHead>Subject</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Due Date</TableHead>
@@ -229,11 +269,12 @@ const TestsTab = () => {
               </TableHeader>
               <TableBody>
                 {tests?.length === 0 && (
-                  <TableRow><TableCell colSpan={6} className="py-8 text-center text-muted-foreground">No tests created yet</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={7} className="py-8 text-center text-muted-foreground">No tests created yet</TableCell></TableRow>
                 )}
                 {tests?.map((t) => (
                   <TableRow key={t.id}>
                     <TableCell className="font-medium">{t.title}</TableCell>
+                    <TableCell>{`${t.class_name}${t.section ? `-${t.section}` : ""}`}</TableCell>
                     <TableCell>{t.subject}</TableCell>
                     <TableCell><Badge variant="outline">{t.test_type.toUpperCase()}</Badge></TableCell>
                     <TableCell>{t.due_date ? new Date(t.due_date).toLocaleDateString() : "-"}</TableCell>
@@ -269,9 +310,22 @@ const TestsTab = () => {
                 <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Unit Test 1 - Math" />
               </div>
               <div className="space-y-2">
+                <Label>Class *</Label>
+                <Select value={selectedAssignmentId} onValueChange={setSelectedAssignmentId}>
+                  <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
+                  <SelectContent>
+                    {assignments?.map((a) => (
+                      <SelectItem key={a.id} value={a.id}>
+                        {`Class ${a.class_name}${a.section ? ` - ${a.section}` : ""}${a.is_class_teacher ? " (CT)" : ""}`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
                 <Label>Subject</Label>
                 <Select value={subject} onValueChange={setSubject}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger>
                   <SelectContent>{SUBJECTS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                 </Select>
               </div>

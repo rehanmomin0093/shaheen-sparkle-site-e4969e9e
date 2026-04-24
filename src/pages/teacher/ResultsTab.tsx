@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useTeacherAssignment, useTeacherStudents } from "./useTeacherStudents";
+import { useTeacherAssignments, useTeacherStudents } from "./useTeacherStudents";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,16 +28,30 @@ const ResultsTab = () => {
   const [academicYear, setAcademicYear] = useState("2025-26");
   const [marks, setMarks] = useState<Record<string, MarksEntry>>({});
 
-  const { data: assignment, isLoading: loadingAssignment } = useTeacherAssignment();
+  const { data: assignments, isLoading: loadingAssignments } = useTeacherAssignments();
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
 
-  // Filter subjects to only those assigned by admin
-  const SUBJECTS = (() => {
-    const teacherSubjects = (assignment as any)?.teacher_subjects || "";
-    if (!teacherSubjects) return [...ALL_SUBJECTS];
-    const assigned = teacherSubjects.split(",").map((s: string) => s.trim()).filter(Boolean);
+  // Auto-select first assignment (prefer class teacher) once assignments load
+  useEffect(() => {
+    if (!assignments?.length || selectedAssignmentId) return;
+    const preferred = [...assignments].sort(
+      (a, b) => Number(b.is_class_teacher) - Number(a.is_class_teacher),
+    )[0];
+    setSelectedAssignmentId(preferred.id);
+  }, [assignments, selectedAssignmentId]);
+
+  const assignment = useMemo(
+    () => assignments?.find((a) => a.id === selectedAssignmentId) ?? null,
+    [assignments, selectedAssignmentId],
+  );
+
+  // Filter subjects to only those assigned for THIS class
+  const SUBJECTS = useMemo(() => {
+    const raw = (assignment as any)?.subjects || "";
+    const assigned = raw.split(",").map((s: string) => s.trim()).filter(Boolean);
     const filtered = ALL_SUBJECTS.filter((s) => assigned.includes(s));
     return filtered.length > 0 ? filtered : [...ALL_SUBJECTS];
-  })();
+  }, [assignment]);
 
   const [totalMarks, setTotalMarks] = useState<Record<string, string>>(
     Object.fromEntries(ALL_SUBJECTS.map((s) => [s, "100"]))
@@ -298,11 +312,11 @@ const ResultsTab = () => {
     XLSX.writeFile(wb, `Marks_Template_${assignment?.class_name}.xlsx`);
   };
 
-  if (loadingAssignment || loadingStudents) {
+  if (loadingAssignments || (assignment && loadingStudents)) {
     return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
-  if (!assignment) {
+  if (!assignments?.length) {
     return (
       <Card>
         <CardContent className="py-12 text-center text-muted-foreground">
@@ -319,10 +333,20 @@ const ResultsTab = () => {
           <div>
             <CardTitle>Student Results</CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">
-              Class {assignment.class_name}{assignment.section ? ` - ${assignment.section}` : ""}
+              {assignment ? `Class ${assignment.class_name}${assignment.section ? ` - ${assignment.section}` : ""}` : "Select a class"}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
+            <Select value={selectedAssignmentId} onValueChange={(v) => { setSelectedAssignmentId(v); setMarks({}); }}>
+              <SelectTrigger className="w-48"><SelectValue placeholder="Select class" /></SelectTrigger>
+              <SelectContent>
+                {assignments.map((a) => (
+                  <SelectItem key={a.id} value={a.id}>
+                    {`Class ${a.class_name}${a.section ? ` - ${a.section}` : ""}${a.is_class_teacher ? " (CT)" : ""}`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Select value={examType} onValueChange={setExamType}>
               <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
               <SelectContent>
