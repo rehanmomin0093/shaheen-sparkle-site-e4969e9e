@@ -32,7 +32,18 @@ const CLASSES = [
   "Nursery", "LKG", "UKG",
   "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
 ];
-const SUBJECTS = ["English", "Hindi", "Urdu", "Marathi", "Math", "Science", "Social Studies"];
+const SUBJECTS = [
+  "English",
+  "Hindi",
+  "Urdu",
+  "Marathi",
+  "Math",
+  "Science",
+  "Social Studies",
+  "ARTS",
+  "W.ESP",
+  "PHY.EDU",
+];
 const SEMESTERS: Array<"1" | "2"> = ["1", "2"];
 
 const DEFAULT_MAX = {
