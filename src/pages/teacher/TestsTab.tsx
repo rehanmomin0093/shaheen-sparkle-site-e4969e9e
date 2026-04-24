@@ -308,9 +308,22 @@ const TestsTab = () => {
                 <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Unit Test 1 - Math" />
               </div>
               <div className="space-y-2">
+                <Label>Class *</Label>
+                <Select value={selectedAssignmentId} onValueChange={setSelectedAssignmentId}>
+                  <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
+                  <SelectContent>
+                    {assignments?.map((a) => (
+                      <SelectItem key={a.id} value={a.id}>
+                        {`Class ${a.class_name}${a.section ? ` - ${a.section}` : ""}${a.is_class_teacher ? " (CT)" : ""}`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
                 <Label>Subject</Label>
                 <Select value={subject} onValueChange={setSubject}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger>
                   <SelectContent>{SUBJECTS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
