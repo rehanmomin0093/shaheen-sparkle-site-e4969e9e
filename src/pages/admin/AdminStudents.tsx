@@ -58,7 +58,7 @@ const AdminStudents = () => {
   const { data: students, isLoading } = useQuery({
     queryKey: ["admin-students"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("students").select("*").order("class").order("name");
+      const { data, error } = await supabase.from("students").select("*").order("class").order("section").order("roll_number");
       if (error) throw error;
       return data;
     },
