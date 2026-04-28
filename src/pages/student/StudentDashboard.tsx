@@ -171,7 +171,7 @@ const StudentDashboard = () => {
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10"><ClipboardList className="h-5 w-5 text-primary" /></div>
             <div><p className="text-xs text-muted-foreground">Attendance</p><p className="font-bold">{attendancePercent}%</p></div>
           </CardContent></Card>
-          <Card className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => setActiveTab("results")}><CardContent className="flex items-center gap-4 p-4">
+          <Card className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => setActiveTab("report-card")}><CardContent className="flex items-center gap-4 p-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10"><TrendingUp className="h-5 w-5 text-primary" /></div>
             <div><p className="text-xs text-muted-foreground">Latest Result</p><p className="font-bold">{latestExamWithData ? `${latestExamWithData.percent}%` : "-"}</p></div>
           </CardContent></Card>
