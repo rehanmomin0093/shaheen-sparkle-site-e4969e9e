@@ -268,10 +268,9 @@ const StudentDashboard = () => {
         </Dialog>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid lg:grid-cols-5">
+          <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:inline-grid lg:grid-cols-4">
             <TabsTrigger value="progress" className="gap-2"><TrendingUp className="h-4 w-4" /> Progress</TabsTrigger>
             <TabsTrigger value="attendance" className="gap-2"><ClipboardList className="h-4 w-4" /> Attendance</TabsTrigger>
-            <TabsTrigger value="results" className="gap-2"><FileText className="h-4 w-4" /> Results</TabsTrigger>
             <TabsTrigger value="report-card" className="gap-2"><GraduationCap className="h-4 w-4" /> Report Card</TabsTrigger>
             <TabsTrigger value="tests" className="gap-2"><BookOpen className="h-4 w-4" /> Tests</TabsTrigger>
           </TabsList>
@@ -405,40 +404,6 @@ const StudentDashboard = () => {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
-
-          {/* Results Tab */}
-          <TabsContent value="results">
-            <div className="space-y-4">
-              {resultsByExam.filter((r) => r.count > 0).length === 0 ? (
-                <Card><CardContent className="py-8 text-center text-muted-foreground">No results available yet.</CardContent></Card>
-              ) : (
-                resultsByExam.filter((r) => r.count > 0).map((r) => (
-                  <Card key={r.exam}>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-lg">{r.exam}</CardTitle>
-                        <Badge variant="outline" className="text-sm font-bold">{r.percent}%</Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <Table>
-                        <TableHeader><TableRow><TableHead>Subject</TableHead><TableHead className="text-center">Marks</TableHead><TableHead className="text-center">Total</TableHead></TableRow></TableHeader>
-                        <TableBody>
-                          {SUBJECTS.map((sub) => {
-                            const marks = r.subjectMarks[sub];
-                            return marks !== undefined ? (
-                              <TableRow key={sub}><TableCell>{sub}</TableCell><TableCell className="text-center font-medium">{marks}</TableCell><TableCell className="text-center">100</TableCell></TableRow>
-                            ) : null;
-                          })}
-                          <TableRow className="font-bold"><TableCell>Total</TableCell><TableCell className="text-center">{r.total}</TableCell><TableCell className="text-center">{r.maxTotal}</TableCell></TableRow>
-                        </TableBody>
-                      </Table>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </div>
           </TabsContent>
 
           {/* Report Card (CCE) Tab */}
