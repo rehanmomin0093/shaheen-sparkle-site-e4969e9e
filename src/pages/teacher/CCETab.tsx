@@ -199,6 +199,67 @@ const CCETab = () => {
       toast({ title: "Save failed", description: e.message, variant: "destructive" }),
   });
 
+  const handleExportExcel = async () => {
+    if (!assignment || !students?.length) {
+      toast({ title: "No students to export", variant: "destructive" });
+      return;
+    }
+    try {
+      setExporting(true);
+      const className = (assignment as any).class_name as string;
+      const section = (assignment as any).section as string | null;
+
+      // Fetch all configs for this class (all subjects, both semesters)
+      const { data: cfgRows, error: cfgErr } = await supabase
+        .from("cce_subject_config")
+        .select("*")
+        .eq("class_name", className)
+        .order("sort_order");
+      if (cfgErr) throw cfgErr;
+
+      // Fetch all CCE results for these students in selected academic year
+      const ids = students.map((s) => s.id);
+      const { data: resRows, error: resErr } = await supabase
+        .from("cce_results")
+        .select("*")
+        .eq("academic_year", academicYear)
+        .in("student_id", ids);
+      if (resErr) throw resErr;
+
+      const configBySubject: Record<string, { sem1?: CCEConfig; sem2?: CCEConfig }> = {};
+      (cfgRows ?? []).forEach((c: any) => {
+        configBySubject[c.subject] = configBySubject[c.subject] || {};
+        if (c.semester === "1") configBySubject[c.subject].sem1 = c;
+        else configBySubject[c.subject].sem2 = c;
+      });
+      const subjectsList = Array.from(new Set((cfgRows ?? []).map((c: any) => c.subject)));
+
+      const resultsByStudent: Record<string, Record<string, { sem1?: CCEResult; sem2?: CCEResult }>> = {};
+      (resRows ?? []).forEach((r: any) => {
+        resultsByStudent[r.student_id] = resultsByStudent[r.student_id] || {};
+        resultsByStudent[r.student_id][r.subject] = resultsByStudent[r.student_id][r.subject] || {};
+        if (r.semester === "1") resultsByStudent[r.student_id][r.subject].sem1 = r;
+        else resultsByStudent[r.student_id][r.subject].sem2 = r;
+      });
+
+      generateCCEExcelReport({
+        schoolName: siteContent?.["footer_tagline"]?.trim() || "Shaheen High School, Karad",
+        className,
+        section,
+        academicYear,
+        students: students.map((s) => ({ id: s.id, name: s.name, roll_number: s.roll_number, section: s.section })),
+        subjects: subjectsList,
+        configBySubject,
+        resultsByStudent,
+      });
+      toast({ title: "Excel report downloaded" });
+    } catch (e: any) {
+      toast({ title: "Export failed", description: e.message, variant: "destructive" });
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (loadingAssignments) {
     return (
       <div className="flex justify-center py-12">
