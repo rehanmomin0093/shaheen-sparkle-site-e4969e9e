@@ -332,29 +332,32 @@ const CCETab = () => {
               className="w-28"
               placeholder="2025-26"
             />
-            <Select value={exportScope} onValueChange={(v) => setExportScope(v as any)}>
-              <SelectTrigger className="w-36">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All (Sem 1+2+Annual)</SelectItem>
-                <SelectItem value="sem1">Semester 1</SelectItem>
-                <SelectItem value="sem2">Semester 2</SelectItem>
-                <SelectItem value="annual">Annual</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button
-              variant="outline"
-              onClick={handleExportExcel}
-              disabled={exporting || !students?.length}
-            >
-              {exporting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <FileSpreadsheet className="mr-2 h-4 w-4" />
-              )}
-              Download Excel
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" disabled={exporting || !students?.length}>
+                  {exporting ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <FileSpreadsheet className="mr-2 h-4 w-4" />
+                  )}
+                  Download Excel
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => { setExportScope("all"); setTimeout(handleExportExcel, 0); }}>
+                  All (Sem 1 + Sem 2 + Annual)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { setExportScope("sem1"); setTimeout(handleExportExcel, 0); }}>
+                  Semester 1
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { setExportScope("sem2"); setTimeout(handleExportExcel, 0); }}>
+                  Semester 2
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { setExportScope("annual"); setTimeout(handleExportExcel, 0); }}>
+                  Annual
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               variant="outline"
               onClick={() => saveMutation.mutate(false)}
