@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, CheckCircle2, BookOpen } from "lucide-react";
+import { Loader2, CheckCircle2, BookOpen, FileSpreadsheet } from "lucide-react";
 import {
   CCE_FORM_COMPONENTS,
   CCE_SUM_COMPONENTS,
@@ -25,6 +25,8 @@ import {
   sumOf,
   totalOf,
 } from "@/lib/cce";
+import { generateCCEExcelReport } from "@/lib/cceExcelReport";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 type Marks = Record<string, Record<string, string>>; // studentId -> componentKey -> value
 
