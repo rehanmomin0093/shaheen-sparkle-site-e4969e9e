@@ -40,6 +40,7 @@ const CCETab = () => {
   const { data: assignments, isLoading: loadingAssignments } = useTeacherAssignments();
   const { data: siteContent } = useSiteContent();
   const [exporting, setExporting] = useState(false);
+  const [exportScope, setExportScope] = useState<"all" | "sem1" | "sem2" | "annual">("all");
 
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
 
