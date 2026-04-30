@@ -332,6 +332,18 @@ const CCETab = () => {
             />
             <Button
               variant="outline"
+              onClick={handleExportExcel}
+              disabled={exporting || !students?.length}
+            >
+              {exporting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <FileSpreadsheet className="mr-2 h-4 w-4" />
+              )}
+              Download Excel
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => saveMutation.mutate(false)}
               disabled={saveMutation.isPending || !subject}
             >
