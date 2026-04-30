@@ -25,7 +25,20 @@ const AttendanceTab = () => {
   const [absentInput, setAbsentInput] = useState("");
   const [view, setView] = useState<View>("daily");
 
-  const { data: assignment, isLoading: loadingAssignment } = useTeacherAssignment();
+  const { data: allAssignments, isLoading: loadingAssignment } = useTeacherAssignments();
+  const classTeacherAssignments = (allAssignments ?? []).filter((a: any) => a.is_class_teacher);
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!selectedAssignmentId && classTeacherAssignments.length > 0) {
+      setSelectedAssignmentId(classTeacherAssignments[0].id);
+    }
+  }, [classTeacherAssignments, selectedAssignmentId]);
+
+  const assignment: any = classTeacherAssignments.find((a: any) => a.id === selectedAssignmentId)
+    ?? (allAssignments ?? [])[0]
+    ?? null;
+
   const { data: students, isLoading: loadingStudents } = useTeacherStudents(
     assignment?.class_name,
     assignment?.section
