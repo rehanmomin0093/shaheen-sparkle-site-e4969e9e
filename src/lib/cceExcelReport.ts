@@ -30,6 +30,8 @@ interface BuildArgs {
   configBySubject: Record<string, { sem1?: CCEConfig; sem2?: CCEConfig }>;
   resultsByStudent: Record<string, Record<string, { sem1?: CCEResult; sem2?: CCEResult }>>;
   sheets?: Array<"sem1" | "sem2" | "annual">;
+  classTeacherName?: string;
+  principalName?: string;
 }
 
 const THIN: Partial<ExcelJS.Borders> = {
