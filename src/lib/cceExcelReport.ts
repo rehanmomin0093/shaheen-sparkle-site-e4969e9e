@@ -30,6 +30,7 @@ interface BuildArgs {
   configBySubject: Record<string, { sem1?: CCEConfig; sem2?: CCEConfig }>;
   // resultsByStudent[studentId][subject][semester] => CCEResult
   resultsByStudent: Record<string, Record<string, { sem1?: CCEResult; sem2?: CCEResult }>>;
+  sheets?: Array<"sem1" | "sem2" | "annual">;
 }
 
 const buildSemesterAOA = (
@@ -174,15 +175,38 @@ const aoaToSheet = (aoa: any[][], subjectsCount: number): XLSX.WorkSheet => {
 
 export const generateCCEExcelReport = (args: BuildArgs) => {
   const wb = XLSX.utils.book_new();
+  const sheets = args.sheets && args.sheets.length ? args.sheets : ["sem1", "sem2", "annual"];
 
-  const sem1AOA = buildSemesterAOA(args, "1", "FIRST SEMESTER");
-  const sem2AOA = buildSemesterAOA(args, "2", "SECOND SEMESTER");
-  const annualAOA = buildAnnualAOA(args);
+  if (sheets.includes("sem1")) {
+    XLSX.utils.book_append_sheet(
+      wb,
+      aoaToSheet(buildSemesterAOA(args, "1", "FIRST SEMESTER"), args.subjects.length),
+      "First Semester",
+    );
+  }
+  if (sheets.includes("sem2")) {
+    XLSX.utils.book_append_sheet(
+      wb,
+      aoaToSheet(buildSemesterAOA(args, "2", "SECOND SEMESTER"), args.subjects.length),
+      "Second Semester",
+    );
+  }
+  if (sheets.includes("annual")) {
+    XLSX.utils.book_append_sheet(
+      wb,
+      aoaToSheet(buildAnnualAOA(args), args.subjects.length),
+      "Annual",
+    );
+  }
 
-  XLSX.utils.book_append_sheet(wb, aoaToSheet(sem1AOA, args.subjects.length), "First Semester");
-  XLSX.utils.book_append_sheet(wb, aoaToSheet(sem2AOA, args.subjects.length), "Second Semester");
-  XLSX.utils.book_append_sheet(wb, aoaToSheet(annualAOA, args.subjects.length), "Annual");
-
-  const fileName = `Result_Class${args.className}${args.section ? `-${args.section}` : ""}_${args.academicYear}.xlsx`;
+  const suffix =
+    sheets.length === 1
+      ? sheets[0] === "sem1"
+        ? "_Sem1"
+        : sheets[0] === "sem2"
+          ? "_Sem2"
+          : "_Annual"
+      : "";
+  const fileName = `Result_Class${args.className}${args.section ? `-${args.section}` : ""}_${args.academicYear}${suffix}.xlsx`;
   XLSX.writeFile(wb, fileName);
 };
