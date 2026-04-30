@@ -30,6 +30,7 @@ interface BuildArgs {
   configBySubject: Record<string, { sem1?: CCEConfig; sem2?: CCEConfig }>;
   // resultsByStudent[studentId][subject][semester] => CCEResult
   resultsByStudent: Record<string, Record<string, { sem1?: CCEResult; sem2?: CCEResult }>>;
+  sheets?: Array<"sem1" | "sem2" | "annual">;
 }
 
 const buildSemesterAOA = (
