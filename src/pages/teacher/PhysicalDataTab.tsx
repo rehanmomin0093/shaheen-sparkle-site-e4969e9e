@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useTeacherAssignment, useTeacherStudents } from "./useTeacherStudents";
+import { useTeacherAssignments, useTeacherStudents } from "./useTeacherStudents";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save } from "lucide-react";
 
@@ -22,7 +23,20 @@ const PhysicalDataTab = () => {
   const [recordDate, setRecordDate] = useState(new Date().toISOString().split("T")[0]);
   const [entries, setEntries] = useState<Record<string, PhysicalEntry>>({});
 
-  const { data: assignment, isLoading: loadingAssignment } = useTeacherAssignment();
+  const { data: allAssignments, isLoading: loadingAssignment } = useTeacherAssignments();
+  const classTeacherAssignments = (allAssignments ?? []).filter((a: any) => a.is_class_teacher);
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!selectedAssignmentId && classTeacherAssignments.length > 0) {
+      setSelectedAssignmentId(classTeacherAssignments[0].id);
+    }
+  }, [classTeacherAssignments, selectedAssignmentId]);
+
+  const assignment: any = classTeacherAssignments.find((a: any) => a.id === selectedAssignmentId)
+    ?? (allAssignments ?? [])[0]
+    ?? null;
+
   const { data: students, isLoading: loadingStudents } = useTeacherStudents(
     assignment?.class_name,
     assignment?.section
