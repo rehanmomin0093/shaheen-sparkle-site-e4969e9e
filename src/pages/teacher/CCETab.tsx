@@ -201,7 +201,7 @@ const CCETab = () => {
       toast({ title: "Save failed", description: e.message, variant: "destructive" }),
   });
 
-  const handleExportExcel = async () => {
+  const handleExportExcel = async (scope: "all" | "sem1" | "sem2" | "annual" = exportScope) => {
     if (!assignment || !students?.length) {
       toast({ title: "No students to export", variant: "destructive" });
       return;
