@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, CheckCircle2, BookOpen, FileSpreadsheet } from "lucide-react";
@@ -200,7 +201,7 @@ const CCETab = () => {
       toast({ title: "Save failed", description: e.message, variant: "destructive" }),
   });
 
-  const handleExportExcel = async () => {
+  const handleExportExcel = async (scope: "all" | "sem1" | "sem2" | "annual" = exportScope) => {
     if (!assignment || !students?.length) {
       toast({ title: "No students to export", variant: "destructive" });
       return;
@@ -252,7 +253,7 @@ const CCETab = () => {
         subjects: subjectsList,
         configBySubject,
         resultsByStudent,
-        sheets: exportScope === "all" ? ["sem1", "sem2", "annual"] : [exportScope],
+        sheets: scope === "all" ? ["sem1", "sem2", "annual"] : [scope],
       });
       toast({ title: "Excel report downloaded" });
     } catch (e: any) {
@@ -332,29 +333,32 @@ const CCETab = () => {
               className="w-28"
               placeholder="2025-26"
             />
-            <Select value={exportScope} onValueChange={(v) => setExportScope(v as any)}>
-              <SelectTrigger className="w-36">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All (Sem 1+2+Annual)</SelectItem>
-                <SelectItem value="sem1">Semester 1</SelectItem>
-                <SelectItem value="sem2">Semester 2</SelectItem>
-                <SelectItem value="annual">Annual</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button
-              variant="outline"
-              onClick={handleExportExcel}
-              disabled={exporting || !students?.length}
-            >
-              {exporting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <FileSpreadsheet className="mr-2 h-4 w-4" />
-              )}
-              Download Excel
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" disabled={exporting || !students?.length}>
+                  {exporting ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <FileSpreadsheet className="mr-2 h-4 w-4" />
+                  )}
+                  Download Excel
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleExportExcel("all")}>
+                  All (Sem 1 + Sem 2 + Annual)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExportExcel("sem1")}>
+                  Semester 1
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExportExcel("sem2")}>
+                  Semester 2
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExportExcel("annual")}>
+                  Annual
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               variant="outline"
               onClick={() => saveMutation.mutate(false)}
