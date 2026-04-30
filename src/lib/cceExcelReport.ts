@@ -100,7 +100,7 @@ const buildSemesterSheet = (
   r3.getCell(1).font = { bold: true, size: 10 };
   r3.getCell(1).alignment = { horizontal: "right" };
   ws.mergeCells(3, 2, 3, 4);
-  r3.getCell(2).value = `${className}${section ? ` - ${section}` : ""}`;
+  r3.getCell(2).value = `Class ${className}${section ? ` - ${section}` : ""}`;
   r3.getCell(2).font = { bold: true, size: 11 };
   r3.getCell(2).alignment = { horizontal: "left" };
 
@@ -267,7 +267,7 @@ const buildAnnualSheet = (wb: ExcelJS.Workbook, args: BuildArgs) => {
   r3.getCell(1).font = { bold: true, size: 10 };
   r3.getCell(1).alignment = { horizontal: "right" };
   ws.mergeCells(3, 2, 3, 4);
-  r3.getCell(2).value = `${className}${section ? ` - ${section}` : ""}`;
+  r3.getCell(2).value = `Class ${className}${section ? ` - ${section}` : ""}`;
   r3.getCell(2).font = { bold: true, size: 11 };
   r3.getCell(2).alignment = { horizontal: "left" };
 
