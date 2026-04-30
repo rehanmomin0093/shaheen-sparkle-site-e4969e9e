@@ -244,12 +244,18 @@ const CCETab = () => {
         else resultsByStudent[r.student_id][r.subject].sem2 = r;
       });
 
-      generateCCEExcelReport({
+      await generateCCEExcelReport({
         schoolName: siteContent?.["footer_tagline"]?.trim() || "Shaheen High School, Karad",
         className,
         section,
         academicYear,
-        students: students.map((s) => ({ id: s.id, name: s.name, roll_number: s.roll_number, section: s.section })),
+        students: students.map((s: any) => ({
+          id: s.id,
+          name: s.name,
+          roll_number: s.roll_number,
+          section: s.section,
+          gender: s.gender ?? null,
+        })),
         subjects: subjectsList,
         configBySubject,
         resultsByStudent,

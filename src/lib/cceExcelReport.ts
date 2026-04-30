@@ -1,4 +1,4 @@
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import {
   CCEConfig,
   CCEResult,
@@ -17,6 +17,7 @@ export interface ExcelStudent {
   name: string;
   roll_number?: string | null;
   section?: string | null;
+  gender?: string | null;
 }
 
 interface BuildArgs {
@@ -26,42 +27,160 @@ interface BuildArgs {
   academicYear: string;
   students: ExcelStudent[];
   subjects: string[];
-  // configBySubject[subject][semester] => CCEConfig
   configBySubject: Record<string, { sem1?: CCEConfig; sem2?: CCEConfig }>;
-  // resultsByStudent[studentId][subject][semester] => CCEResult
   resultsByStudent: Record<string, Record<string, { sem1?: CCEResult; sem2?: CCEResult }>>;
   sheets?: Array<"sem1" | "sem2" | "annual">;
 }
 
-const buildSemesterAOA = (
+const THIN: Partial<ExcelJS.Borders> = {
+  top: { style: "thin" },
+  left: { style: "thin" },
+  bottom: { style: "thin" },
+  right: { style: "thin" },
+};
+
+const applyBorders = (ws: ExcelJS.Worksheet, startRow: number, endRow: number, startCol: number, endCol: number) => {
+  for (let r = startRow; r <= endRow; r++) {
+    for (let c = startCol; c <= endCol; c++) {
+      const cell = ws.getCell(r, c);
+      cell.border = THIN;
+      if (!cell.alignment) cell.alignment = { horizontal: "center", vertical: "middle" };
+    }
+  }
+};
+
+const HEADER_FILL: ExcelJS.Fill = {
+  type: "pattern",
+  pattern: "solid",
+  fgColor: { argb: "FFE8F0E8" },
+};
+
+const TITLE_FILL: ExcelJS.Fill = {
+  type: "pattern",
+  pattern: "solid",
+  fgColor: { argb: "FF064E3B" }, // Deep emerald
+};
+
+const buildSemesterSheet = (
+  wb: ExcelJS.Workbook,
   args: BuildArgs,
   semester: "1" | "2",
   semLabel: string,
-): any[][] => {
+  sheetName: string,
+) => {
   const { schoolName, className, section, academicYear, students, subjects, configBySubject, resultsByStudent } = args;
-
-  const aoa: any[][] = [];
-  aoa.push([`RESULT - ${semLabel} - ${schoolName}`]);
-  aoa.push([`Class: ${className}${section ? ` - ${section}` : ""}`, "", "", `Year: ${academicYear}`]);
-  aoa.push([]);
-
-  // Header rows
-  const top: any[] = ["Roll No", "Student Name"];
-  const sub: any[] = ["", ""];
-  subjects.forEach((s) => {
-    top.push(s, "", "", "");
-    sub.push("Summative", "Formative", "Total", "Grade");
+  const ws = wb.addWorksheet(sheetName, {
+    pageSetup: { orientation: "landscape", fitToPage: true, fitToWidth: 1, fitToHeight: 0 },
   });
-  top.push("Total Marks", "Percentage", "Grade");
-  sub.push("", "", "");
-  aoa.push(top);
-  aoa.push(sub);
 
-  students.forEach((stu) => {
-    const row: any[] = [stu.roll_number || "", stu.name];
+  // Columns: Roll(1), Name(2), Gender(3), then subjects * 4 (Sum, Form, Total, Grade), then Total/Pct/Grade(3)
+  const subjectCols = subjects.length * 4;
+  const totalCols = 3 + subjectCols + 3;
+
+  // Row 1: School name title
+  ws.mergeCells(1, 1, 1, totalCols);
+  const t1 = ws.getCell(1, 1);
+  t1.value = schoolName.toUpperCase();
+  t1.font = { name: "Arial", bold: true, size: 16, color: { argb: "FFFFFFFF" } };
+  t1.alignment = { horizontal: "center", vertical: "middle" };
+  t1.fill = TITLE_FILL;
+  ws.getRow(1).height = 28;
+
+  // Row 2: Subtitle (semester label)
+  ws.mergeCells(2, 1, 2, totalCols);
+  const t2 = ws.getCell(2, 1);
+  t2.value = `${semLabel} RESULT SHEET`;
+  t2.font = { name: "Arial", bold: true, size: 12, color: { argb: "FF064E3B" } };
+  t2.alignment = { horizontal: "center", vertical: "middle" };
+  ws.getRow(2).height = 20;
+
+  // Row 3: Class / Section / Year info
+  const r3 = ws.getRow(3);
+  r3.getCell(1).value = "CLASS:";
+  r3.getCell(1).font = { bold: true, size: 10 };
+  r3.getCell(1).alignment = { horizontal: "right" };
+  ws.mergeCells(3, 2, 3, 4);
+  r3.getCell(2).value = `${className}${section ? ` - ${section}` : ""}`;
+  r3.getCell(2).font = { bold: true, size: 11 };
+  r3.getCell(2).alignment = { horizontal: "left" };
+
+  const midCol = Math.max(5, Math.floor(totalCols / 2) - 2);
+  r3.getCell(midCol).value = "ACADEMIC YEAR:";
+  r3.getCell(midCol).font = { bold: true, size: 10 };
+  r3.getCell(midCol).alignment = { horizontal: "right" };
+  ws.mergeCells(3, midCol + 1, 3, midCol + 3);
+  r3.getCell(midCol + 1).value = academicYear;
+  r3.getCell(midCol + 1).font = { bold: true, size: 11 };
+  r3.getCell(midCol + 1).alignment = { horizontal: "left" };
+
+  const endCol = totalCols;
+  r3.getCell(endCol - 4).value = "SEMESTER:";
+  r3.getCell(endCol - 4).font = { bold: true, size: 10 };
+  r3.getCell(endCol - 4).alignment = { horizontal: "right" };
+  ws.mergeCells(3, endCol - 3, 3, endCol);
+  r3.getCell(endCol - 3).value = semLabel;
+  r3.getCell(endCol - 3).font = { bold: true, size: 11 };
+  r3.getCell(endCol - 3).alignment = { horizontal: "left" };
+
+  // Row 4 = blank spacer
+  // Header rows 5 (top) and 6 (sub)
+  const headerTop = 5;
+  const headerSub = 6;
+
+  // Roll No / Name / Gender — merged across two header rows
+  ws.mergeCells(headerTop, 1, headerSub, 1);
+  ws.getCell(headerTop, 1).value = "ROLL NO";
+  ws.mergeCells(headerTop, 2, headerSub, 2);
+  ws.getCell(headerTop, 2).value = "STUDENT NAME";
+  ws.mergeCells(headerTop, 3, headerSub, 3);
+  ws.getCell(headerTop, 3).value = "GENDER";
+
+  // Subject headers
+  subjects.forEach((subj, i) => {
+    const startC = 4 + i * 4;
+    ws.mergeCells(headerTop, startC, headerTop, startC + 3);
+    ws.getCell(headerTop, startC).value = subj.toUpperCase();
+    ws.getCell(headerSub, startC).value = "SUMMATIVE";
+    ws.getCell(headerSub, startC + 1).value = "FORMATIVE";
+    ws.getCell(headerSub, startC + 2).value = "TOTAL";
+    ws.getCell(headerSub, startC + 3).value = "GRADE";
+  });
+
+  // Trailing 3 columns: Total Marks, Percentage, Grade
+  const tailStart = 4 + subjectCols;
+  ws.mergeCells(headerTop, tailStart, headerSub, tailStart);
+  ws.getCell(headerTop, tailStart).value = "TOTAL MARKS";
+  ws.mergeCells(headerTop, tailStart + 1, headerSub, tailStart + 1);
+  ws.getCell(headerTop, tailStart + 1).value = "PERCENTAGE";
+  ws.mergeCells(headerTop, tailStart + 2, headerSub, tailStart + 2);
+  ws.getCell(headerTop, tailStart + 2).value = "GRADE";
+
+  // Style header rows
+  for (let r = headerTop; r <= headerSub; r++) {
+    for (let c = 1; c <= totalCols; c++) {
+      const cell = ws.getCell(r, c);
+      cell.font = { name: "Arial", bold: true, size: 9 };
+      cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
+      cell.fill = HEADER_FILL;
+      cell.border = THIN;
+    }
+  }
+  ws.getRow(headerTop).height = 22;
+  ws.getRow(headerSub).height = 30;
+
+  // Data rows
+  let rowIdx = headerSub + 1;
+  students.forEach((stu, i) => {
+    const row = ws.getRow(rowIdx);
+    row.getCell(1).value = stu.roll_number || (i + 1);
+    row.getCell(2).value = stu.name;
+    row.getCell(2).alignment = { horizontal: "left", vertical: "middle" };
+    row.getCell(3).value = stu.gender ? String(stu.gender).charAt(0).toUpperCase() : "-";
+
     let obtained = 0;
     let max = 0;
-    subjects.forEach((subj) => {
+    subjects.forEach((subj, si) => {
+      const startC = 4 + si * 4;
       const cfg = semester === "1" ? configBySubject[subj]?.sem1 : configBySubject[subj]?.sem2;
       const r = semester === "1"
         ? resultsByStudent[stu.id]?.[subj]?.sem1
@@ -73,131 +192,204 @@ const buildSemesterAOA = (
         const mx = maxTotalOf(cfg);
         obtained += tot;
         max += mx;
-        row.push(
-          `${sm}/${maxSumOf(cfg)}`,
-          `${fm}/${maxFormOf(cfg)}`,
-          `${tot}/${mx}`,
-          mx > 0 ? gradeFor(percentOf(tot, mx), className) : "-",
-        );
+        row.getCell(startC).value = `${sm}/${maxSumOf(cfg)}`;
+        row.getCell(startC + 1).value = `${fm}/${maxFormOf(cfg)}`;
+        row.getCell(startC + 2).value = `${tot}/${mx}`;
+        row.getCell(startC + 3).value = mx > 0 ? gradeFor(percentOf(tot, mx), className) : "-";
       } else {
-        row.push("-", "-", "-", "-");
+        row.getCell(startC).value = "-";
+        row.getCell(startC + 1).value = "-";
+        row.getCell(startC + 2).value = "-";
+        row.getCell(startC + 3).value = "-";
       }
     });
+
     const pct = percentOf(obtained, max);
-    row.push(
-      `${obtained}/${max}`,
-      max > 0 ? `${pct}%` : "-",
-      max > 0 ? gradeFor(pct, className) : "-",
-    );
-    aoa.push(row);
+    row.getCell(tailStart).value = `${obtained}/${max}`;
+    row.getCell(tailStart + 1).value = max > 0 ? `${pct}%` : "-";
+    row.getCell(tailStart + 2).value = max > 0 ? gradeFor(pct, className) : "-";
+
+    for (let c = 1; c <= totalCols; c++) {
+      const cell = row.getCell(c);
+      cell.font = cell.font ?? { name: "Arial", size: 10 };
+      if (!cell.alignment) cell.alignment = { horizontal: "center", vertical: "middle" };
+      cell.border = THIN;
+    }
+    row.height = 18;
+    rowIdx++;
   });
 
-  return aoa;
+  // Column widths
+  ws.getColumn(1).width = 8;
+  ws.getColumn(2).width = 26;
+  ws.getColumn(3).width = 8;
+  for (let i = 0; i < subjects.length; i++) {
+    const startC = 4 + i * 4;
+    ws.getColumn(startC).width = 11;
+    ws.getColumn(startC + 1).width = 11;
+    ws.getColumn(startC + 2).width = 11;
+    ws.getColumn(startC + 3).width = 8;
+  }
+  ws.getColumn(tailStart).width = 14;
+  ws.getColumn(tailStart + 1).width = 12;
+  ws.getColumn(tailStart + 2).width = 8;
+
+  // Freeze header
+  ws.views = [{ state: "frozen", ySplit: headerSub, xSplit: 3 }];
 };
 
-const buildAnnualAOA = (args: BuildArgs): any[][] => {
+const buildAnnualSheet = (wb: ExcelJS.Workbook, args: BuildArgs) => {
   const { schoolName, className, section, academicYear, students, subjects, configBySubject, resultsByStudent } = args;
-  const aoa: any[][] = [];
-  aoa.push([`ANNUAL RESULT SHEET - ${schoolName}`]);
-  aoa.push([`Class: ${className}${section ? ` - ${section}` : ""}`, "", "", `Year: ${academicYear}`]);
-  aoa.push([]);
-
-  const top: any[] = ["Roll No", "Student Name"];
-  const sub: any[] = ["", ""];
-  subjects.forEach((s) => {
-    top.push(s, "", "", "");
-    sub.push("Sem I Total", "Sem II Total", "Annual Total", "Grade");
+  const ws = wb.addWorksheet("Annual", {
+    pageSetup: { orientation: "landscape", fitToPage: true, fitToWidth: 1, fitToHeight: 0 },
   });
-  top.push("Grand Total", "Percentage", "Grade");
-  sub.push("", "", "");
-  aoa.push(top);
-  aoa.push(sub);
 
-  students.forEach((stu) => {
-    const row: any[] = [stu.roll_number || "", stu.name];
+  const subjectCols = subjects.length * 4; // Sem1 / Sem2 / Annual / Grade
+  const totalCols = 3 + subjectCols + 3;
+
+  ws.mergeCells(1, 1, 1, totalCols);
+  const t1 = ws.getCell(1, 1);
+  t1.value = schoolName.toUpperCase();
+  t1.font = { name: "Arial", bold: true, size: 16, color: { argb: "FFFFFFFF" } };
+  t1.alignment = { horizontal: "center", vertical: "middle" };
+  t1.fill = TITLE_FILL;
+  ws.getRow(1).height = 28;
+
+  ws.mergeCells(2, 1, 2, totalCols);
+  const t2 = ws.getCell(2, 1);
+  t2.value = "ANNUAL RESULT SHEET";
+  t2.font = { name: "Arial", bold: true, size: 12, color: { argb: "FF064E3B" } };
+  t2.alignment = { horizontal: "center", vertical: "middle" };
+  ws.getRow(2).height = 20;
+
+  const r3 = ws.getRow(3);
+  r3.getCell(1).value = "CLASS:";
+  r3.getCell(1).font = { bold: true, size: 10 };
+  r3.getCell(1).alignment = { horizontal: "right" };
+  ws.mergeCells(3, 2, 3, 4);
+  r3.getCell(2).value = `${className}${section ? ` - ${section}` : ""}`;
+  r3.getCell(2).font = { bold: true, size: 11 };
+  r3.getCell(2).alignment = { horizontal: "left" };
+
+  r3.getCell(totalCols - 4).value = "ACADEMIC YEAR:";
+  r3.getCell(totalCols - 4).font = { bold: true, size: 10 };
+  r3.getCell(totalCols - 4).alignment = { horizontal: "right" };
+  ws.mergeCells(3, totalCols - 3, 3, totalCols);
+  r3.getCell(totalCols - 3).value = academicYear;
+  r3.getCell(totalCols - 3).font = { bold: true, size: 11 };
+  r3.getCell(totalCols - 3).alignment = { horizontal: "left" };
+
+  const headerTop = 5;
+  const headerSub = 6;
+
+  ws.mergeCells(headerTop, 1, headerSub, 1);
+  ws.getCell(headerTop, 1).value = "ROLL NO";
+  ws.mergeCells(headerTop, 2, headerSub, 2);
+  ws.getCell(headerTop, 2).value = "STUDENT NAME";
+  ws.mergeCells(headerTop, 3, headerSub, 3);
+  ws.getCell(headerTop, 3).value = "GENDER";
+
+  subjects.forEach((subj, i) => {
+    const startC = 4 + i * 4;
+    ws.mergeCells(headerTop, startC, headerTop, startC + 3);
+    ws.getCell(headerTop, startC).value = subj.toUpperCase();
+    ws.getCell(headerSub, startC).value = "SEM I";
+    ws.getCell(headerSub, startC + 1).value = "SEM II";
+    ws.getCell(headerSub, startC + 2).value = "ANNUAL";
+    ws.getCell(headerSub, startC + 3).value = "GRADE";
+  });
+
+  const tailStart = 4 + subjectCols;
+  ws.mergeCells(headerTop, tailStart, headerSub, tailStart);
+  ws.getCell(headerTop, tailStart).value = "GRAND TOTAL";
+  ws.mergeCells(headerTop, tailStart + 1, headerSub, tailStart + 1);
+  ws.getCell(headerTop, tailStart + 1).value = "PERCENTAGE";
+  ws.mergeCells(headerTop, tailStart + 2, headerSub, tailStart + 2);
+  ws.getCell(headerTop, tailStart + 2).value = "GRADE";
+
+  for (let r = headerTop; r <= headerSub; r++) {
+    for (let c = 1; c <= totalCols; c++) {
+      const cell = ws.getCell(r, c);
+      cell.font = { name: "Arial", bold: true, size: 9 };
+      cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
+      cell.fill = HEADER_FILL;
+      cell.border = THIN;
+    }
+  }
+  ws.getRow(headerTop).height = 22;
+  ws.getRow(headerSub).height = 26;
+
+  let rowIdx = headerSub + 1;
+  students.forEach((stu, i) => {
+    const row = ws.getRow(rowIdx);
+    row.getCell(1).value = stu.roll_number || (i + 1);
+    row.getCell(2).value = stu.name;
+    row.getCell(2).alignment = { horizontal: "left", vertical: "middle" };
+    row.getCell(3).value = stu.gender ? String(stu.gender).charAt(0).toUpperCase() : "-";
+
     let grandObt = 0;
     let grandMax = 0;
-    subjects.forEach((subj) => {
+    subjects.forEach((subj, si) => {
+      const startC = 4 + si * 4;
       const c1 = configBySubject[subj]?.sem1;
       const c2 = configBySubject[subj]?.sem2;
       const r1 = resultsByStudent[stu.id]?.[subj]?.sem1;
       const r2 = resultsByStudent[stu.id]?.[subj]?.sem2;
-      const t1 = r1 ? totalOf(r1) : 0;
-      const t2 = r2 ? totalOf(r2) : 0;
+      const t1v = r1 ? totalOf(r1) : 0;
+      const t2v = r2 ? totalOf(r2) : 0;
       const m1 = maxTotalOf(c1);
       const m2 = maxTotalOf(c2);
-      const annT = t1 + t2;
+      const annT = t1v + t2v;
       const annM = m1 + m2;
       grandObt += annT;
       grandMax += annM;
-      row.push(
-        r1 ? `${t1}/${m1}` : "-",
-        r2 ? `${t2}/${m2}` : "-",
-        (r1 || r2) ? `${annT}/${annM}` : "-",
-        annM > 0 && (r1 || r2) ? gradeFor(percentOf(annT, annM), className) : "-",
-      );
+      row.getCell(startC).value = r1 ? `${t1v}/${m1}` : "-";
+      row.getCell(startC + 1).value = r2 ? `${t2v}/${m2}` : "-";
+      row.getCell(startC + 2).value = (r1 || r2) ? `${annT}/${annM}` : "-";
+      row.getCell(startC + 3).value = annM > 0 && (r1 || r2) ? gradeFor(percentOf(annT, annM), className) : "-";
     });
+
     const pct = percentOf(grandObt, grandMax);
-    row.push(
-      `${grandObt}/${grandMax}`,
-      grandMax > 0 ? `${pct}%` : "-",
-      grandMax > 0 ? gradeFor(pct, className) : "-",
-    );
-    aoa.push(row);
+    row.getCell(tailStart).value = `${grandObt}/${grandMax}`;
+    row.getCell(tailStart + 1).value = grandMax > 0 ? `${pct}%` : "-";
+    row.getCell(tailStart + 2).value = grandMax > 0 ? gradeFor(pct, className) : "-";
+
+    for (let c = 1; c <= totalCols; c++) {
+      const cell = row.getCell(c);
+      cell.font = cell.font ?? { name: "Arial", size: 10 };
+      if (!cell.alignment) cell.alignment = { horizontal: "center", vertical: "middle" };
+      cell.border = THIN;
+    }
+    row.height = 18;
+    rowIdx++;
   });
 
-  return aoa;
-};
-
-const aoaToSheet = (aoa: any[][], subjectsCount: number): XLSX.WorkSheet => {
-  const ws = XLSX.utils.aoa_to_sheet(aoa);
-  // Set column widths: roll(8), name(24), then 4 cols per subject(12), then trailing 3 cols(14)
-  const widths = [{ wch: 8 }, { wch: 24 }];
-  for (let i = 0; i < subjectsCount; i++) widths.push({ wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 8 });
-  widths.push({ wch: 14 }, { wch: 12 }, { wch: 8 });
-  ws["!cols"] = widths;
-
-  // Merge subject header cells (row index 3 in 0-based, since rows 0,1,2 are title/info/blank)
-  // Title row: row 0 across all columns
-  const totalCols = 2 + subjectsCount * 4 + 3;
-  const merges: XLSX.Range[] = [
-    { s: { r: 0, c: 0 }, e: { r: 0, c: totalCols - 1 } },
-  ];
-  // Subject merges on row 3
-  for (let i = 0; i < subjectsCount; i++) {
-    const start = 2 + i * 4;
-    merges.push({ s: { r: 3, c: start }, e: { r: 3, c: start + 3 } });
+  ws.getColumn(1).width = 8;
+  ws.getColumn(2).width = 26;
+  ws.getColumn(3).width = 8;
+  for (let i = 0; i < subjects.length; i++) {
+    const startC = 4 + i * 4;
+    ws.getColumn(startC).width = 11;
+    ws.getColumn(startC + 1).width = 11;
+    ws.getColumn(startC + 2).width = 11;
+    ws.getColumn(startC + 3).width = 8;
   }
-  ws["!merges"] = merges;
+  ws.getColumn(tailStart).width = 14;
+  ws.getColumn(tailStart + 1).width = 12;
+  ws.getColumn(tailStart + 2).width = 8;
 
-  return ws;
+  ws.views = [{ state: "frozen", ySplit: headerSub, xSplit: 3 }];
 };
 
-export const generateCCEExcelReport = (args: BuildArgs) => {
-  const wb = XLSX.utils.book_new();
+export const generateCCEExcelReport = async (args: BuildArgs) => {
+  const wb = new ExcelJS.Workbook();
+  wb.creator = args.schoolName;
+  wb.created = new Date();
   const sheets = args.sheets && args.sheets.length ? args.sheets : ["sem1", "sem2", "annual"];
 
-  if (sheets.includes("sem1")) {
-    XLSX.utils.book_append_sheet(
-      wb,
-      aoaToSheet(buildSemesterAOA(args, "1", "FIRST SEMESTER"), args.subjects.length),
-      "First Semester",
-    );
-  }
-  if (sheets.includes("sem2")) {
-    XLSX.utils.book_append_sheet(
-      wb,
-      aoaToSheet(buildSemesterAOA(args, "2", "SECOND SEMESTER"), args.subjects.length),
-      "Second Semester",
-    );
-  }
-  if (sheets.includes("annual")) {
-    XLSX.utils.book_append_sheet(
-      wb,
-      aoaToSheet(buildAnnualAOA(args), args.subjects.length),
-      "Annual",
-    );
-  }
+  if (sheets.includes("sem1")) buildSemesterSheet(wb, args, "1", "FIRST SEMESTER", "First Semester");
+  if (sheets.includes("sem2")) buildSemesterSheet(wb, args, "2", "SECOND SEMESTER", "Second Semester");
+  if (sheets.includes("annual")) buildAnnualSheet(wb, args);
 
   const suffix =
     sheets.length === 1
@@ -208,5 +400,15 @@ export const generateCCEExcelReport = (args: BuildArgs) => {
           : "_Annual"
       : "";
   const fileName = `Result_Class${args.className}${args.section ? `-${args.section}` : ""}_${args.academicYear}${suffix}.xlsx`;
-  XLSX.writeFile(wb, fileName);
+
+  const buf = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 };
