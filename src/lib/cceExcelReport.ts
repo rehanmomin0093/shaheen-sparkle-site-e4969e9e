@@ -61,6 +61,42 @@ const TITLE_FILL: ExcelJS.Fill = {
   fgColor: { argb: "FF064E3B" }, // Deep emerald
 };
 
+const appendSignatureFooter = (ws: ExcelJS.Worksheet, startRow: number, totalCols: number) => {
+  // Two blank spacer rows for signature space
+  ws.getRow(startRow).height = 30;
+  ws.getRow(startRow + 1).height = 30;
+
+  const lineRow = startRow + 2;
+  const labelRow = startRow + 3;
+
+  const leftEnd = Math.max(2, Math.floor(totalCols / 3));
+  const rightStart = Math.max(leftEnd + 2, totalCols - leftEnd + 1);
+
+  // Signature lines (top border on the line row creates the underline)
+  ws.mergeCells(lineRow, 1, lineRow, leftEnd);
+  const leftLine = ws.getCell(lineRow, 1);
+  leftLine.border = { top: { style: "thin" } };
+
+  ws.mergeCells(lineRow, rightStart, lineRow, totalCols);
+  const rightLine = ws.getCell(lineRow, rightStart);
+  rightLine.border = { top: { style: "thin" } };
+
+  // Labels under the lines
+  ws.mergeCells(labelRow, 1, labelRow, leftEnd);
+  const leftLabel = ws.getCell(labelRow, 1);
+  leftLabel.value = "Class Teacher";
+  leftLabel.font = { name: "Arial", bold: true, size: 11, color: { argb: "FF064E3B" } };
+  leftLabel.alignment = { horizontal: "center", vertical: "middle" };
+
+  ws.mergeCells(labelRow, rightStart, labelRow, totalCols);
+  const rightLabel = ws.getCell(labelRow, rightStart);
+  rightLabel.value = "Principal";
+  rightLabel.font = { name: "Arial", bold: true, size: 11, color: { argb: "FF064E3B" } };
+  rightLabel.alignment = { horizontal: "center", vertical: "middle" };
+
+  ws.getRow(labelRow).height = 20;
+};
+
 const buildSemesterSheet = (
   wb: ExcelJS.Workbook,
   args: BuildArgs,
@@ -234,6 +270,9 @@ const buildSemesterSheet = (
   ws.getColumn(tailStart + 1).width = 12;
   ws.getColumn(tailStart + 2).width = 8;
 
+  // Signature footer
+  appendSignatureFooter(ws, rowIdx + 1, totalCols);
+
   // Freeze header
   ws.views = [{ state: "frozen", ySplit: headerSub, xSplit: 3 }];
 };
@@ -377,6 +416,8 @@ const buildAnnualSheet = (wb: ExcelJS.Workbook, args: BuildArgs) => {
   ws.getColumn(tailStart).width = 14;
   ws.getColumn(tailStart + 1).width = 12;
   ws.getColumn(tailStart + 2).width = 8;
+
+  appendSignatureFooter(ws, rowIdx + 1, totalCols);
 
   ws.views = [{ state: "frozen", ySplit: headerSub, xSplit: 3 }];
 };
