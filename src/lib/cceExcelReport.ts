@@ -440,7 +440,7 @@ const buildAnnualSheet = (wb: ExcelJS.Workbook, args: BuildArgs) => {
   ws.getColumn(tailStart + 1).width = 12;
   ws.getColumn(tailStart + 2).width = 8;
 
-  appendSignatureFooter(ws, rowIdx + 1, totalCols);
+  appendSignatureFooter(ws, rowIdx + 1, totalCols, args.classTeacherName, args.principalName);
 
   ws.views = [{ state: "frozen", ySplit: headerSub, xSplit: 3 }];
 };
