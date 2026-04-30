@@ -67,8 +67,7 @@ export const useTeacherStudents = (className?: string, section?: string | null) 
       let query = supabase
         .from("students")
         .select("*")
-        .eq("class", className!)
-        .order("roll_number");
+        .eq("class", className!);
 
       if (section) {
         query = query.eq("section", section);
@@ -76,7 +75,21 @@ export const useTeacherStudents = (className?: string, section?: string | null) 
 
       const { data, error } = await query;
       if (error) throw error;
-      return data ?? [];
+      const rows = data ?? [];
+      // Numeric-aware sort by roll_number so "2" comes before "10"
+      rows.sort((a: any, b: any) => {
+        const ra = (a.roll_number ?? "").toString();
+        const rb = (b.roll_number ?? "").toString();
+        const na = parseInt(ra, 10);
+        const nb = parseInt(rb, 10);
+        const aNum = !isNaN(na);
+        const bNum = !isNaN(nb);
+        if (aNum && bNum && na !== nb) return na - nb;
+        if (aNum && !bNum) return -1;
+        if (!aNum && bNum) return 1;
+        return ra.localeCompare(rb, undefined, { numeric: true, sensitivity: "base" });
+      });
+      return rows;
     },
     enabled: !!className,
   });
