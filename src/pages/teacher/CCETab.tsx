@@ -332,6 +332,17 @@ const CCETab = () => {
               className="w-28"
               placeholder="2025-26"
             />
+            <Select value={exportScope} onValueChange={(v) => setExportScope(v as any)}>
+              <SelectTrigger className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All (Sem 1+2+Annual)</SelectItem>
+                <SelectItem value="sem1">Semester 1</SelectItem>
+                <SelectItem value="sem2">Semester 2</SelectItem>
+                <SelectItem value="annual">Annual</SelectItem>
+              </SelectContent>
+            </Select>
             <Button
               variant="outline"
               onClick={handleExportExcel}
