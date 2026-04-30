@@ -38,6 +38,8 @@ const CCETab = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: assignments, isLoading: loadingAssignments } = useTeacherAssignments();
+  const { data: siteContent } = useSiteContent();
+  const [exporting, setExporting] = useState(false);
 
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
 
