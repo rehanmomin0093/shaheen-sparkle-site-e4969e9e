@@ -294,7 +294,7 @@ const buildSemesterSheet = (
   ws.getColumn(tailStart + 2).width = 8;
 
   // Signature footer
-  appendSignatureFooter(ws, rowIdx + 1, totalCols);
+  appendSignatureFooter(ws, rowIdx + 1, totalCols, args.classTeacherName, args.principalName);
 
   // Freeze header
   ws.views = [{ state: "frozen", ySplit: headerSub, xSplit: 3 }];
