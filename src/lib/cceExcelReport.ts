@@ -30,6 +30,8 @@ interface BuildArgs {
   configBySubject: Record<string, { sem1?: CCEConfig; sem2?: CCEConfig }>;
   resultsByStudent: Record<string, Record<string, { sem1?: CCEResult; sem2?: CCEResult }>>;
   sheets?: Array<"sem1" | "sem2" | "annual">;
+  classTeacherName?: string;
+  principalName?: string;
 }
 
 const THIN: Partial<ExcelJS.Borders> = {
@@ -61,13 +63,20 @@ const TITLE_FILL: ExcelJS.Fill = {
   fgColor: { argb: "FF064E3B" }, // Deep emerald
 };
 
-const appendSignatureFooter = (ws: ExcelJS.Worksheet, startRow: number, totalCols: number) => {
+const appendSignatureFooter = (
+  ws: ExcelJS.Worksheet,
+  startRow: number,
+  totalCols: number,
+  classTeacherName?: string,
+  principalName?: string,
+) => {
   // Two blank spacer rows for signature space
   ws.getRow(startRow).height = 30;
   ws.getRow(startRow + 1).height = 30;
 
   const lineRow = startRow + 2;
   const labelRow = startRow + 3;
+  const titleRow = startRow + 4;
 
   const leftEnd = Math.max(2, Math.floor(totalCols / 3));
   const rightStart = Math.max(leftEnd + 2, totalCols - leftEnd + 1);
@@ -81,20 +90,34 @@ const appendSignatureFooter = (ws: ExcelJS.Worksheet, startRow: number, totalCol
   const rightLine = ws.getCell(lineRow, rightStart);
   rightLine.border = { top: { style: "thin" } };
 
-  // Labels under the lines
+  // Names directly under the lines (bold, emerald)
   ws.mergeCells(labelRow, 1, labelRow, leftEnd);
-  const leftLabel = ws.getCell(labelRow, 1);
-  leftLabel.value = "Class Teacher";
-  leftLabel.font = { name: "Arial", bold: true, size: 11, color: { argb: "FF064E3B" } };
-  leftLabel.alignment = { horizontal: "center", vertical: "middle" };
+  const leftName = ws.getCell(labelRow, 1);
+  leftName.value = classTeacherName || "";
+  leftName.font = { name: "Arial", bold: true, size: 11, color: { argb: "FF064E3B" } };
+  leftName.alignment = { horizontal: "center", vertical: "middle" };
 
   ws.mergeCells(labelRow, rightStart, labelRow, totalCols);
-  const rightLabel = ws.getCell(labelRow, rightStart);
-  rightLabel.value = "Principal";
-  rightLabel.font = { name: "Arial", bold: true, size: 11, color: { argb: "FF064E3B" } };
-  rightLabel.alignment = { horizontal: "center", vertical: "middle" };
+  const rightName = ws.getCell(labelRow, rightStart);
+  rightName.value = principalName || "";
+  rightName.font = { name: "Arial", bold: true, size: 11, color: { argb: "FF064E3B" } };
+  rightName.alignment = { horizontal: "center", vertical: "middle" };
 
-  ws.getRow(labelRow).height = 20;
+  // Role titles below names
+  ws.mergeCells(titleRow, 1, titleRow, leftEnd);
+  const leftTitle = ws.getCell(titleRow, 1);
+  leftTitle.value = "Class Teacher";
+  leftTitle.font = { name: "Arial", italic: true, size: 10, color: { argb: "FF555555" } };
+  leftTitle.alignment = { horizontal: "center", vertical: "middle" };
+
+  ws.mergeCells(titleRow, rightStart, titleRow, totalCols);
+  const rightTitle = ws.getCell(titleRow, rightStart);
+  rightTitle.value = "Principal";
+  rightTitle.font = { name: "Arial", italic: true, size: 10, color: { argb: "FF555555" } };
+  rightTitle.alignment = { horizontal: "center", vertical: "middle" };
+
+  ws.getRow(labelRow).height = 18;
+  ws.getRow(titleRow).height = 18;
 };
 
 const buildSemesterSheet = (
@@ -271,7 +294,7 @@ const buildSemesterSheet = (
   ws.getColumn(tailStart + 2).width = 8;
 
   // Signature footer
-  appendSignatureFooter(ws, rowIdx + 1, totalCols);
+  appendSignatureFooter(ws, rowIdx + 1, totalCols, args.classTeacherName, args.principalName);
 
   // Freeze header
   ws.views = [{ state: "frozen", ySplit: headerSub, xSplit: 3 }];
@@ -417,7 +440,7 @@ const buildAnnualSheet = (wb: ExcelJS.Workbook, args: BuildArgs) => {
   ws.getColumn(tailStart + 1).width = 12;
   ws.getColumn(tailStart + 2).width = 8;
 
-  appendSignatureFooter(ws, rowIdx + 1, totalCols);
+  appendSignatureFooter(ws, rowIdx + 1, totalCols, args.classTeacherName, args.principalName);
 
   ws.views = [{ state: "frozen", ySplit: headerSub, xSplit: 3 }];
 };
