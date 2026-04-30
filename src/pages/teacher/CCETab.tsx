@@ -244,6 +244,43 @@ const CCETab = () => {
         else resultsByStudent[r.student_id][r.subject].sem2 = r;
       });
 
+      // Resolve Class Teacher name from teacher_class_assignments + teachers
+      let classTeacherName = "";
+      const { data: ctRows } = await supabase
+        .from("teacher_class_assignments")
+        .select("teacher_id, section, teachers(name)")
+        .eq("class_name", className)
+        .eq("is_class_teacher", true);
+      if (ctRows?.length) {
+        const match =
+          ctRows.find((r: any) => (section ? r.section === section : !r.section)) ||
+          ctRows[0];
+        classTeacherName = (match as any)?.teachers?.name || "";
+      }
+
+      // Resolve Principal name — prefer High School Principal for Class 8+, else School Principal
+      const numericClass = parseInt(String(className).replace(/\D/g, ""), 10);
+      const isHighSchool = !Number.isNaN(numericClass) && numericClass >= 8;
+      const { data: principals } = await supabase
+        .from("teachers")
+        .select("name, designation")
+        .ilike("designation", "%principal%");
+      let principalName = "";
+      if (principals?.length) {
+        const preferred = isHighSchool
+          ? principals.find((p: any) => /high\s*school\s*principal/i.test(p.designation || ""))
+          : principals.find(
+              (p: any) =>
+                /school\s*principal/i.test(p.designation || "") &&
+                !/high/i.test(p.designation || ""),
+            );
+        principalName =
+          (preferred as any)?.name ||
+          (principals.find((p: any) => /^principal$/i.test((p.designation || "").trim())) as any)?.name ||
+          (principals[0] as any)?.name ||
+          "";
+      }
+
       await generateCCEExcelReport({
         schoolName: "Shaheen School & Shaheen High School Karad",
         className,
@@ -260,6 +297,8 @@ const CCETab = () => {
         configBySubject,
         resultsByStudent,
         sheets: scope === "all" ? ["sem1", "sem2", "annual"] : [scope],
+        classTeacherName,
+        principalName,
       });
       toast({ title: "Excel report downloaded" });
     } catch (e: any) {
