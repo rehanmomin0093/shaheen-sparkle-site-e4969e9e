@@ -48,7 +48,7 @@ const TeacherDashboard = () => {
               <ClipboardList className="h-4 w-4" /> Attendance
             </TabsTrigger>
             <TabsTrigger value="cce" className="gap-2">
-              <GraduationCap className="h-4 w-4" /> CCE Report
+              <GraduationCap className="h-4 w-4" /> Result
             </TabsTrigger>
             <TabsTrigger value="physical" className="gap-2">
               <Ruler className="h-4 w-4" /> Student Data
