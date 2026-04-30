@@ -150,7 +150,19 @@ const AttendanceTab = () => {
                   Class {assignment.class_name}{assignment.section ? ` - ${assignment.section}` : ""} • {students?.length ?? 0} students
                 </p>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
+                {classTeacherAssignments.length > 1 && (
+                  <Select value={selectedAssignmentId} onValueChange={setSelectedAssignmentId}>
+                    <SelectTrigger className="w-[180px]"><SelectValue placeholder="Select class" /></SelectTrigger>
+                    <SelectContent>
+                      {classTeacherAssignments.map((a: any) => (
+                        <SelectItem key={a.id} value={a.id}>
+                          Class {a.class_name}{a.section ? ` - ${a.section}` : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
                 <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-auto" />
                 <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
                   {saveMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
