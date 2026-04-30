@@ -245,7 +245,7 @@ const CCETab = () => {
       });
 
       await generateCCEExcelReport({
-        schoolName: siteContent?.["footer_tagline"]?.trim() || "Shaheen High School, Karad",
+        schoolName: "Shaheen School & Shaheen High School Karad",
         className,
         section,
         academicYear,
