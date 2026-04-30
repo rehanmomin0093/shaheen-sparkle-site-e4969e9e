@@ -252,6 +252,7 @@ const CCETab = () => {
         subjects: subjectsList,
         configBySubject,
         resultsByStudent,
+        sheets: exportScope === "all" ? ["sem1", "sem2", "annual"] : [exportScope],
       });
       toast({ title: "Excel report downloaded" });
     } catch (e: any) {
