@@ -345,16 +345,16 @@ const CCETab = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => { setExportScope("all"); setTimeout(handleExportExcel, 0); }}>
+                <DropdownMenuItem onClick={() => handleExportExcel("all")}>
                   All (Sem 1 + Sem 2 + Annual)
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => { setExportScope("sem1"); setTimeout(handleExportExcel, 0); }}>
+                <DropdownMenuItem onClick={() => handleExportExcel("sem1")}>
                   Semester 1
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => { setExportScope("sem2"); setTimeout(handleExportExcel, 0); }}>
+                <DropdownMenuItem onClick={() => handleExportExcel("sem2")}>
                   Semester 2
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => { setExportScope("annual"); setTimeout(handleExportExcel, 0); }}>
+                <DropdownMenuItem onClick={() => handleExportExcel("annual")}>
                   Annual
                 </DropdownMenuItem>
               </DropdownMenuContent>
