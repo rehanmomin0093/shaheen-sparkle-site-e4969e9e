@@ -12,6 +12,7 @@ type Field = {
   value: string;
   value_type: string;
   sort_order: number;
+  is_visible: boolean;
 };
 
 const InfrastructureSection = () => {
@@ -24,6 +25,7 @@ const InfrastructureSection = () => {
       const { data } = await supabase
         .from("infrastructure_facilities")
         .select("*")
+        .eq("is_visible", true)
         .order("section")
         .order("sort_order");
       if (active) {
