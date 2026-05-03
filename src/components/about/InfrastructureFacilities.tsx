@@ -215,11 +215,8 @@ const renderItems = (sections: InfraSection[]) => (
                 </AccordionItem>
               );
             })}
-          </Accordion>
-        </motion.div>
-      </div>
-    </section>
-  );
-};
+  </>
+);
 
 export default InfrastructureFacilities;
+
