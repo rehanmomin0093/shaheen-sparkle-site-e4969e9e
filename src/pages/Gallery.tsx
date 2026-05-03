@@ -46,7 +46,25 @@ const Gallery = () => {
     <>
       <PageHero label={t("gallery.label")} title={t("gallery.title")} subtitle={t("gallery.subtitle")} />
 
-      <section className="py-24">
+      {/* Life at School - moving image strips */}
+      <section className="relative overflow-hidden bg-background py-20">
+        <div className="container mb-10">
+          <SectionHeading
+            label={t("gallery.label")}
+            title={t("gallery.lifeAtSchool", "Life at Our School")}
+            description={t("gallery.lifeAtSchoolDesc", "A glimpse into the everyday moments that make our campus special.")}
+          />
+        </div>
+        {isLoading ? (
+          <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+        ) : (
+          <div className="space-y-4">
+            <LifeMarquee images={(images ?? []).filter((_, i) => i % 2 === 0)} speed={50} />
+            <LifeMarquee images={(images ?? []).filter((_, i) => i % 2 === 1)} reverse speed={60} />
+          </div>
+        )}
+      </section>
+
         <div className="container">
           <div className="mb-10 flex flex-wrap justify-center gap-2">
             {categories.map((cat) => (
