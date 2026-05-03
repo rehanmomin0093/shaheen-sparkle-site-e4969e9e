@@ -69,16 +69,25 @@ const StatCard = ({ icon: Icon, label, value }: { icon: any; label: string; valu
 
   return (
     <div ref={ref}>
-      <Card className="group border-none bg-card shadow-lg hover-lift cursor-default">
-        <CardContent className="flex flex-col items-center p-6 text-center">
-          <Icon className="mb-2 h-6 w-6 text-secondary transition-transform duration-300 group-hover:scale-125 group-hover:rotate-12" />
-          <span className="font-serif text-3xl font-bold text-foreground">{count}{suffix || ""}</span>
-          <span className="mt-1 text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
+      <Card className="group relative overflow-hidden border-none bg-card shadow-lg hover-rise cursor-default">
+        {/* Top gold accent bar */}
+        <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-transparent via-secondary to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+        {/* Subtle emerald glow on hover */}
+        <div className="absolute -inset-px rounded-lg bg-gradient-to-br from-primary/0 via-transparent to-secondary/0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+        <CardContent className="relative flex flex-col items-center p-7 text-center">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/5 ring-1 ring-primary/10 transition-all duration-500 group-hover:bg-secondary/10 group-hover:ring-secondary/40 group-hover:rotate-6">
+            <Icon className="h-6 w-6 text-primary transition-colors duration-500 group-hover:text-secondary" />
+          </div>
+          <span className="font-serif text-4xl font-bold leading-none tracking-tight text-foreground md:text-5xl">
+            {count}{suffix || ""}
+          </span>
+          <span className="mt-3 text-[0.68rem] uppercase tracking-[0.25em] text-muted-foreground">{label}</span>
         </CardContent>
       </Card>
     </div>
   );
 };
+
 
 const Index = () => {
   const location = useLocation();
@@ -299,32 +308,51 @@ const Index = () => {
       </section>
 
       {/* About & Vision */}
-      <section id="about" className="py-24">
+      <section id="about" className="bg-paper py-28">
         <div className="container">
-          <div className="grid gap-12 lg:grid-cols-2">
-            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
-              <h2 className="font-serif text-3xl md:text-4xl">{t("home.aboutShaheen")}</h2>
-              <div className="mt-2 h-1 w-12 rounded-full bg-primary" />
-              <p className="mt-6 text-justify leading-relaxed text-muted-foreground">
+          <div className="grid gap-14 lg:grid-cols-2 lg:gap-20">
+            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+              <span className="kicker">{t("home.aboutShaheen")}</span>
+              <h2 className="mt-3 font-serif text-4xl leading-[1.05] md:text-5xl lg:text-6xl">
+                A Legacy of <span className="text-gradient-emerald">Excellence</span>
+              </h2>
+              <div className="mt-5 flex"><span className="gold-rule"><span className="diamond" /></span></div>
+              <p className="drop-cap mt-7 text-justify text-[1.02rem] leading-[1.85] text-foreground/80">
                 {c("about_text", t("home.aboutText"))}
               </p>
               <Link to="/about">
-                <Button className="group mt-6 bg-primary text-primary-foreground hover:bg-primary/90">
-                  {t("home.learnMore")} <ArrowRight className="ms-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180" />
+                <Button variant="premium" size="lg" className="group mt-8 press">
+                  {t("home.learnMore")}
+                  <ArrowRight className="ms-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180" />
                 </Button>
               </Link>
             </motion.div>
-            <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="rounded-lg border-s-4 border-primary bg-muted p-8">
-              <h2 className="font-serif text-3xl md:text-4xl">{t("home.ourVision")}</h2>
-              <div className="mt-2 h-1 w-12 rounded-full bg-primary" />
-              <p className="mt-6 leading-relaxed text-muted-foreground">{c("vision_text", t("home.visionText"))}</p>
-              <h2 className="mt-10 font-serif text-3xl md:text-4xl">{t("home.ourMission")}</h2>
-              <div className="mt-2 h-1 w-12 rounded-full bg-primary" />
-              <p className="mt-6 leading-relaxed text-muted-foreground">{c("mission_text", t("home.missionText"))}</p>
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-primary to-emerald-glow p-10 text-primary-foreground shadow-premium"
+            >
+              {/* Decorative ornament */}
+              <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-secondary/20 blur-3xl" />
+              <div className="pointer-events-none absolute -bottom-20 -left-10 h-64 w-64 rounded-full bg-secondary/10 blur-3xl" />
+              <div className="relative">
+                <span className="kicker !text-secondary">{t("home.ourVision")}</span>
+                <h3 className="mt-3 font-serif text-3xl md:text-4xl">{t("home.ourVision")}</h3>
+                <div className="mt-3 h-px w-16 bg-secondary" />
+                <p className="mt-5 leading-relaxed text-primary-foreground/85">{c("vision_text", t("home.visionText"))}</p>
+
+                <span className="kicker mt-10 block !text-secondary">{t("home.ourMission")}</span>
+                <h3 className="mt-3 font-serif text-3xl md:text-4xl">{t("home.ourMission")}</h3>
+                <div className="mt-3 h-px w-16 bg-secondary" />
+                <p className="mt-5 leading-relaxed text-primary-foreground/85">{c("mission_text", t("home.missionText"))}</p>
+              </div>
             </motion.div>
           </div>
         </div>
       </section>
+
 
       {/* Our Desk */}
       {leaders.length > 0 && (
@@ -407,20 +435,24 @@ const Index = () => {
       </section>
 
       {/* Programs */}
-      <section className="py-24">
+      <section className="bg-emerald-wash py-28">
         <div className="container">
           <SectionHeading label={t("home.programs")} title={t("home.programsWeOffer")} description={t("home.programsDesc")} />
-          <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
+          <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-2">
             {programs.map((p, i) => (
               <motion.div key={p.title} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                <Card className="group h-full border-none border-t-4 border-t-transparent shadow-md transition-all duration-300 hover:shadow-xl hover:border-t-secondary hover:-translate-y-1">
-                  <CardContent className="relative overflow-hidden p-8">
-                    <div className="absolute inset-0 bg-gradient-to-br from-secondary/0 to-secondary/0 transition-all duration-500 group-hover:from-secondary/5 group-hover:to-primary/5" />
+                <Card className="group relative h-full overflow-hidden border-none bg-card shadow-elevated hover-rise">
+                  <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary opacity-70" />
+                  <CardContent className="relative p-10">
+                    <div className="absolute -right-16 -top-16 h-44 w-44 rounded-full bg-secondary/5 transition-all duration-700 group-hover:scale-125 group-hover:bg-secondary/15" />
                     <div className="relative">
-                      <p.icon className="mb-4 h-8 w-8 text-secondary transition-all duration-300 group-hover:scale-110 group-hover:text-primary" />
-                      <h3 className="font-serif text-xl">{p.title}</h3>
-                      <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-secondary">{p.grades}</p>
-                      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{p.desc}</p>
+                      <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-emerald-glow text-primary-foreground shadow-premium transition-transform duration-500 group-hover:rotate-6 group-hover:scale-105">
+                        <p.icon className="h-7 w-7" />
+                      </div>
+                      <p className="kicker">{p.grades}</p>
+                      <h3 className="mt-2 font-serif text-3xl">{p.title}</h3>
+                      <div className="mt-3 h-px w-12 bg-secondary" />
+                      <p className="mt-5 leading-relaxed text-muted-foreground">{p.desc}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -459,19 +491,28 @@ const Index = () => {
       <section id="gallery" className="bg-muted py-24">
         <div className="container">
           <SectionHeading label={t("home.galleryLabel")} title={t("home.campusLife")} description={t("home.campusLifeDesc")} />
-          <div className="mb-8 flex flex-wrap justify-center gap-2">
+          <div className="mb-10 flex flex-wrap justify-center gap-2">
             {galleryFilters.map((f) => (
-              <button key={f} onClick={() => setGalleryFilter(f)} className={cn("rounded px-4 py-2 text-sm font-medium transition-colors", galleryFilter === f ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-card/80")}>
+              <button
+                key={f}
+                onClick={() => setGalleryFilter(f)}
+                className={cn(
+                  "rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-[0.18em] transition-all duration-300",
+                  galleryFilter === f
+                    ? "bg-primary text-primary-foreground shadow-premium ring-2 ring-secondary/40"
+                    : "bg-card text-muted-foreground ring-1 ring-border hover:bg-card hover:text-foreground hover:ring-secondary/40"
+                )}
+              >
                 {galleryFilterLabels[f] || f}
               </button>
             ))}
           </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             {filteredGallery.map((img, i) => (
-              <motion.div key={img.id} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="group relative aspect-[4/3] overflow-hidden rounded-lg cursor-pointer" onClick={() => setLightboxImage(img.src)}>
-                <img src={img.src} alt={img.alt || "Gallery image"} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                <span className="absolute bottom-3 start-3 text-sm font-medium text-primary-foreground opacity-0 transition-opacity duration-300 group-hover:opacity-100 drop-shadow-md">{img.alt || img.category}</span>
+              <motion.div key={img.id} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="group relative aspect-[4/3] overflow-hidden rounded-lg cursor-pointer ring-gold-hover" onClick={() => setLightboxImage(img.src)}>
+                <img src={img.src} alt={img.alt || "Gallery image"} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" />
+                <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/10 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                <span className="absolute bottom-4 start-4 font-serif text-base text-primary-foreground opacity-0 transition-all duration-500 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 drop-shadow-md">{img.alt || img.category}</span>
               </motion.div>
             ))}
           </div>
@@ -529,15 +570,27 @@ const Index = () => {
       </section>
 
       {/* CTA */}
-      <section className="relative bg-primary py-24 text-primary-foreground overflow-hidden">
-        {[...Array(6)].map((_, i) => (
-          <div key={i} className="absolute rounded-full bg-secondary/20" style={{ width: `${6 + i * 4}px`, height: `${6 + i * 4}px`, top: `${15 + i * 12}%`, left: `${10 + i * 15}%`, animation: `sparkle ${2 + i * 0.5}s ease-in-out ${i * 0.3}s infinite` }} />
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-emerald-glow py-28 text-primary-foreground">
+        {/* Layered glows */}
+        <div className="pointer-events-none absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-secondary/25 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 right-1/4 h-80 w-80 rounded-full bg-accent-cyan/20 blur-3xl" />
+        {/* Sparkles */}
+        {[...Array(8)].map((_, i) => (
+          <div key={i} className="absolute rounded-full bg-secondary/40" style={{ width: `${4 + i * 3}px`, height: `${4 + i * 3}px`, top: `${10 + i * 10}%`, left: `${8 + i * 11}%`, animation: `sparkle ${2 + i * 0.4}s ease-in-out ${i * 0.25}s infinite` }} />
         ))}
         <div className="container relative z-10 text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
-            <h2 className="font-serif text-3xl md:text-5xl">{t("home.admissionsOpen")}</h2>
-            <p className="mx-auto mt-4 max-w-xl opacity-80">{t("home.admissionsOpenDesc")}</p>
-            <Link to="/admissions"><Button size="xl" variant="accent" className="mt-8 animate-float">{t("home.startApplication")}</Button></Link>
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+            <div className="mb-6 flex justify-center"><span className="gold-rule"><span className="diamond" /></span></div>
+            <h2 className="font-serif text-4xl leading-tight md:text-6xl">
+              {t("home.admissionsOpen")}
+            </h2>
+            <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-primary-foreground/85 md:text-lg">{t("home.admissionsOpenDesc")}</p>
+            <Link to="/admissions">
+              <Button size="xl" variant="accent" className="mt-10 press shadow-glow">
+                {t("home.startApplication")}
+                <ArrowRight className="ms-1 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+              </Button>
+            </Link>
           </motion.div>
         </div>
       </section>
