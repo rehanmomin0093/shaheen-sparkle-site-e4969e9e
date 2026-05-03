@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileDown, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import PageHero from "@/components/shared/PageHero";
 
 const NoticeBoard = () => {
   const location = useLocation();
@@ -49,15 +50,7 @@ const NoticeBoard = () => {
 
   return (
     <>
-      <section className="bg-primary py-24 text-primary-foreground">
-        <div className="container">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="mb-2 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-secondary">{t("notices.label")}</span>
-            <h1 className="font-serif text-4xl md:text-6xl">{t("notices.title")}</h1>
-            <p className="mt-4 max-w-2xl opacity-80">{t("notices.subtitle")}</p>
-          </motion.div>
-        </div>
-      </section>
+      <PageHero label={t("notices.label")} title={t("notices.title")} subtitle={t("notices.subtitle")} />
 
       <section id="latest" className="py-24">
         <div className="container">
