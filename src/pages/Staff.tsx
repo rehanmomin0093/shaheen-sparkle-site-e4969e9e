@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, User, GraduationCap, Phone, Mail, FileText, Briefcase } from "lucide-react";
 import SectionHeading from "@/components/shared/SectionHeading";
+import PageHero from "@/components/shared/PageHero";
 
 const HIGH_SCHOOL_CLASSES = ["8", "9", "10"];
 const PRIMARY_CLASSES = ["1", "2", "3", "4", "5", "6", "7"];
@@ -118,15 +119,7 @@ const Staff = () => {
 
   return (
     <>
-      <section className="bg-primary py-24 text-primary-foreground">
-        <div className="container">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="mb-2 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-secondary">{t("staff.label")}</span>
-            <h1 className="font-serif text-4xl md:text-6xl">{t("staff.title")}</h1>
-            <p className="mt-4 max-w-2xl opacity-80">{t("staff.subtitle")}</p>
-          </motion.div>
-        </div>
-      </section>
+      <PageHero label={t("staff.label")} title={t("staff.title")} subtitle={t("staff.subtitle")} />
 
       {isLoading ? (
         <div className="flex justify-center py-24"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>

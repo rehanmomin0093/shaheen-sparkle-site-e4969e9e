@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import SectionHeading from "@/components/shared/SectionHeading";
 import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen, FlaskConical, Palette, Trophy, Monitor, Globe } from "lucide-react";
+import PageHero from "@/components/shared/PageHero";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -47,15 +48,7 @@ const Academics = () => {
 
   return (
     <>
-      <section className="bg-primary py-24 text-primary-foreground">
-        <div className="container">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="mb-2 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-secondary">{t("academics.label")}</span>
-            <h1 className="font-serif text-4xl md:text-6xl">{t("academics.title")}</h1>
-            <p className="mt-4 max-w-2xl opacity-80">{t("academics.subtitle")}</p>
-          </motion.div>
-        </div>
-      </section>
+      <PageHero label={t("academics.label")} title={t("academics.title")} subtitle={t("academics.subtitle")} />
 
       <section id="curriculum" className="py-24">
         <div className="container">
@@ -63,13 +56,14 @@ const Academics = () => {
           <div className="space-y-8">
             {streams.map((s, i) => (
               <motion.div key={s.title} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                <Card className="border-none shadow-md">
-                  <CardContent className="p-8">
-                    <h3 className="font-serif text-2xl">{s.title}</h3>
+                <Card className="card-gradient-border group border-none shadow-none">
+                  <CardContent className="relative overflow-hidden p-8">
+                    <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-secondary/10 blur-3xl transition-opacity duration-500 group-hover:opacity-80" />
+                    <h3 className="font-serif text-2xl underline-grow">{s.title}</h3>
                     <p className="mt-1 text-sm font-medium text-secondary">{s.highlight}</p>
-                    <div className="mt-4 flex flex-wrap gap-2">
+                    <div className="mt-5 flex flex-wrap gap-2">
                       {s.subjects.map((sub) => (
-                        <span key={sub} className="rounded bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">{sub}</span>
+                        <span key={sub} className="rounded border border-border/60 bg-background px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-secondary/60 hover:text-foreground">{sub}</span>
                       ))}
                     </div>
                   </CardContent>
@@ -86,10 +80,12 @@ const Academics = () => {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {extras.map((e, i) => (
               <motion.div key={e.title} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                <Card className="h-full border-none shadow-md">
+                <Card className="card-gradient-border group h-full border-none shadow-none">
                   <CardContent className="p-8">
-                    <e.icon className="mb-3 h-8 w-8 text-secondary" />
-                    <h3 className="font-serif text-lg">{e.title}</h3>
+                    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-secondary/20 to-primary/10 text-secondary transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110">
+                      <e.icon className="h-6 w-6" />
+                    </div>
+                    <h3 className="font-serif text-lg underline-grow">{e.title}</h3>
                     <p className="mt-2 text-sm text-muted-foreground">{e.desc}</p>
                   </CardContent>
                 </Card>

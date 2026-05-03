@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import SectionHeading from "@/components/shared/SectionHeading";
 import { Card, CardContent } from "@/components/ui/card";
 import InfrastructureSection from "@/components/shared/InfrastructureSection";
+import PageHero from "@/components/shared/PageHero";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -31,15 +32,7 @@ const About = () => {
 
   return (
     <>
-      <section className="bg-primary py-24 text-primary-foreground">
-        <div className="container">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="mb-2 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-secondary">{t("about.label")}</span>
-            <h1 className="font-serif text-4xl md:text-6xl">{t("about.title")}</h1>
-            <p className="mt-4 max-w-2xl opacity-80">{t("about.subtitle")}</p>
-          </motion.div>
-        </div>
-      </section>
+      <PageHero label={t("about.label")} title={t("about.title")} subtitle={t("about.subtitle")} />
 
       <section id="history" className="py-24">
         <div className="container grid items-start gap-16 lg:grid-cols-[200px_1fr]">

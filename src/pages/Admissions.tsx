@@ -12,6 +12,7 @@ import { CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import SectionHeading from "@/components/shared/SectionHeading";
 import { supabase } from "@/integrations/supabase/client";
+import PageHero from "@/components/shared/PageHero";
 
 const Admissions = () => {
   const location = useLocation();
@@ -77,15 +78,7 @@ const Admissions = () => {
 
   return (
     <>
-      <section className="bg-primary py-24 text-primary-foreground">
-        <div className="container">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="mb-2 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-secondary">{t("admissions.label")}</span>
-            <h1 className="font-serif text-4xl md:text-6xl">{t("admissions.title")}</h1>
-            <p className="mt-4 max-w-2xl opacity-80">{t("admissions.subtitle")}</p>
-          </motion.div>
-        </div>
-      </section>
+      <PageHero label={t("admissions.label")} title={t("admissions.title")} subtitle={t("admissions.subtitle")} />
 
       <section id="process" className="py-24">
         <div className="container">
