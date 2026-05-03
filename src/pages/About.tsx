@@ -106,6 +106,7 @@ const About = () => {
           </div>
         </div>
       </section>
+      <InfrastructureSection />
     </>
   );
 };
