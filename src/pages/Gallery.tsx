@@ -7,6 +7,7 @@ import SectionHeading from "@/components/shared/SectionHeading";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import PageHero from "@/components/shared/PageHero";
+import LifeMarquee from "@/components/shared/LifeMarquee";
 
 const Gallery = () => {
   const [active, setActive] = useState("All");
