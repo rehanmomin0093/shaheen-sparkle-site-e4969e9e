@@ -38,7 +38,6 @@ import AdminAdmissions from "./pages/admin/AdminAdmissions";
 import AdminFooter from "./pages/admin/AdminFooter";
 import AdminMedia from "./pages/admin/AdminMedia";
 import AdminCCEConfig from "./pages/admin/AdminCCEConfig";
-import AdminInfrastructure from "./pages/admin/AdminInfrastructure";
 
 const queryClient = new QueryClient();
 
@@ -85,7 +84,6 @@ const App = () => (
               <Route path="footer" element={<AdminFooter />} />
               <Route path="media" element={<AdminMedia />} />
               <Route path="cce-config" element={<AdminCCEConfig />} />
-              <Route path="infrastructure" element={<AdminInfrastructure />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

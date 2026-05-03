@@ -345,39 +345,6 @@ export type Database = {
         }
         Relationships: []
       }
-      infrastructure_facilities: {
-        Row: {
-          created_at: string
-          id: string
-          label: string
-          section: string
-          sort_order: number
-          updated_at: string
-          value: string
-          value_type: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          label: string
-          section: string
-          sort_order?: number
-          updated_at?: string
-          value?: string
-          value_type?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          label?: string
-          section?: string
-          sort_order?: number
-          updated_at?: string
-          value?: string
-          value_type?: string
-        }
-        Relationships: []
-      }
       media_items: {
         Row: {
           created_at: string
