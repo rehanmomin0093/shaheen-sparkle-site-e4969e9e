@@ -120,7 +120,7 @@ const AdminInfrastructure = () => {
               <CardHeader><CardTitle className="font-serif text-xl">{s}</CardTitle></CardHeader>
               <CardContent className="space-y-2">
                 {grouped[s].map((f) => (
-                  <div key={f.id} className="flex flex-wrap items-center justify-between gap-3 rounded border p-3">
+                  <div key={f.id} className={`flex flex-wrap items-center justify-between gap-3 rounded border p-3 ${f.is_visible ? "" : "opacity-60"}`}>
                     <div className="min-w-0 flex-1">
                       <div className="font-medium">{f.label}</div>
                       <div className="text-xs text-muted-foreground">
@@ -128,7 +128,18 @@ const AdminInfrastructure = () => {
                         <span className="font-mono">{f.value || "—"}</span>
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={f.is_visible}
+                          onCheckedChange={async (c) => {
+                            const { error } = await supabase.from("infrastructure_facilities").update({ is_visible: c }).eq("id", f.id);
+                            if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+                            else load();
+                          }}
+                        />
+                        <span className="text-xs text-muted-foreground">{f.is_visible ? "Shown" : "Hidden"}</span>
+                      </div>
                       <Button size="sm" variant="outline" onClick={() => openEdit(f)}><Pencil className="h-4 w-4" /></Button>
                       <Button size="sm" variant="destructive" onClick={() => handleDelete(f.id)}><Trash2 className="h-4 w-4" /></Button>
                     </div>
@@ -185,6 +196,16 @@ const AdminInfrastructure = () => {
             <div>
               <Label>Sort Order</Label>
               <Input type="number" value={form.sort_order ?? 0} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} />
+            </div>
+            <div className="flex items-center justify-between rounded border p-3">
+              <div>
+                <Label>Show on About page</Label>
+                <p className="text-xs text-muted-foreground">Hide without deleting.</p>
+              </div>
+              <Switch
+                checked={form.is_visible ?? true}
+                onCheckedChange={(c) => setForm({ ...form, is_visible: c })}
+              />
             </div>
           </div>
           <DialogFooter>
