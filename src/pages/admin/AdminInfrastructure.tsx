@@ -17,6 +17,7 @@ type Field = {
   value: string;
   value_type: string;
   sort_order: number;
+  is_visible: boolean;
 };
 
 const VALUE_TYPES = ["text", "number", "boolean"];
@@ -27,6 +28,7 @@ const empty = (): Partial<Field> => ({
   value: "",
   value_type: "text",
   sort_order: 0,
+  is_visible: true,
 });
 
 const AdminInfrastructure = () => {
@@ -66,6 +68,7 @@ const AdminInfrastructure = () => {
       value: form.value ?? "",
       value_type: form.value_type ?? "text",
       sort_order: Number(form.sort_order ?? 0),
+      is_visible: form.is_visible ?? true,
     };
     const res = form.id
       ? await supabase.from("infrastructure_facilities").update(payload).eq("id", form.id)
