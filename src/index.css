@@ -416,6 +416,66 @@ html {
     border-right: 2px solid hsl(var(--secondary));
     opacity: 0.6;
   }
+
+  /* Tilted gradient border card (sgi-style) */
+  .card-gradient-border {
+    position: relative;
+    border-radius: 0.75rem;
+    background: hsl(var(--card));
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+  }
+  .card-gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, hsl(var(--secondary) / 0.5), hsl(var(--primary) / 0.4), transparent 70%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+  }
+  .card-gradient-border:hover { transform: translateY(-6px); box-shadow: 0 22px 50px -24px hsl(var(--primary) / 0.35); }
+  .card-gradient-border:hover::before { opacity: 1; }
+
+  /* Soft moving gradient backdrop for hero/CTA bands */
+  .bg-aurora {
+    background:
+      radial-gradient(900px 420px at 0% 0%, hsl(var(--secondary) / 0.18), transparent 60%),
+      radial-gradient(900px 420px at 100% 100%, hsl(var(--emerald-glow) / 0.30), transparent 60%),
+      radial-gradient(700px 360px at 60% 20%, hsl(var(--accent-indigo) / 0.10), transparent 70%),
+      hsl(var(--primary));
+    background-size: 200% 200%;
+    animation: aurora 18s ease-in-out infinite alternate;
+  }
+  @keyframes aurora {
+    0%   { background-position: 0% 0%, 100% 100%, 50% 0%; }
+    100% { background-position: 100% 50%, 0% 50%, 0% 100%; }
+  }
+
+  /* Marquee / soft scroll indicator on titles */
+  .underline-grow {
+    position: relative;
+    display: inline-block;
+  }
+  .underline-grow::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    height: 3px;
+    width: 100%;
+    background: linear-gradient(90deg, hsl(var(--secondary)), hsl(var(--gold-soft)));
+    border-radius: 2px;
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .group:hover .underline-grow::after,
+  .underline-grow:hover::after { transform: scaleX(1); }
 }
 
 /* Premium scrollbar */
