@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import SectionHeading from "@/components/shared/SectionHeading";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
+import PageHero from "@/components/shared/PageHero";
 
 const Gallery = () => {
   const [active, setActive] = useState("All");
@@ -42,15 +43,7 @@ const Gallery = () => {
 
   return (
     <>
-      <section className="bg-primary py-24 text-primary-foreground">
-        <div className="container">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="mb-2 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-secondary">{t("gallery.label")}</span>
-            <h1 className="font-serif text-4xl md:text-6xl">{t("gallery.title")}</h1>
-            <p className="mt-4 max-w-2xl opacity-80">{t("gallery.subtitle")}</p>
-          </motion.div>
-        </div>
-      </section>
+      <PageHero label={t("gallery.label")} title={t("gallery.title")} subtitle={t("gallery.subtitle")} />
 
       <section className="py-24">
         <div className="container">

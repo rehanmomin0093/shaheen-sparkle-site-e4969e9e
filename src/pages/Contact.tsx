@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import SectionHeading from "@/components/shared/SectionHeading";
+import PageHero from "@/components/shared/PageHero";
 
 const Contact = () => {
   const { t } = useTranslation();
@@ -14,15 +15,7 @@ const Contact = () => {
   ];
   return (
     <>
-      <section className="bg-primary py-24 text-primary-foreground">
-        <div className="container">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="mb-2 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-secondary">{t("contact.label")}</span>
-            <h1 className="font-serif text-4xl md:text-6xl">{t("contact.title")}</h1>
-            <p className="mt-4 max-w-2xl opacity-80">{t("contact.subtitle")}</p>
-          </motion.div>
-        </div>
-      </section>
+      <PageHero label={t("contact.label")} title={t("contact.title")} subtitle={t("contact.subtitle")} />
 
       <section className="py-24">
         <div className="container">
