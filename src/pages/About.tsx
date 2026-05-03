@@ -85,6 +85,8 @@ const About = () => {
         </div>
       </section>
 
+      <InfrastructureFacilities />
+
       <section id="management" className="bg-muted py-24">
         <div className="container">
           <SectionHeading label={t("about.leadershipLabel")} title={t("about.ourManagement")} description={t("about.ourManagementDesc")} />
