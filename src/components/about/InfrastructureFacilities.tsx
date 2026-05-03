@@ -136,12 +136,28 @@ const InfrastructureFacilities = ({
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="mx-auto max-w-4xl"
         >
-          <Accordion
-            type={singleOpen ? "single" : "multiple"}
-            collapsible={singleOpen ? true : undefined}
-            defaultValue={singleOpen ? sections[0]?.id : undefined}
-            className="space-y-4"
-          >
+          {singleOpen ? (
+            <Accordion
+              type="single"
+              collapsible
+              defaultValue={sections[0]?.id}
+              className="space-y-4"
+            >
+              {renderItems(sections)}
+            </Accordion>
+          ) : (
+            <Accordion type="multiple" className="space-y-4">
+              {renderItems(sections)}
+            </Accordion>
+          )}
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+const renderItems = (sections: InfraSection[]) => (
+  <>
             {sections.map((section) => {
               const Icon = section.icon;
               const entries = Object.entries(section.data);
