@@ -435,20 +435,24 @@ const Index = () => {
       </section>
 
       {/* Programs */}
-      <section className="py-24">
+      <section className="bg-emerald-wash py-28">
         <div className="container">
           <SectionHeading label={t("home.programs")} title={t("home.programsWeOffer")} description={t("home.programsDesc")} />
-          <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
+          <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-2">
             {programs.map((p, i) => (
               <motion.div key={p.title} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                <Card className="group h-full border-none border-t-4 border-t-transparent shadow-md transition-all duration-300 hover:shadow-xl hover:border-t-secondary hover:-translate-y-1">
-                  <CardContent className="relative overflow-hidden p-8">
-                    <div className="absolute inset-0 bg-gradient-to-br from-secondary/0 to-secondary/0 transition-all duration-500 group-hover:from-secondary/5 group-hover:to-primary/5" />
+                <Card className="group relative h-full overflow-hidden border-none bg-card shadow-elevated hover-rise">
+                  <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary opacity-70" />
+                  <CardContent className="relative p-10">
+                    <div className="absolute -right-16 -top-16 h-44 w-44 rounded-full bg-secondary/5 transition-all duration-700 group-hover:scale-125 group-hover:bg-secondary/15" />
                     <div className="relative">
-                      <p.icon className="mb-4 h-8 w-8 text-secondary transition-all duration-300 group-hover:scale-110 group-hover:text-primary" />
-                      <h3 className="font-serif text-xl">{p.title}</h3>
-                      <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-secondary">{p.grades}</p>
-                      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{p.desc}</p>
+                      <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-emerald-glow text-primary-foreground shadow-premium transition-transform duration-500 group-hover:rotate-6 group-hover:scale-105">
+                        <p.icon className="h-7 w-7" />
+                      </div>
+                      <p className="kicker">{p.grades}</p>
+                      <h3 className="mt-2 font-serif text-3xl">{p.title}</h3>
+                      <div className="mt-3 h-px w-12 bg-secondary" />
+                      <p className="mt-5 leading-relaxed text-muted-foreground">{p.desc}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -487,19 +491,28 @@ const Index = () => {
       <section id="gallery" className="bg-muted py-24">
         <div className="container">
           <SectionHeading label={t("home.galleryLabel")} title={t("home.campusLife")} description={t("home.campusLifeDesc")} />
-          <div className="mb-8 flex flex-wrap justify-center gap-2">
+          <div className="mb-10 flex flex-wrap justify-center gap-2">
             {galleryFilters.map((f) => (
-              <button key={f} onClick={() => setGalleryFilter(f)} className={cn("rounded px-4 py-2 text-sm font-medium transition-colors", galleryFilter === f ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-card/80")}>
+              <button
+                key={f}
+                onClick={() => setGalleryFilter(f)}
+                className={cn(
+                  "rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-[0.18em] transition-all duration-300",
+                  galleryFilter === f
+                    ? "bg-primary text-primary-foreground shadow-premium ring-2 ring-secondary/40"
+                    : "bg-card text-muted-foreground ring-1 ring-border hover:bg-card hover:text-foreground hover:ring-secondary/40"
+                )}
+              >
                 {galleryFilterLabels[f] || f}
               </button>
             ))}
           </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             {filteredGallery.map((img, i) => (
-              <motion.div key={img.id} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="group relative aspect-[4/3] overflow-hidden rounded-lg cursor-pointer" onClick={() => setLightboxImage(img.src)}>
-                <img src={img.src} alt={img.alt || "Gallery image"} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                <span className="absolute bottom-3 start-3 text-sm font-medium text-primary-foreground opacity-0 transition-opacity duration-300 group-hover:opacity-100 drop-shadow-md">{img.alt || img.category}</span>
+              <motion.div key={img.id} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="group relative aspect-[4/3] overflow-hidden rounded-lg cursor-pointer ring-gold-hover" onClick={() => setLightboxImage(img.src)}>
+                <img src={img.src} alt={img.alt || "Gallery image"} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" />
+                <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/10 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                <span className="absolute bottom-4 start-4 font-serif text-base text-primary-foreground opacity-0 transition-all duration-500 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 drop-shadow-md">{img.alt || img.category}</span>
               </motion.div>
             ))}
           </div>
