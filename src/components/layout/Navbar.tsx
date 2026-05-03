@@ -38,6 +38,7 @@ const Navbar = () => {
         { label: t("nav.visionMission"), to: "/about#vision" },
         { label: t("nav.management"), to: "/about#management" },
         { label: t("nav.staff"), to: "/about#staff" },
+        { label: t("nav.infrastructure", "Infrastructure & Facilities"), to: "/about#infrastructure" },
       ],
     },
     {
