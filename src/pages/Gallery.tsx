@@ -65,6 +65,7 @@ const Gallery = () => {
         )}
       </section>
 
+      <section className="py-24">
         <div className="container">
           <div className="mb-10 flex flex-wrap justify-center gap-2">
             {categories.map((cat) => (
