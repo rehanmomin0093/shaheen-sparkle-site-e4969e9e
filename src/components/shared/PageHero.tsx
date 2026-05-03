@@ -88,7 +88,7 @@ const PageHero = ({ label, title, subtitle, image, align = "left", children }: P
         aria-hidden
         viewBox="0 0 1440 60"
         preserveAspectRatio="none"
-        className="absolute bottom-0 left-0 h-10 w-full text-background"
+        className="pointer-events-none absolute -bottom-px left-0 block h-10 w-full text-background"
       >
         <path d="M0,60 C360,0 1080,0 1440,60 L1440,60 L0,60 Z" fill="currentColor" />
       </svg>
