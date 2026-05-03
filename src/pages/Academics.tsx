@@ -56,13 +56,14 @@ const Academics = () => {
           <div className="space-y-8">
             {streams.map((s, i) => (
               <motion.div key={s.title} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                <Card className="border-none shadow-md">
-                  <CardContent className="p-8">
-                    <h3 className="font-serif text-2xl">{s.title}</h3>
+                <Card className="card-gradient-border group border-none shadow-none">
+                  <CardContent className="relative overflow-hidden p-8">
+                    <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-secondary/10 blur-3xl transition-opacity duration-500 group-hover:opacity-80" />
+                    <h3 className="font-serif text-2xl underline-grow">{s.title}</h3>
                     <p className="mt-1 text-sm font-medium text-secondary">{s.highlight}</p>
-                    <div className="mt-4 flex flex-wrap gap-2">
+                    <div className="mt-5 flex flex-wrap gap-2">
                       {s.subjects.map((sub) => (
-                        <span key={sub} className="rounded bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">{sub}</span>
+                        <span key={sub} className="rounded border border-border/60 bg-background px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-secondary/60 hover:text-foreground">{sub}</span>
                       ))}
                     </div>
                   </CardContent>
@@ -79,10 +80,12 @@ const Academics = () => {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {extras.map((e, i) => (
               <motion.div key={e.title} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                <Card className="h-full border-none shadow-md">
+                <Card className="card-gradient-border group h-full border-none shadow-none">
                   <CardContent className="p-8">
-                    <e.icon className="mb-3 h-8 w-8 text-secondary" />
-                    <h3 className="font-serif text-lg">{e.title}</h3>
+                    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-secondary/20 to-primary/10 text-secondary transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110">
+                      <e.icon className="h-6 w-6" />
+                    </div>
+                    <h3 className="font-serif text-lg underline-grow">{e.title}</h3>
                     <p className="mt-2 text-sm text-muted-foreground">{e.desc}</p>
                   </CardContent>
                 </Card>
