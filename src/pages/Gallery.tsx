@@ -51,7 +51,7 @@ const Gallery = () => {
         <div className="container mb-10">
           <SectionHeading
             label={t("gallery.label")}
-            title={t("gallery.lifeAtSchool", "Life at Our School")}
+            title={t("gallery.lifeAtSchool", "Life At Shaheen")}
             description={t("gallery.lifeAtSchoolDesc", "A glimpse into the everyday moments that make our campus special.")}
           />
         </div>
