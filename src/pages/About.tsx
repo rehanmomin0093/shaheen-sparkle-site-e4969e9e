@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import SectionHeading from "@/components/shared/SectionHeading";
 import { Card, CardContent } from "@/components/ui/card";
+import InfrastructureSection from "@/components/shared/InfrastructureSection";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -105,6 +106,7 @@ const About = () => {
           </div>
         </div>
       </section>
+      <InfrastructureSection />
     </>
   );
 };
