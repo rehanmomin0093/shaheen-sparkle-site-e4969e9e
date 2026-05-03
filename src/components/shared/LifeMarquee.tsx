@@ -29,8 +29,8 @@ const LifeMarquee = ({ images, reverse = false, speed = 40 }: LifeMarqueeProps) 
               loading="lazy"
               className="h-full w-full object-cover transition-transform duration-700 hover:scale-110"
             />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 hover:opacity-100" />
-            <div className="pointer-events-none absolute bottom-0 left-0 right-0 p-3 text-sm font-medium text-primary-foreground opacity-0 transition-opacity duration-300 hover:opacity-100">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
+            <div className="pointer-events-none absolute bottom-0 left-0 right-0 p-4 text-center font-serif text-lg font-semibold capitalize text-primary-foreground drop-shadow-md">
               {img.alt}
             </div>
           </div>
